@@ -127,6 +127,8 @@ const BillingPage = () => {
         navigate('/login');
         return;
       }
+
+      
       
       // Initiate eSewa payment
       const paymentResponse = await initiateEsewaPayment(order.id);
