@@ -12,8 +12,18 @@ const Shop = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [booksPerPage] = useState(12); // Show 12 books per page
+  const [selectedCategory, setSelectedCategory] = useState('All Products');
   const navigate = useNavigate();
   const { addToCart } = useCart();
+
+  const categories = [
+    'All Products',
+    'Blankets',
+    'Toys',
+    'Accessories',
+    'Home Decor',
+    'Baby Items'
+  ];
 
   useEffect(() => {
     const getBooks = async () => {
@@ -66,29 +76,52 @@ const Shop = () => {
   return (
     <div className="shop-page">
       <Navbar />
-      <main>
-  <div className="shop-header-center">
-    <h1>Explore All Books Here</h1>
-    <div className="filters">
-      <label className="filter-option">
-        <input type="checkbox" checked readOnly />
-        <span>All</span>
-      </label>
-      <label className="filter-option">
-        <input type="checkbox" readOnly />
-        <span>Novel</span>
-      </label>
-      <label className="filter-option">
-        <input type="checkbox" readOnly />
-        <span>Translations</span>
-      </label>
-      <label className="filter-option">
-        <input type="checkbox" readOnly />
-        <span>Kids' Stories</span>
-      </label>
-    </div>
-  </div>
-        <div className="book-grid">
+      <main className="shop-main-container">
+        {/* Breadcrumbs */}
+        <div className="shop-breadcrumbs">
+          <span className="breadcrumb-icon">🏠</span>
+          <span onClick={() => navigate('/')} className="breadcrumb-link">Home</span>
+          <span className="breadcrumb-separator"> &gt; </span>
+          <span className="breadcrumb-current">Shop</span>
+        </div>
+
+        {/* Page Title and Subtitle */}
+        <div className="shop-page-header">
+          <h1 className="shop-page-title">Our Collection</h1>
+          <p className="shop-page-subtitle">Discover beautiful handcrafted crochet items</p>
+        </div>
+
+        {/* Main Content with Sidebar */}
+        <div className="shop-content-wrapper">
+          {/* Left Sidebar - Categories */}
+          <aside className="shop-sidebar">
+            <div className="sidebar-categories-card">
+              <h2 className="sidebar-categories-title">Categories</h2>
+              <ul className="sidebar-categories-list">
+                {categories.map((category) => (
+                  <li
+                    key={category}
+                    className={`sidebar-category-item ${selectedCategory === category ? 'active' : ''}`}
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </aside>
+
+          {/* Right Main Content */}
+          <div className="shop-main-content">
+            {/* Show Filter */}
+            <div className="shop-filter-bar">
+              <div className="show-filter-dropdown">
+                <span>Show</span>
+              </div>
+            </div>
+
+            {/* Book Grid */}
+            <div className="book-grid">
           {loading ? (
             <div>Loading books...</div>
           ) : books.length === 0 ? (
@@ -141,18 +174,18 @@ const Shop = () => {
               );
             })
           )}
-        </div>
+            </div>
 
-        {/* Pagination Controls */}
-        {!loading && books.length > 0 && totalPages > 1 && (
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '10px',
-            margin: '40px 0',
-            padding: '20px'
-          }}>
+            {/* Pagination Controls */}
+            {!loading && books.length > 0 && totalPages > 1 && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                gap: '10px',
+                margin: '40px 0',
+                padding: '20px'
+              }}>
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
@@ -212,8 +245,10 @@ const Shop = () => {
             >
               Next
             </button>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </main>
       <Footer />
     </div>

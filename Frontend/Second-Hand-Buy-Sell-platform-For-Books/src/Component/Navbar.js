@@ -169,12 +169,12 @@ const Navbar = () => {
         <li onClick={() => handleNavigation('/contact')} className={location.pathname === '/contact' ? 'active' : ''}>Contact</li>
         {isLoggedIn && userType === 'individual' && (
           <li ref={listBookRef} className="dropdown" onClick={() => setIsModalOpen(!isModalOpen)}>
-           Tutorials <span className="arrow">▼</span>
+            List a book <span className="arrow">▼</span>
             {isModalOpen && (
               <div ref={modalRef} className="list-book-dropdown">
                 <div className="dropdown-left-panel" onClick={() => handleNavigation('/book-list')}>
                   <div className="panel-content">
-                    <div className="panel-title">Tutorials</div>
+                    <div className="panel-title">List your Book</div>
                     <p className="panel-description">Sell, exchange, or donate your books to fellow readers and organizations.</p>
                   </div>
                 </div>
@@ -215,14 +215,9 @@ const Navbar = () => {
       {/* Right Section */}
       <div className="navbar-right">
         {!isLoggedIn ? (
-          <>
-            <button className="login-btn" onClick={() => handleNavigation('/login')}>
-              Login
-            </button>
-            <button className="shop-now-btn" onClick={() => handleNavigation('/search')}>
-              Shop Now
-            </button>
-          </>
+          <button className="shop-now-btn" onClick={() => handleNavigation('/search')}>
+            Shop Now
+          </button>
         ) : (
           <>
             <form onSubmit={handleSearch} className="search-container">

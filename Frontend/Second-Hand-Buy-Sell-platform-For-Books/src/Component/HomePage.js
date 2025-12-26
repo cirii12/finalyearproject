@@ -119,6 +119,19 @@ const HomePage = () => {
         <button className="view-all-button" onClick={() => navigate('/search')}>View All Product</button>
       </section>
 
+      <section className="newsletter-section">
+        <h2>Stay Updated</h2>
+        <p>Subscribe to our newsletter for new products, special offers, and crochet tips.</p>
+        <div className="newsletter-form">
+          <input
+            type="email"
+            placeholder="Enter your email"
+            className="newsletter-input"
+          />
+          <button className="newsletter-button">Subscribe</button>
+        </div>
+      </section>
+
       <Footer />
     </div>
   );
