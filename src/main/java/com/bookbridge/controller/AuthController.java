@@ -26,16 +26,16 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private JwtUtil jwtUtil;
-    
+
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-    
+
     @Autowired
     private FileStorageService fileStorageService;
-    
+
     @Autowired
     private EmailService emailService;
 
@@ -49,16 +49,16 @@ public class AuthController {
             @RequestParam(value = "location", required = false) String location,
             @RequestParam(value = "phone", required = false) String phone,
             HttpServletRequest request) {
-        
+
         try {
             // Check if email is already taken
             if (userService.isEmailTaken(email)) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Email is already in use"));
             }
-            
+
             // Store ID card photo
             String idCardPhotoPath = fileStorageService.storeIdCardImage(idCardPhoto);
-            
+
             // Create user
             User user = new User();
             user.setFullName(fullName);
@@ -71,32 +71,31 @@ public class AuthController {
             user.setIdCardPhoto(idCardPhotoPath);
             user.setLocation(location);
             user.setPhone(phone);
-            
+
             User savedUser = userService.registerIndividualUser(user);
-            
+
             // Generate JWT token
             String token = jwtUtil.generateToken(savedUser.getEmail());
-            
+
             // Store token in session
             HttpSession session = request.getSession();
             session.setAttribute("token", token);
             session.setAttribute("userId", savedUser.getId());
-            
+
             // Send welcome email
             emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getFullName());
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Individual user registered successfully");
             response.put("token", token);
             response.put("user", Map.of(
-                "id", savedUser.getId(),
-                "fullName", savedUser.getFullName(),
-                "email", savedUser.getEmail(),
-                "userType", savedUser.getUserType()
-            ));
-            
+                    "id", savedUser.getId(),
+                    "fullName", savedUser.getFullName(),
+                    "email", savedUser.getEmail(),
+                    "userType", savedUser.getUserType()));
+
             return ResponseEntity.ok(response);
-            
+
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Failed to upload ID card photo"));
@@ -105,7 +104,6 @@ public class AuthController {
                     .body(Map.of("message", "Registration failed: " + e.getMessage()));
         }
     }
-    
 
     @PostMapping("/register/organization")
     public ResponseEntity<?> registerOrganization(
@@ -118,17 +116,24 @@ public class AuthController {
             @RequestParam("documentPhoto") MultipartFile documentPhoto,
             @RequestParam(value = "location", required = false) String location,
             @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "agreedToTerms", required = false, defaultValue = "false") Boolean agreedToTerms,
             HttpServletRequest request) {
-        
+
         try {
+            // Check if terms were agreed to for organization
+            if (agreedToTerms == null || !agreedToTerms) {
+                return ResponseEntity.badRequest().body(
+                        Map.of("message", "You must agree to the Terms and Conditions to register as an organization"));
+            }
+
             // Check if email is already taken
             if (userService.isEmailTaken(email)) {
                 return ResponseEntity.badRequest().body(Map.of("message", "Email is already in use"));
             }
-            
+
             // Store document photo
             String documentPhotoPath = fileStorageService.storeDocumentImage(documentPhoto);
-            
+
             // Create user
             User user = new User();
             user.setOrganizationName(organizationName);
@@ -142,33 +147,34 @@ public class AuthController {
             user.setDocumentPhoto(documentPhotoPath);
             user.setLocation(location);
             user.setPhone(phone);
-            
+            user.setAgreedToTerms(true);
+            user.setTermsAcceptedAt(java.time.LocalDateTime.now());
+
             User savedUser = userService.registerOrganizationUser(user);
-            
+
             // Generate JWT token
             String token = jwtUtil.generateToken(savedUser.getEmail());
-            
+
             // Store token in session
             HttpSession session = request.getSession();
             session.setAttribute("token", token);
             session.setAttribute("userId", savedUser.getId());
-            
+
             // Send welcome email
             emailService.sendWelcomeEmail(savedUser.getEmail(), savedUser.getFullName());
-            
+
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Organization registered successfully");
             response.put("token", token);
             response.put("user", Map.of(
-                "id", savedUser.getId(),
-                "fullName", savedUser.getFullName(),
-                "email", savedUser.getEmail(),
-                "userType", savedUser.getUserType(),
-                "organizationName", savedUser.getOrganizationName()
-            ));
-            
+                    "id", savedUser.getId(),
+                    "fullName", savedUser.getFullName(),
+                    "email", savedUser.getEmail(),
+                    "userType", savedUser.getUserType(),
+                    "organizationName", savedUser.getOrganizationName()));
+
             return ResponseEntity.ok(response);
-            
+
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Failed to upload document photo"));
@@ -182,41 +188,40 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest, HttpServletRequest request) {
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
-        
+
         Optional<User> userOpt = userService.getUserByEmail(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            
+
             // Check if user is blocked
             if (user.getStatus() == User.UserStatus.BLOCKED) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body(Map.of("message", "Your account has been blocked"));
             }
-            
+
             // Verify password
             if (passwordEncoder.matches(password, user.getPassword())) {
                 // Generate JWT token
                 String token = jwtUtil.generateToken(user.getEmail());
-                
+
                 // Store token in session
                 HttpSession session = request.getSession();
                 session.setAttribute("token", token);
                 session.setAttribute("userId", user.getId());
-                
+
                 Map<String, Object> response = new HashMap<>();
                 response.put("message", "Login successful");
                 response.put("token", token);
                 response.put("user", Map.of(
-                    "id", user.getId(),
-                    "fullName", user.getFullName(),
-                    "email", user.getEmail(),
-                    "userType", user.getUserType()
-                ));
-                
+                        "id", user.getId(),
+                        "fullName", user.getFullName(),
+                        "email", user.getEmail(),
+                        "userType", user.getUserType()));
+
                 return ResponseEntity.ok(response);
             }
         }
-        
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("message", "Invalid email or password"));
     }
@@ -227,7 +232,7 @@ public class AuthController {
         if (session != null) {
             session.invalidate();
         }
-        
+
         return ResponseEntity.ok(Map.of("message", "Logout successful"));
     }
 
@@ -235,10 +240,10 @@ public class AuthController {
     public ResponseEntity<?> initiatePasswordReset(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         String token = request.get("token");
-        
+
         boolean success = userService.initiatePasswordReset(token, email);
         if (success) {
-            return ResponseEntity.ok(Map.of("message", "Password reset email sent"+token));
+            return ResponseEntity.ok(Map.of("message", "Password reset email sent" + token));
         } else {
             return ResponseEntity.badRequest().body(Map.of("message", "Email not found"));
         }
@@ -248,7 +253,7 @@ public class AuthController {
     public ResponseEntity<?> completePasswordReset(@RequestBody Map<String, String> request) {
         String token = request.get("token");
         String newPassword = request.get("newPassword");
-        
+
         boolean success = userService.completePasswordReset(token, newPassword);
         if (success) {
             return ResponseEntity.ok(Map.of("message", "Password reset successful"));
@@ -266,13 +271,13 @@ public class AuthController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("message", "Not authenticated"));
             }
-            
+
             Optional<User> userOpt = userService.getUserByEmail(userEmail);
             if (!userOpt.isPresent()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("message", "User not found"));
             }
-            
+
             User user = userOpt.get();
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("id", user.getId());
@@ -281,9 +286,9 @@ public class AuthController {
             userInfo.put("userType", user.getUserType());
             userInfo.put("location", user.getLocation());
             userInfo.put("phone", user.getPhone());
-            
+
             return ResponseEntity.ok(userInfo);
-            
+
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Error fetching user info: " + e.getMessage()));
@@ -293,8 +298,7 @@ public class AuthController {
     @GetMapping("/auth/test")
     public ResponseEntity<?> testAuthentication() {
         return ResponseEntity.ok(Map.of(
-            "message", "Authentication successful",
-            "timestamp", System.currentTimeMillis()
-        ));
+                "message", "Authentication successful",
+                "timestamp", System.currentTimeMillis()));
     }
 }

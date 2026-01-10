@@ -1,12 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import { submitContactMessage } from "../services/api";
+import { toast } from "react-toastify";
 import "./Contact.css";
 
 const Contact = () => {
-  const handleSubmit = (e) => {
+  const [formData, setFormData] = React.useState({
+    inquiryType: "general",
+    fullName: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+  const [loading, setLoading] = React.useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // For now we only prevent page reload – integrate with backend or email later.
+    setLoading(true);
+    try {
+      await submitContactMessage(formData);
+      toast.success("Message sent successfully! We'll get back to you soon.");
+      setFormData({
+        inquiryType: "general",
+        fullName: "",
+        email: "",
+        subject: "",
+        message: ""
+      });
+    } catch (err) {
+      toast.error(err.message || "Failed to send message. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -75,7 +105,12 @@ const Contact = () => {
             <form className="contact-form" onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="inquiryType">What can we help you with?</label>
-                <select id="inquiryType" name="inquiryType" defaultValue="general">
+                <select
+                  id="inquiryType"
+                  name="inquiryType"
+                  value={formData.inquiryType}
+                  onChange={handleChange}
+                >
                   <option value="general">General Inquiry</option>
                   <option value="order">Order Support</option>
                   <option value="custom">Custom Order</option>
@@ -85,15 +120,27 @@ const Contact = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="name">Full Name</label>
-                  <input id="name" type="text" placeholder="Enter your full name" />
+                  <label htmlFor="fullName">Full Name</label>
+                  <input
+                    id="fullName"
+                    name="fullName"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                    required
+                  />
                 </div>
                 <div className="form-group">
                   <label htmlFor="email">Email Address</label>
                   <input
                     id="email"
+                    name="email"
                     type="email"
                     placeholder="Enter your email address"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
                   />
                 </div>
               </div>
@@ -102,8 +149,12 @@ const Contact = () => {
                 <label htmlFor="subject">Subject</label>
                 <input
                   id="subject"
+                  name="subject"
                   type="text"
                   placeholder="Brief description of your inquiry"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  required
                 />
               </div>
 
@@ -111,13 +162,17 @@ const Contact = () => {
                 <label htmlFor="message">Message</label>
                 <textarea
                   id="message"
+                  name="message"
                   rows="4"
                   placeholder="Please provide details about your inquiry..."
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
                 ></textarea>
               </div>
 
-              <button type="submit" className="submit-btn">
-                Send Message
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? "Sending..." : "Send Message"}
               </button>
 
               <p className="form-footnote">
@@ -158,7 +213,7 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* Custom Orders & Wholesale */ }
+      {/* Custom Orders & Wholesale */}
       <section className="contact-secondary">
         <div className="container contact-secondary-inner">
           <div className="contact-card">

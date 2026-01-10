@@ -8,10 +8,10 @@ import { toast } from 'react-toastify';
 import { fetchBooks } from '../services/api';
 import CloudinaryImage from '../components/CloudinaryImage';
 
-const genres = ['All', 'Classic', 'Sci-Fi', 'Fantasy', 'Romance', 'Mystery', 'Science', 'History', 'Biography'];
+const categories = ['All', 'Blanket', 'Bouquet', 'Flowers', 'Amigurumi', 'Keyrings', 'Dress', 'Other'];
 
 const BookListWithCloudinary = () => {
-  const [activeGenre, setActiveGenre] = useState('All');
+  const [activeCategory, setActiveCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
@@ -40,34 +40,34 @@ const BookListWithCloudinary = () => {
     const search = searchParams.get('search');
     if (search) {
       setSearchQuery(search);
-      filterBooks(search, activeGenre);
+      filterBooks(search, activeCategory);
     } else {
       setSearchQuery('');
-      filterBooks('', activeGenre);
+      filterBooks('', activeCategory);
     }
     // eslint-disable-next-line
-  }, [searchParams, activeGenre, books]);
+  }, [searchParams, activeCategory, books]);
 
-  const filterBooks = (search, genre) => {
+  const filterBooks = (search, category) => {
     let filtered = books;
     if (search) {
       const searchLower = search.toLowerCase();
-      filtered = filtered.filter(book => 
+      filtered = filtered.filter(book =>
         (book.title && book.title.toLowerCase().includes(searchLower)) ||
         (book.author && book.author.toLowerCase().includes(searchLower)) ||
-        (book.genre && book.genre.toLowerCase().includes(searchLower)) ||
+        (book.category && book.category.toLowerCase().includes(searchLower)) ||
         (book.description && book.description.toLowerCase().includes(searchLower))
       );
     }
-    if (genre !== 'All') {
-      filtered = filtered.filter(book => book.genre === genre);
+    if (category !== 'All') {
+      filtered = filtered.filter(book => book.category === category.toUpperCase());
     }
     setFilteredBooks(filtered);
   };
 
-  const handleGenreChange = (genre) => {
-    setActiveGenre(genre);
-    filterBooks(searchQuery, genre);
+  const handleCategoryChange = (category) => {
+    setActiveCategory(category);
+    filterBooks(searchQuery, category);
   };
 
   const handlePurchase = (book) => {
@@ -81,7 +81,7 @@ const BookListWithCloudinary = () => {
     // Check if user is trying to buy their own book
     const currentUser = JSON.parse(user);
     const isOwnBook = book.user && (book.user.id === currentUser.userId || book.userId === currentUser.userId);
-    
+
     if (isOwnBook) {
       toast.warning('You cannot purchase your own book!');
       return;
@@ -94,7 +94,7 @@ const BookListWithCloudinary = () => {
 
   const clearSearch = () => {
     setSearchQuery('');
-    setActiveGenre('All');
+    setActiveCategory('All');
     setFilteredBooks(books);
     navigate('/book-list');
   };
@@ -104,28 +104,28 @@ const BookListWithCloudinary = () => {
       <Navbar />
       <main className="booklist-main">
         <h1 className="booklist-title">
-          {searchQuery ? `Search Results for "${searchQuery}"` : 'Explore Our Books'}
+          {searchQuery ? `Search Results for "${searchQuery}"` : 'Explore our Handcrafted Items'}
         </h1>
-        {(searchQuery || activeGenre !== 'All') && (
+        {(searchQuery || activeCategory !== 'All') && (
           <div className="search-info">
             <p>
               {searchQuery && `Searching for: "${searchQuery}"`}
-              {searchQuery && activeGenre !== 'All' && ' 2022 '}
-              {activeGenre !== 'All' && `Genre: ${activeGenre}`}
+              {searchQuery && activeCategory !== 'All' && ' and '}
+              {activeCategory !== 'All' && `Category: ${activeCategory}`}
             </p>
             <button onClick={clearSearch} className="clear-filters-btn">
               Clear Filters
             </button>
           </div>
         )}
-        <div className="genre-filters">
-          {genres.map(genre => (
+        <div className="category-filters">
+          {categories.map(category => (
             <button
-              key={genre}
-              className={`genre-btn ${activeGenre === genre ? 'active' : ''}`}
-              onClick={() => handleGenreChange(genre)}
+              key={category}
+              className={`category-btn ${activeCategory === category ? 'active' : ''}`}
+              onClick={() => handleCategoryChange(category)}
             >
-              {genre}
+              {category}
             </button>
           ))}
         </div>
@@ -133,8 +133,8 @@ const BookListWithCloudinary = () => {
           <div className="no-results"><h3>Loading books...</h3></div>
         ) : filteredBooks.length === 0 ? (
           <div className="no-results">
-            <h3>No books found</h3>
-            <p>Try adjusting your search terms or genre filter</p>
+            <h3>No items found</h3>
+            <p>Try adjusting your search terms or category filter</p>
             <button onClick={clearSearch} className="clear-filters-btn">
               Show All Books
             </button>
@@ -144,9 +144,9 @@ const BookListWithCloudinary = () => {
             {filteredBooks.map(book => (
               <div key={book.id} className="book-card-item">
                 {/* Using CloudinaryImage component for optimized image display */}
-                <CloudinaryImage 
-                  src={book.bookImage} 
-                  alt={book.title} 
+                <CloudinaryImage
+                  src={book.bookImage}
+                  alt={book.title}
                   className="book-card-image"
                   width={300}
                   height={400}

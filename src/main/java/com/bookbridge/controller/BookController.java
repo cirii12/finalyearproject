@@ -68,22 +68,26 @@ public class BookController {
 
             // Safe enum parsing
             if (category != null) {
+                String catTrimmed = category.trim().toUpperCase();
+                System.out.println("Processing category: [" + catTrimmed + "]");
                 try {
-                    bookCategory = Book.BookCategory.valueOf(category.toUpperCase());
+                    bookCategory = Book.BookCategory.valueOf(catTrimmed);
                 } catch (IllegalArgumentException e) {
                     return ResponseEntity.badRequest().body(Map.of("message", "Invalid category: " + category));
                 }
             }
             if (condition != null) {
+                String condTrimmed = condition.trim().toUpperCase();
                 try {
-                    bookCondition = Book.BookCondition.valueOf(condition.toUpperCase());
+                    bookCondition = Book.BookCondition.valueOf(condTrimmed);
                 } catch (IllegalArgumentException e) {
                     return ResponseEntity.badRequest().body(Map.of("message", "Invalid condition: " + condition));
                 }
             }
             if (listingType != null) {
+                String typeTrimmed = listingType.trim().toUpperCase();
                 try {
-                    bookListingType = Book.ListingType.valueOf(listingType.toUpperCase());
+                    bookListingType = Book.ListingType.valueOf(typeTrimmed);
                 } catch (IllegalArgumentException e) {
                     return ResponseEntity.badRequest().body(Map.of("message", "Invalid listingType: " + listingType));
                 }
@@ -144,6 +148,7 @@ public class BookController {
             }
 
             String userEmail = authentication.getName();
+            System.out.println("BookController v2 (Crochet Rebrand) - creating book for: " + userEmail);
             Optional<User> userOpt = userService.getUserByEmail(userEmail);
             if (!userOpt.isPresent()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -156,9 +161,17 @@ public class BookController {
             Book book = new Book();
             book.setTitle(title);
             book.setAuthor(author);
-            book.setCategory(Book.BookCategory.valueOf(category.toUpperCase()));
-            book.setCondition(Book.BookCondition.valueOf(condition.toUpperCase()));
-            book.setListingType(Book.ListingType.valueOf(listingType.toUpperCase()));
+
+            String catTrimmed = category.trim().toUpperCase();
+            String condTrimmed = condition.trim().toUpperCase();
+            String typeTrimmed = listingType.trim().toUpperCase();
+
+            System.out.println("Creating book with category: [" + catTrimmed + "], condition: [" + condTrimmed
+                    + "], type: [" + typeTrimmed + "]");
+
+            book.setCategory(Book.BookCategory.valueOf(catTrimmed));
+            book.setCondition(Book.BookCondition.valueOf(condTrimmed));
+            book.setListingType(Book.ListingType.valueOf(typeTrimmed));
             book.setLocation(location);
             book.setEdition(edition);
             book.setIsbn(isbn);
@@ -455,9 +468,17 @@ public class BookController {
             // Update book details
             book.setTitle(title);
             book.setAuthor(author);
-            book.setCategory(Book.BookCategory.valueOf(category.toUpperCase()));
-            book.setCondition(Book.BookCondition.valueOf(condition.toUpperCase()));
-            book.setListingType(Book.ListingType.valueOf(listingType.toUpperCase()));
+
+            String catTrimmed = category.trim().toUpperCase();
+            String condTrimmed = condition.trim().toUpperCase();
+            String typeTrimmed = listingType.trim().toUpperCase();
+
+            System.out.println("Updating book ID [" + id + "] with category: [" + catTrimmed + "], condition: ["
+                    + condTrimmed + "], type: [" + typeTrimmed + "]");
+
+            book.setCategory(Book.BookCategory.valueOf(catTrimmed));
+            book.setCondition(Book.BookCondition.valueOf(condTrimmed));
+            book.setListingType(Book.ListingType.valueOf(typeTrimmed));
             book.setLocation(location);
             book.setEdition(edition);
             book.setIsbn(isbn);

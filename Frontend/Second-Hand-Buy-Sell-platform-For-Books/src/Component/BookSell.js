@@ -41,7 +41,7 @@ const BookSell = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     const data = new FormData();
     data.append('title', formData.bookTitle);
     data.append('author', formData.author);
@@ -59,7 +59,7 @@ const BookSell = () => {
     try {
       await addBook(data);
       toast.success('Book listed successfully! Your book is now available for purchase.');
-      
+
       // Reset form
       setFormData({
         bookTitle: '',
@@ -73,7 +73,7 @@ const BookSell = () => {
         isbn: '',
         bookImage: null,
       });
-      
+
       // Navigate to search page after successful submission
       navigate('/search');
     } catch (err) {
@@ -86,26 +86,26 @@ const BookSell = () => {
   return (
     <div className="book-form-page">
       <Navbar />
-      
+
       <main className="book-form-main">
         <div className="form-header">
           <div className="form-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 17L12 22L22 17" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M2 12L12 17L22 12" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M2 17L12 22L22 17" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M2 12L12 17L22 12" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h1>Sell Your Book</h1>
-          <p>List your book for sale and reach thousands of readers</p>
+          <h1>Sell Your Product</h1>
+          <p>List your product for sale and reach thousands of customers</p>
         </div>
 
         <form onSubmit={handleSubmit} className="book-form">
           <div className="form-section">
-            <h3>Book Information</h3>
+            <h3>Product Information</h3>
             <div className="form-grid">
               <div className="form-group">
-                <label htmlFor="bookTitle">Book Title *</label>
+                <label htmlFor="bookTitle">Product Title *</label>
                 <input
                   type="text"
                   id="bookTitle"
@@ -113,12 +113,12 @@ const BookSell = () => {
                   value={formData.bookTitle}
                   onChange={handleInputChange}
                   required
-                  placeholder="Enter book title"
+                  placeholder="Enter product title"
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="author">Author *</label>
+                <label htmlFor="author">Author/Brand *</label>
                 <input
                   type="text"
                   id="author"
@@ -126,7 +126,7 @@ const BookSell = () => {
                   value={formData.author}
                   onChange={handleInputChange}
                   required
-                  placeholder="Enter author name"
+                  placeholder="Enter author name or brand"
                 />
               </div>
             </div>
@@ -142,27 +142,18 @@ const BookSell = () => {
                   required
                 >
                   <option value="">Select Category</option>
-                  <option value="SCIENCE">Science</option>
-                  <option value="LITERATURE">Literature</option>
-                  <option value="ENGINEERING">Engineering</option>
-                  <option value="MATHEMATICS">Mathematics</option>
-                  <option value="HISTORY">History</option>
-                  <option value="PHILOSOPHY">Philosophy</option>
-                  <option value="ARTS">Arts</option>
-                  <option value="BUSINESS">Business</option>
-                  <option value="TECHNOLOGY">Technology</option>
-                  <option value="MEDICAL">Medical</option>
-                  <option value="LAW">Law</option>
-                  <option value="EDUCATION">Education</option>
-                  <option value="FICTION">Fiction</option>
-                  <option value="NON_FICTION">Nonfiction</option>
-                  <option value="TEXTBOOK">Textbook</option>
+                  <option value="BLANKET">Blanket</option>
+                  <option value="BOUQUET">Bouquet</option>
+                  <option value="FLOWERS">Flowers</option>
+                  <option value="AMIGURUMI">Amigurumi</option>
+                  <option value="KEYRINGS">Keyrings</option>
+                  <option value="DRESS">Dress</option>
                   <option value="OTHER">Other</option>
                 </select>
               </div>
 
               <div className="form-group">
-                <label htmlFor="condition">Book Condition *</label>
+                <label htmlFor="condition">Product Condition *</label>
                 <select
                   id="condition"
                   name="condition"
@@ -171,6 +162,7 @@ const BookSell = () => {
                   required
                 >
                   <option value="">Select Condition</option>
+                  <option value="NEW">New</option>
                   <option value="EXCELLENT">Excellent</option>
                   <option value="GOOD">Good</option>
                   <option value="FAIR">Fair</option>
@@ -227,7 +219,7 @@ const BookSell = () => {
             <div className="form-group">
               <label htmlFor="price">Price (Rs.) *</label>
               <div className="price-input-wrapper">
-                <span className="currency-symbol">₹</span>
+                <span className="currency-symbol">Rs.</span>
                 <input
                   type="number"
                   id="price"
@@ -250,13 +242,13 @@ const BookSell = () => {
                 onChange={handleInputChange}
                 required
                 rows="4"
-                placeholder="Describe your book's condition, any highlights, notes, or special features..."
+                placeholder="Describe your product's condition, features, or special notes..."
               />
             </div>
           </div>
 
           <div className="form-section">
-            <h3>Book Images</h3>
+            <h3>Product Images</h3>
             <div className="form-group">
               <label htmlFor="bookImage">Upload Image *</label>
               <div className="file-upload-area">
@@ -271,7 +263,7 @@ const BookSell = () => {
                 />
                 <div className="upload-placeholder">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z" fill="#9CA3AF"/>
+                    <path d="M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z" fill="#9CA3AF" />
                   </svg>
                   <p>Click to upload image or drag and drop</p>
                   <span>Upload up to 1 image (front cover preferred)</span>
@@ -289,24 +281,24 @@ const BookSell = () => {
           </div>
 
           <div className="form-actions">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="submit-btn"
               disabled={loading}
             >
               {loading ? (
                 <>
                   <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  Listing Book...
+                  Listing Product...
                 </>
               ) : (
                 <>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  List Book for Sale
+                  List Product for Sale
                 </>
               )}
             </button>

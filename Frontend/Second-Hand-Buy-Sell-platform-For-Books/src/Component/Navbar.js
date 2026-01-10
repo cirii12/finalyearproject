@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../Component/assests/hand-keep-book-read-source-600nw-1127076767-removebg-preview.png';
 import { showLogoutConfirmation } from './ConfirmationToast';
+import { useCart } from './CartContext';
 
 // Icons
 const NotificationIcon = () => (
@@ -25,6 +26,7 @@ const UserProfileIcon = () => (
 );
 
 const Navbar = () => {
+  const { getCartItemCount } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
   const [userType, setUserType] = useState(null);
@@ -60,12 +62,12 @@ const Navbar = () => {
   useEffect(() => {
     if (isLoggedIn) {
       loadNotificationCount();
-      
+
       // Refresh notification count every 30 seconds
       const interval = setInterval(() => {
         loadNotificationCount();
       }, 30000);
-      
+
       return () => clearInterval(interval);
     } else {
       setUnreadNotificationCount(0);
@@ -119,19 +121,19 @@ const Navbar = () => {
     try {
       const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
       const token = storedUser.token;
-      
+
       if (!token) {
         setUnreadNotificationCount(0);
         return;
       }
-      
+
       const response = await fetch('http://localhost:8082/api/notifications/count', {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + token
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setUnreadNotificationCount(data.unreadCount || 0);
@@ -158,7 +160,7 @@ const Navbar = () => {
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         /> */}
-        <span className="brand-name">LunasuCrochet</span>
+      <span className="brand-name">LunasuCrochet</span>
       {/* </div> */}
 
       {/* Middle Navigation */}
@@ -167,7 +169,7 @@ const Navbar = () => {
         <li onClick={() => handleNavigation('/search')} className={location.pathname === '/search' ? 'active' : ''}>Shop</li>
         <li onClick={() => handleNavigation('/about')} className={location.pathname === '/about' ? 'active' : ''}>About</li>
         <li onClick={() => handleNavigation('/contact')} className={location.pathname === '/contact' ? 'active' : ''}>Contact</li>
-           <li onClick={() => handleNavigation('/tutorial')} className={location.pathname === '/contact' ? 'active' : ''}>Tutorial Video</li>
+        <li onClick={() => handleNavigation('/tutorial')} className={location.pathname === '/tutorial' ? 'active' : ''}>Tutorial Video</li>
 
         {/* {isLoggedIn && userType === 'individual' && (
           <li ref={listBookRef} className="dropdown" onClick={() => setIsModalOpen(!isModalOpen)}>
@@ -185,7 +187,7 @@ const Navbar = () => {
                     <div className="right-panel-title">Sell a product</div>
                     <div className="right-panel-subtitle">List your product for sale and earn money</div>
                   </div> */}
-                  {/*
+        {/*
                   <div className="right-panel-item" onClick={() => handleNavigation('/book-exchange')}>
                     <div className="right-panel-title">Exchange a Book</div>
                     <div className="right-panel-subtitle">Swap your book for another one</div>
@@ -195,7 +197,7 @@ const Navbar = () => {
                     <div className="right-panel-subtitle">Donate your book to help others</div>
                   </div>
                   */}
-                {/* </div>
+        {/* </div>
               </div>
             )}
           </li>
@@ -206,7 +208,7 @@ const Navbar = () => {
             {orgDropdownOpen && (
               <div ref={orgDropdownRef} className="org-dropdown">
                 <div className="dropdown-item" onClick={() => handleNavigation('/request-book')}>
-                  Request 
+                  Request
                 </div>
               </div>
             )}
@@ -263,8 +265,27 @@ const Navbar = () => {
                 </span>
               )}
             </span>
-            <span className="icon" onClick={() => handleNavigation('/cart')}>
+            <span className="icon" onClick={() => handleNavigation('/cart')} style={{ position: 'relative' }}>
               <CartIcon />
+              {getCartItemCount() > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: -5,
+                  right: -5,
+                  background: '#28a745',
+                  color: '#fff',
+                  borderRadius: '50%',
+                  width: '18px',
+                  height: '18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: 'bold'
+                }}>
+                  {getCartItemCount()}
+                </span>
+              )}
             </span>
             <div ref={profileRef} className="dropdown" onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}>
               <span className="icon">

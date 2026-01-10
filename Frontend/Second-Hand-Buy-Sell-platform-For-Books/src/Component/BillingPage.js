@@ -5,7 +5,10 @@ import Footer from './Footer';
 import { createOrder, initiateEsewaPayment, testAuthentication } from '../services/api';
 
 const BillingPage = () => {
-  const { cart, total } = useLocation().state || { cart: [], total: 0 };
+  const { cart, total: subtotal } = useLocation().state || { cart: [], total: 0 };
+  const DELIVERY_CHARGE = 150;
+  const total = subtotal + DELIVERY_CHARGE;
+
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [orderCreated, setOrderCreated] = useState(false);
@@ -61,28 +64,28 @@ const BillingPage = () => {
 
     try {
       setLoading(true);
-      
+
       // Create order in backend
       const orderResponse = await createOrder({
         deliveryAddress: formData.deliveryAddress,
         deliveryPhone: formData.deliveryPhone,
         deliveryNotes: formData.deliveryNotes
       });
-      
+
       setOrder(orderResponse.order);
       setOrderCreated(true);
-      
+
       // Automatically redirect to test payment for better UX
       setTimeout(() => {
-        navigate('/test-payment', { 
-          state: { 
-            order: orderResponse.order, 
-            cart: cart, 
-            total: total 
-          } 
+        navigate('/test-payment', {
+          state: {
+            order: orderResponse.order,
+            cart: cart,
+            total: total
+          }
         });
       }, 1000);
-      
+
     } catch (error) {
       console.error('Error creating order:', error);
       if (error.message.includes('Cart is empty')) {
@@ -104,7 +107,7 @@ const BillingPage = () => {
 
     try {
       setLoading(true);
-      
+
       // Debug: Check if user is logged in
       const userData = localStorage.getItem('user');
       if (!userData) {
@@ -112,11 +115,11 @@ const BillingPage = () => {
         navigate('/login');
         return;
       }
-      
+
       const user = JSON.parse(userData);
       console.log('User data:', user);
       console.log('Token exists:', !!user.token);
-      
+
       // Test authentication first
       try {
         const authTest = await testAuthentication();
@@ -128,19 +131,19 @@ const BillingPage = () => {
         return;
       }
 
-      
-      
+
+
       // Initiate eSewa payment
       const paymentResponse = await initiateEsewaPayment(order.id);
-      
+
       // Get eSewa parameters
       const esewaParams = paymentResponse.esewaParams;
-      
+
       // Create and submit eSewa form
       const form = document.createElement('form');
       form.method = 'POST';
       form.action = 'https://uat.esewa.com.np/epay/main'; // Use production URL for live: https://esewa.com.np/epay/main
-      
+
       Object.entries(esewaParams).forEach(([key, value]) => {
         const input = document.createElement('input');
         input.type = 'hidden';
@@ -148,10 +151,10 @@ const BillingPage = () => {
         input.value = value;
         form.appendChild(input);
       });
-      
+
       document.body.appendChild(form);
       form.submit();
-      
+
     } catch (error) {
       console.error('Error initiating payment:', error);
       alert('Failed to initiate payment: ' + error.message);
@@ -199,7 +202,7 @@ const BillingPage = () => {
       <Navbar />
       <main style={{ maxWidth: 800, margin: '40px auto', background: '#fff', borderRadius: 12, padding: 32 }}>
         <h2 style={{ textAlign: 'center', marginBottom: 32, color: '#333' }}>Billing Details</h2>
-        
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
           {/* Order Summary */}
           <div>
@@ -208,9 +211,9 @@ const BillingPage = () => {
             </h3>
             <div style={{ background: '#f8f9fa', borderRadius: '8px', padding: '20px' }}>
               {cart.map(item => (
-                <div key={item.id} style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
+                <div key={item.id} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '12px 0',
                   borderBottom: '1px solid #e9ecef'
@@ -224,14 +227,41 @@ const BillingPage = () => {
                   </div>
                 </div>
               ))}
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                marginTop: '20px',
-                paddingTop: '20px',
+                marginTop: '15px',
+                paddingTop: '15px',
                 borderTop: '2px solid #dee2e6',
-                fontSize: '18px',
+                fontSize: '16px',
+                color: '#555'
+              }}>
+                <span>Subtotal:</span>
+                <span>Rs. {subtotal.toFixed(2)}/-</span>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: '10px',
+                fontSize: '16px',
+                color: '#666'
+              }}>
+                <span>Delivery Charge:</span>
+                <span>Rs. {DELIVERY_CHARGE.toFixed(2)}/-</span>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: '15px',
+                paddingTop: '15px',
+                borderTop: '2px solid #dee2e6',
+                fontSize: '20px',
                 fontWeight: 'bold',
                 color: '#007bff'
               }}>
@@ -246,7 +276,7 @@ const BillingPage = () => {
             <h3 style={{ marginBottom: '20px', color: '#333', borderBottom: '2px solid #eee', paddingBottom: '10px' }}>
               Delivery Information
             </h3>
-            
+
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333' }}>
                 Delivery Address *
@@ -322,10 +352,10 @@ const BillingPage = () => {
         </div>
 
         {/* Action Buttons */}
-        <div style={{ 
-          marginTop: '32px', 
-          display: 'flex', 
-          gap: '16px', 
+        <div style={{
+          marginTop: '32px',
+          display: 'flex',
+          gap: '16px',
           justifyContent: 'center',
           padding: '24px',
           background: '#f8f9fa',
@@ -347,7 +377,7 @@ const BillingPage = () => {
           >
             Back to Cart
           </button>
-          
+
           {!orderCreated ? (
             <button
               onClick={handleCreateOrder}
@@ -385,15 +415,15 @@ const BillingPage = () => {
               >
                 {loading ? 'Processing...' : 'Pay with eSewa'}
               </button>
-              
+
               {/* Test Payment Button for Development */}
               <button
-                onClick={() => navigate('/test-payment', { 
-                  state: { 
-                    order: order, 
-                    cart: cart, 
-                    total: total 
-                  } 
+                onClick={() => navigate('/test-payment', {
+                  state: {
+                    order: order,
+                    cart: cart,
+                    total: total
+                  }
                 })}
                 style={{
                   background: '#ffc107',
@@ -413,17 +443,17 @@ const BillingPage = () => {
         </div>
 
         {orderCreated && (
-          <div style={{ 
-            marginTop: '20px', 
-            padding: '16px', 
-            background: '#d4edda', 
+          <div style={{
+            marginTop: '20px',
+            padding: '16px',
+            background: '#d4edda',
             color: '#155724',
             borderRadius: '8px',
             border: '1px solid #c3e6cb',
             textAlign: 'center'
           }}>
-            <strong>✅ Order Created Successfully!</strong><br/>
-            <small>Order Number: {order?.orderNumber}</small><br/>
+            <strong>✅ Order Created Successfully!</strong><br />
+            <small>Order Number: {order?.orderNumber}</small><br />
             <small>🔄 Redirecting to payment gateway...</small>
           </div>
         )}

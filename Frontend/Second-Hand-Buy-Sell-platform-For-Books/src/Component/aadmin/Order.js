@@ -411,18 +411,44 @@ const Order = () => {
                             View
                           </button>
 
-                          <select
-                            value={order.status}
-                            onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
-                            className="order-status-select"
-                          >
-                            <option value="PENDING">Pending</option>
-                            <option value="CONFIRMED">Confirmed</option>
-                            <option value="PROCESSING">Processing</option>
-                            <option value="SHIPPED">Shipped</option>
-                            <option value="DELIVERED">Delivered</option>
-                            <option value="CANCELLED">Cancelled</option>
-                          </select>
+                          {order.status === 'PENDING' ? (
+                            <button
+                              onClick={() => handleStatusUpdate(order.id, 'CONFIRMED')}
+                              className="order-view-btn"
+                              style={{
+                                background: '#10b981',
+                                color: 'white',
+                                borderColor: '#10b981',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              <Truck style={{ width: '14px', height: '14px' }} />
+                              Pickup
+                            </button>
+                          ) : (
+                            <span style={{ fontSize: '12px', color: '#6b7280', fontStyle: 'italic' }}>
+                              {order.status === 'CONFIRMED' ? 'Pickup Confirmed' : 'Action Locked'}
+                            </span>
+                          )}
+
+                          {/* Hidden select for fallback or if we want to allow other changes in pending state, 
+                              but requirements say "org should not be able to change action" after pickup. 
+                              So we only show this if PENDING, or maybe hide completely as per "Pickup" button requirement.
+                              Let's hide it if not PENDING to enforce the "locked" state.
+                          */}
+                          {order.status === 'PENDING' && (
+                            <select
+                              value={order.status}
+                              onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
+                              className="order-status-select"
+                              style={{ display: 'none' }} // Hiding select as button is primary action now
+                            >
+                              <option value="PENDING">Pending</option>
+                              <option value="CONFIRMED">Confirmed</option>
+                            </select>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -575,7 +601,6 @@ const Order = () => {
                           {/* Book Details */}
                           <div className="order-item-details">
                             <div className="order-item-title">{item.book?.title}</div>
-                            <div className="order-item-author">by {item.book?.author}</div>
 
                             <div className="order-item-footer">
                               <div className="order-item-quantity">Qty: {item.quantity}</div>

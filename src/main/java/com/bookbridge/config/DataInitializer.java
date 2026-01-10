@@ -16,7 +16,8 @@ import java.time.LocalDateTime;
 public class DataInitializer {
 
     @Bean
-    CommandLineRunner initDatabase(UserRepository userRepository, BookRepository bookRepository, BCryptPasswordEncoder passwordEncoder) {
+    CommandLineRunner initDatabase(UserRepository userRepository, BookRepository bookRepository,
+            BCryptPasswordEncoder passwordEncoder) {
         return args -> {
             // Check if data already exists
             if (userRepository.count() > 0) {
@@ -52,46 +53,46 @@ public class DataInitializer {
             user1 = userRepository.save(user1);
             System.out.println("Created user: john@example.com / password123");
 
-            // Create sample books
-            createBook(bookRepository, user1, "The Great Gatsby", "F. Scott Fitzgerald", 
-                "A classic novel about the American Dream", Book.BookCategory.FICTION, 
-                Book.BookCondition.GOOD, Book.ListingType.SELL, new BigDecimal("450.00"), "Kathmandu");
-            
-            createBook(bookRepository, user1, "Clean Code", "Robert C. Martin", 
-                "A handbook of agile software craftsmanship", Book.BookCategory.TECHNOLOGY, 
-                Book.BookCondition.EXCELLENT, Book.ListingType.SELL, new BigDecimal("850.00"), "Lalitpur");
-            
-            createBook(bookRepository, user1, "Introduction to Algorithms", "Thomas H. Cormen", 
-                "Comprehensive textbook on algorithms", Book.BookCategory.TEXTBOOK, 
-                Book.BookCondition.NEW, Book.ListingType.SELL, new BigDecimal("1200.00"), "Bhaktapur");
-            
-            createBook(bookRepository, admin, "The Pragmatic Programmer", "David Thomas", 
-                "Your journey to mastery", Book.BookCategory.TECHNOLOGY, 
-                Book.BookCondition.GOOD, Book.ListingType.SELL, new BigDecimal("750.00"), "Kathmandu");
-            
-            createBook(bookRepository, admin, "Design Patterns", "Gang of Four", 
-                "Elements of Reusable Object-Oriented Software", Book.BookCategory.TECHNOLOGY, 
-                Book.BookCondition.FAIR, Book.ListingType.EXCHANGE, new BigDecimal("600.00"), "Pokhara");
-            
-            createBook(bookRepository, user1, "Harry Potter and the Sorcerer's Stone", "J.K. Rowling", 
-                "The first book in the Harry Potter series", Book.BookCategory.FICTION, 
-                Book.BookCondition.EXCELLENT, Book.ListingType.DONATE, new BigDecimal("1.00"), "Kathmandu");
-            
-            createBook(bookRepository, admin, "Engineering Mathematics", "B.S. Grewal", 
-                "Higher Engineering Mathematics textbook", Book.BookCategory.ENGINEERING, 
-                Book.BookCondition.GOOD, Book.ListingType.RENT, new BigDecimal("100.00"), "Lalitpur");
-            
-            createBook(bookRepository, user1, "Pride and Prejudice", "Jane Austen", 
-                "A romantic novel of manners", Book.BookCategory.LITERATURE, 
-                Book.BookCondition.FAIR, Book.ListingType.SELL, new BigDecimal("350.00"), "Kathmandu");
+            // Create sample products
+            createBook(bookRepository, user1, "Cozy Baby Blanket", "Lunasu Crochet",
+                    "Handcrafted soft wool blanket for babies", Book.BookCategory.BLANKET,
+                    Book.BookCondition.EXCELLENT, Book.ListingType.SELL, new BigDecimal("1200.00"), "Kathmandu");
+
+            createBook(bookRepository, user1, "Rose Crochet Bouquet", "Lunasu Crochet",
+                    "Everlasting red roses bouquet", Book.BookCategory.BOUQUET,
+                    Book.BookCondition.EXCELLENT, Book.ListingType.SELL, new BigDecimal("850.00"), "Lalitpur");
+
+            createBook(bookRepository, user1, "Sunflowers Set", "Lunasu Crochet",
+                    "Beautiful sunflowers for home decor", Book.BookCategory.FLOWERS,
+                    Book.BookCondition.NEW, Book.ListingType.SELL, new BigDecimal("450.00"), "Bhaktapur");
+
+            createBook(bookRepository, admin, "Cute Bunny Amigurumi", "Lunasu Crochet",
+                    "Adorable handmade stuffed bunny", Book.BookCategory.AMIGURUMI,
+                    Book.BookCondition.EXCELLENT, Book.ListingType.SELL, new BigDecimal("600.00"), "Kathmandu");
+
+            createBook(bookRepository, admin, "Heart Pattern Keyring", "Lunasu Crochet",
+                    "Small heart keyring for gifts", Book.BookCategory.KEYRINGS,
+                    Book.BookCondition.NEW, Book.ListingType.SELL, new BigDecimal("150.00"), "Pokhara");
+
+            createBook(bookRepository, user1, "Summer Crochet Dress", "Lunasu Crochet",
+                    "Stylish handmade dress for summer", Book.BookCategory.DRESS,
+                    Book.BookCondition.EXCELLENT, Book.ListingType.SELL, new BigDecimal("2500.00"), "Kathmandu");
+
+            createBook(bookRepository, admin, "Custom Keyring Set", "Lunasu Crochet",
+                    "Set of 3 personalized keyrings", Book.BookCategory.KEYRINGS,
+                    Book.BookCondition.NEW, Book.ListingType.SELL, new BigDecimal("400.00"), "Lalitpur");
+
+            createBook(bookRepository, user1, "Flower Pot Decor", "Lunasu Crochet",
+                    "Mini crochet flowers in a pot", Book.BookCategory.FLOWERS,
+                    Book.BookCondition.EXCELLENT, Book.ListingType.SELL, new BigDecimal("350.00"), "Kathmandu");
 
             System.out.println("Database initialization complete! Created 8 sample books.");
         };
     }
 
-    private void createBook(BookRepository bookRepository, User user, String title, String author, 
-                           String description, Book.BookCategory category, Book.BookCondition condition,
-                           Book.ListingType listingType, BigDecimal price, String location) {
+    private void createBook(BookRepository bookRepository, User user, String title, String author,
+            String description, Book.BookCategory category, Book.BookCondition condition,
+            Book.ListingType listingType, BigDecimal price, String location) {
         Book book = new Book();
         book.setTitle(title);
         book.setAuthor(author);
@@ -111,4 +112,3 @@ public class DataInitializer {
         bookRepository.save(book);
     }
 }
-

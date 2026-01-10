@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Adminpanel.css';
 import { toast } from 'react-toastify';
-import { addBook } from '../../services/api';
+import { addBook, getUnreadMessageCount } from '../../services/api';
 import { showLogoutConfirmation } from '../ConfirmationToast';
 import NotificationBell from './NotificationBell';
 
@@ -10,12 +10,10 @@ const AdminPanel = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [formData, setFormData] = useState({
     bookTitle: '',
-    author: '',
     category: '',
-    condition: '',
-    listingType: '',
     location: '',
     price: '',
     description: '',
@@ -35,6 +33,18 @@ const AdminPanel = () => {
     }
 
     setUser(storedUser);
+
+    // Fetch unread messages count
+    const fetchUnreadCount = async () => {
+      try {
+        const data = await getUnreadMessageCount();
+        setUnreadCount(data.count);
+      } catch (err) {
+        console.error("Failed to fetch unread count", err);
+      }
+    };
+    fetchUnreadCount();
+
   }, [navigate]);
 
   const handleInputChange = (e) => {
@@ -59,10 +69,10 @@ const AdminPanel = () => {
 
     const data = new FormData();
     data.append('title', formData.bookTitle);
-    data.append('author', formData.author);
+    data.append('author', 'Lunasu Crochet');
     data.append('category', formData.category);
-    data.append('condition', formData.condition);
-    data.append('listingType', formData.listingType);
+    data.append('condition', 'NEW');
+    data.append('listingType', 'SELL');
     data.append('location', formData.location);
     data.append('price', formData.price);
     data.append('description', formData.description);
@@ -78,10 +88,7 @@ const AdminPanel = () => {
       // Reset form
       setFormData({
         bookTitle: '',
-        author: '',
         category: '',
-        condition: '',
-        listingType: '',
         location: '',
         price: '',
         description: '',
@@ -132,6 +139,28 @@ const AdminPanel = () => {
             <button className="admin-orders-btn" onClick={() => navigate('/organization-tutorials-add')}>
               Add Tutorial
             </button>
+            <button className="admin-orders-btn" onClick={() => navigate('/organization-contact')} style={{ position: 'relative' }}>
+              Messages
+              {unreadCount > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-5px',
+                  right: '-5px',
+                  background: '#ef4444',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '20px',
+                  height: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12px',
+                  fontWeight: 'bold'
+                }}>
+                  {unreadCount}
+                </span>
+              )}
+            </button>
             <span className="admin-user-name">{user.fullName || user.email}</span>
             <button className="admin-logout-btn" onClick={handleLogout}>
               Logout
@@ -169,19 +198,6 @@ const AdminPanel = () => {
                   placeholder="Enter product title"
                 />
               </div>
-
-              <div className="admin-form-group">
-                <label htmlFor="author">Author/Brand *</label>
-                <input
-                  type="text"
-                  id="author"
-                  name="author"
-                  value={formData.author}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Enter author name or brand"
-                />
-              </div>
             </div>
 
             <div className="admin-form-grid">
@@ -195,59 +211,18 @@ const AdminPanel = () => {
                   required
                 >
                   <option value="">Select Category</option>
-                  <option value="SCIENCE">Science</option>
-                  <option value="LITERATURE">Literature</option>
-                  <option value="ENGINEERING">Engineering</option>
-                  <option value="MATHEMATICS">Mathematics</option>
-                  <option value="HISTORY">History</option>
-                  <option value="PHILOSOPHY">Philosophy</option>
-                  <option value="ARTS">Arts</option>
-                  <option value="BUSINESS">Business</option>
-                  <option value="TECHNOLOGY">Technology</option>
-                  <option value="MEDICAL">Medical</option>
-                  <option value="LAW">Law</option>
-                  <option value="EDUCATION">Education</option>
-                  <option value="FICTION">Fiction</option>
-                  <option value="NON_FICTION">Nonfiction</option>
-                  <option value="TEXTBOOK">Textbook</option>
+                  <option value="BLANKET">Blanket</option>
+                  <option value="BOUQUET">Bouquet</option>
+                  <option value="FLOWERS">Flowers</option>
+                  <option value="AMIGURUMI">Amigurumi</option>
+                  <option value="KEYRINGS">Keyrings</option>
+                  <option value="DRESS">Dress</option>
                   <option value="OTHER">Other</option>
-                </select>
-              </div>
-
-              <div className="admin-form-group">
-                <label htmlFor="condition">Product Condition *</label>
-                <select
-                  id="condition"
-                  name="condition"
-                  value={formData.condition}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Condition</option>
-                  <option value="EXCELLENT">Excellent</option>
-                  <option value="GOOD">Good</option>
-                  <option value="FAIR">Fair</option>
-                  <option value="POOR">Poor</option>
                 </select>
               </div>
             </div>
 
             <div className="admin-form-grid">
-              <div className="admin-form-group">
-                <label htmlFor="listingType">Listing Type *</label>
-                <select
-                  id="listingType"
-                  name="listingType"
-                  value={formData.listingType}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select Listing Type</option>
-                  <option value="SELL">Sell</option>
-                  <option value="RENT">Rent</option>
-                </select>
-              </div>
-
               <div className="admin-form-group">
                 <label htmlFor="location">Location *</label>
                 <input
@@ -280,7 +255,7 @@ const AdminPanel = () => {
             <div className="admin-form-group">
               <label htmlFor="price">Price (Rs.) *</label>
               <div className="admin-price-input-wrapper">
-                <span className="admin-currency-symbol">₹</span>
+                <span className="admin-currency-symbol">Rs.</span>
                 <input
                   type="number"
                   id="price"

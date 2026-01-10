@@ -4,9 +4,7 @@ const initialBooks = [
   {
     id: 1,
     title: 'To Kill a Mockingbird',
-    author: 'Harper Lee',
     category: 'Fiction',
-    condition: 'Used',
     price: 'Rs. 200',
     status: 'Available',
   },
@@ -75,7 +73,6 @@ export default function Books() {
     const q = search.toLowerCase();
     return (
       book.title.toLowerCase().includes(q) ||
-      book.author.toLowerCase().includes(q) ||
       book.category.toLowerCase().includes(q)
     );
   });
@@ -143,9 +140,7 @@ export default function Books() {
           <thead className="bg-muted/50">
             <tr>
               <th className="px-4 py-3 text-left text-base font-semibold text-foreground border-b">Title</th>
-              <th className="px-4 py-3 text-left text-base font-semibold text-foreground border-b">Author</th>
               <th className="px-4 py-3 text-left text-base font-semibold text-foreground border-b">Category</th>
-              <th className="px-4 py-3 text-left text-base font-semibold text-foreground border-b">Condition</th>
               <th className="px-4 py-3 text-left text-base font-semibold text-foreground border-b">Price</th>
               <th className="px-4 py-3 text-left text-base font-semibold text-foreground border-b">Status</th>
               <th className="px-4 py-3 text-left text-base font-semibold text-foreground border-b">Action</th>
@@ -160,9 +155,7 @@ export default function Books() {
               filteredBooks.map((book) => (
                 <tr key={book.id} className="hover:bg-muted/30">
                   <td className="px-4 py-3 whitespace-pre-line font-semibold text-foreground">{book.title}</td>
-                  <td className="px-4 py-3 text-foreground font-medium">{book.author}</td>
                   <td className="px-4 py-3 text-foreground">{book.category}</td>
-                  <td className="px-4 py-3 text-foreground">{book.condition}</td>
                   <td className="px-4 py-3 text-foreground">{book.price}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-block px-4 py-1 rounded-full font-semibold text-sm ${statusColors[book.status] || 'bg-gray-200 text-gray-800'}`}>{book.status}</span>
@@ -174,7 +167,7 @@ export default function Books() {
                       aria-label="Actions"
                       type="button"
                     >
-                      <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="6" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="18" r="1"/></svg>
+                      <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="6" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="12" cy="18" r="1" /></svg>
                     </button>
                     {dropdownOpen === book.id && (
                       <div className="absolute right-0 mt-2 w-36 bg-card border border-border rounded-md shadow-lg z-10">
@@ -215,7 +208,7 @@ export default function Books() {
               onClick={() => { setShowAddModal(false); setError(''); }}
               aria-label="Close"
             >
-              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
             </button>
             <h2 className="text-xl font-semibold mb-4">Add Book</h2>
             <form onSubmit={handleAddBook} className="space-y-4">
@@ -231,34 +224,12 @@ export default function Books() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Author</label>
-                <input
-                  type="text"
-                  name="author"
-                  value={form.author}
-                  onChange={e => setForm(f => ({ ...f, author: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-                  required
-                />
-              </div>
-              <div>
                 <label className="block text-sm font-medium mb-1">Category</label>
                 <input
                   type="text"
                   name="category"
                   value={form.category}
                   onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                  className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Condition</label>
-                <input
-                  type="text"
-                  name="condition"
-                  value={form.condition}
-                  onChange={e => setForm(f => ({ ...f, condition: e.target.value }))}
                   className="w-full px-3 py-2 border rounded-md bg-background text-foreground"
                   required
                 />

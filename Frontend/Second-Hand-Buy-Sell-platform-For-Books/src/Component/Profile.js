@@ -12,7 +12,7 @@ const Profile = () => {
     try {
       const userData = localStorage.getItem('user');
       if (!userData) return null;
-      
+
       const parsedUser = JSON.parse(userData);
       // Check if user has required fields
       if (!parsedUser.token || !parsedUser.email) {
@@ -20,7 +20,7 @@ const Profile = () => {
         localStorage.removeItem('user');
         return null;
       }
-      
+
       return parsedUser;
     } catch (e) {
       console.log('Error parsing user data, clearing...');
@@ -36,7 +36,7 @@ const Profile = () => {
   const [editForm, setEditForm] = useState({});
   const [editImagePreview, setEditImagePreview] = useState(null);
   const [editImageFile, setEditImageFile] = useState(null);
-  
+
   // Order history state
   const [userOrders, setUserOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
@@ -88,19 +88,19 @@ const Profile = () => {
   };
 
   // Load user's books
-    const loadBooks = useCallback(async () => {
+  const loadBooks = useCallback(async () => {
     try {
-        setLoading(true);
+      setLoading(true);
       const token = user?.token;
-      
+
       if (!token) {
         console.log('No token found - user not logged in');
         setUserBooks([]);
         return;
       }
-      
+
       const books = await fetchBooksByUser();
-          setUserBooks(books);
+      setUserBooks(books);
     } catch (err) {
       console.error('Error loading books:', err);
       if (err.message.includes('401') || err.message.includes('Unauthorized')) {
@@ -109,29 +109,29 @@ const Profile = () => {
       } else {
         toast.error('Failed to load books');
       }
-          setUserBooks([]);
-        } finally {
-          setLoading(false);
-      }
-    }, [user, clearUserAndRedirect]);
-    
+      setUserBooks([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [user, clearUserAndRedirect]);
+
   // Load user's orders
-    const loadOrders = useCallback(async () => {
+  const loadOrders = useCallback(async () => {
     try {
-        setOrdersLoading(true);
+      setOrdersLoading(true);
       const token = user?.token;
-      
+
       console.log('Loading orders for user:', user?.email);
       console.log('Token exists:', !!token);
       console.log('Token length:', token ? token.length : 0);
-      
+
       if (!token) {
         console.log('No token found - user not logged in');
         setUserOrders([]);
         return;
       }
-      
-          const orders = await getUserOrders();
+
+      const orders = await getUserOrders();
       console.log('Orders loaded:', orders);
       setUserOrders(orders); // orders is now the full paginated response object
     } catch (err) {
@@ -142,10 +142,10 @@ const Profile = () => {
       } else {
         toast.error('Failed to load orders');
       }
-          setUserOrders([]);
-        } finally {
-          setOrdersLoading(false);
-        }
+      setUserOrders([]);
+    } finally {
+      setOrdersLoading(false);
+    }
   }, [user, clearUserAndRedirect]);
 
   const [activeTab, setActiveTab] = useState('books'); // 'books' or 'orders'
@@ -153,8 +153,8 @@ const Profile = () => {
   useEffect(() => {
     if (user && user.token) {
       console.log('User authenticated, loading data...');
-    loadBooks();
-    loadOrders();
+      loadBooks();
+      loadOrders();
     } else {
       console.log('User not logged in, skipping data load');
     }
@@ -259,7 +259,7 @@ const Profile = () => {
         data.append('bookImage', editImageFile);
       }
       await updateBook(editBook.id, data, token);
-      
+
       // Reload the user's books to get the latest data
       await loadBooks();
       toast.success('Book updated successfully!');
@@ -272,22 +272,22 @@ const Profile = () => {
   // Refresh orders
   const refreshOrders = async () => {
     console.log('Refreshing orders...');
-    
+
     // Debug authentication
     const userData = localStorage.getItem('user');
     console.log('User data from localStorage:', userData);
-    
+
     if (userData) {
       const parsedUser = JSON.parse(userData);
       console.log('Parsed user data:', parsedUser);
       console.log('Token exists:', !!parsedUser.token);
       console.log('Token length:', parsedUser.token ? parsedUser.token.length : 0);
     }
-    
+
     // Test authentication first
     const isAuthenticated = await testAuthentication();
     console.log('Authentication test result:', isAuthenticated);
-    
+
     if (user && user.userId && isAuthenticated) {
       setOrdersLoading(true);
       try {
@@ -308,6 +308,100 @@ const Profile = () => {
         console.log('Authentication failed - token may be invalid or expired');
       }
     }
+  };
+
+  // Order Tracking Stepper Component
+  const OrderTrackingStepper = ({ status }) => {
+    const steps = [
+      { key: 'PENDING', label: 'Order Placed', icon: '📝' },
+      { key: 'CONFIRMED', label: 'Confirmed', icon: '✅' },
+      { key: 'SHIPPED', label: 'On the Way', icon: '🚚' },
+      { key: 'DELIVERED', label: 'Delivered', icon: '🎁' }
+    ];
+
+    const getStatusIndex = (status) => {
+      const s = status?.toUpperCase();
+      if (s === 'CANCELLED' || s === 'REFUNDED') return -1;
+      if (s === 'PENDING') return 0;
+      if (s === 'CONFIRMED' || s === 'PROCESSING') return 1;
+      if (s === 'SHIPPED') return 2;
+      if (s === 'DELIVERED') return 3;
+      return 0;
+    };
+
+    const currentStepIndex = getStatusIndex(status);
+    const isCancelled = status?.toUpperCase() === 'CANCELLED';
+
+    return (
+      <div style={{ marginTop: '24px', padding: '16px', background: '#fff', borderRadius: '12px', border: '1px solid #eee' }}>
+        <h5 style={{ margin: '0 0 20px 0', fontSize: '14px', color: '#555', fontWeight: 'bold' }}>Track Order Status</h5>
+
+        {isCancelled ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#dc3545', fontWeight: 'bold' }}>
+            <span>❌ Order Cancelled</span>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', padding: '0 10px' }}>
+            {/* Progress Bar Background */}
+            <div style={{
+              position: 'absolute',
+              top: '15px',
+              left: '40px',
+              right: '40px',
+              height: '4px',
+              background: '#e0e0e0',
+              zIndex: 0
+            }} />
+
+            {/* Progress Bar Active */}
+            <div style={{
+              position: 'absolute',
+              top: '15px',
+              left: '40px',
+              width: `calc(${(currentStepIndex / (steps.length - 1)) * 100}% - ${currentStepIndex === 3 ? '80px' : '40px'})`,
+              height: '4px',
+              background: '#28a745',
+              zIndex: 1,
+              transition: 'width 0.5s ease'
+            }} />
+
+            {steps.map((step, index) => {
+              const isActive = index <= currentStepIndex;
+              return (
+                <div key={step.key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2, width: '80px' }}>
+                  <div style={{
+                    width: '34px',
+                    height: '34px',
+                    borderRadius: '50%',
+                    background: isActive ? '#28a745' : '#fff',
+                    border: `2px solid ${isActive ? '#28a745' : '#e0e0e0'}`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                    marginBottom: '8px',
+                    color: isActive ? '#fff' : '#888',
+                    transition: 'all 0.3s ease',
+                    boxShadow: isActive ? '0 0 10px rgba(40, 167, 69, 0.3)' : 'none'
+                  }}>
+                    {isActive ? '✓' : step.icon}
+                  </div>
+                  <span style={{
+                    fontSize: '11px',
+                    fontWeight: isActive ? 'bold' : 'normal',
+                    color: isActive ? '#28a745' : '#888',
+                    textAlign: 'center',
+                    lineHeight: '1.2'
+                  }}>
+                    {step.label}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -333,7 +427,7 @@ const Profile = () => {
         <div style={{ maxWidth: 1000, margin: '32px auto', background: '#fff', borderRadius: 12, padding: 32, boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
           {/* Tab Navigation */}
           <div style={{ display: 'flex', marginBottom: 20, borderBottom: '2px solid #e0e0e0' }}>
-            <button
+            {/* <button
               onClick={() => setActiveTab('books')}
               style={{
                 background: activeTab === 'books' ? '#28a745' : 'transparent',
@@ -346,7 +440,7 @@ const Profile = () => {
               }}
             >
               My Books ({userBooks.length})
-            </button>
+            </button> */}
             <button
               onClick={() => setActiveTab('orders')}
               style={{
@@ -365,119 +459,7 @@ const Profile = () => {
           </div>
 
           {/* Books Tab */}
-          {activeTab === 'books' && (
-            <div>
-              <h3 style={{ marginBottom: 20 }}>Books You've Listed</h3>
-              {loading ? (
-                <div>Loading your books...</div>
-              ) : userBooks.length === 0 ? (
-                <div style={{ color: '#888' }}>You haven't listed any books yet.</div>
-              ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 20 }}>
-                  {userBooks.map((book) => (
-                      <div key={book.id} style={{
-                      border: '1px solid #e0e0e0',
-                        borderRadius: 12,
-                        padding: 20,
-                        background: '#fafbfc',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                      position: 'relative'
-                    }}>
-                      {/* Status Badge */}
-                      <div style={{
-                        position: 'absolute',
-                        top: 10,
-                        right: 10,
-                        background: getBookStatusColor(book.status),
-                        color: '#fff',
-                        padding: '4px 8px',
-                        borderRadius: 12,
-                        fontSize: '10px',
-                        fontWeight: 'bold',
-                        textTransform: 'uppercase'
-                      }}>
-                        {getBookStatusText(book.status)}
-                      </div>
-                      
-                      <div style={{ display: 'flex', gap: 16 }}>
-                        <div style={{ width: 120, height: 160, flexShrink: 0 }}>
-                          {book.bookImage ? (
-                        <img
-                              src={book.bookImage}
-                          alt={book.title}
-                              style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover',
-                                borderRadius: 8
-                              }}
-                            />
-                          ) : (
-                            <div style={{
-                              width: '100%',
-                              height: '100%',
-                              background: '#f0f0f0',
-                              borderRadius: 8,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: '#666'
-                            }}>
-                              No Image
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div style={{ flex: 1 }}>
-                          <h4 style={{ margin: '0 0 8px 0', color: '#333' }}>{book.title}</h4>
-                          <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: 14 }}>
-                            <strong>Author:</strong> {book.author}
-                          </p>
-                          <p style={{ margin: '0 0 4px 0', color: '#666', fontSize: 14 }}>
-                            <strong>Description:</strong> {book.description || 'No description available'}
-                          </p>
-                          <p style={{ margin: '0 0 8px 0', color: '#28a745', fontSize: 16, fontWeight: 'bold' }}>
-                            Rs. {book.price}
-                          </p>
-                          
-                          <div style={{ display: 'flex', gap: 8 }}>
-                          <button
-                            onClick={() => openEditModal(book)}
-                              style={{
-                                background: '#28a745',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: 6,
-                                padding: '8px 16px',
-                                cursor: 'pointer',
-                                fontSize: 12
-                              }}
-                            >
-                              Edit
-                            </button>
-                          <button
-                            onClick={() => handleDelete(book.id, book.title)}
-                              style={{
-                                background: '#dc3545',
-                                color: '#fff',
-                                border: 'none',
-                                borderRadius: 6,
-                                padding: '8px 16px',
-                                cursor: 'pointer',
-                                fontSize: 12
-                              }}
-                            >
-                              Delete
-                            </button>
-                        </div>
-                      </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+       
 
           {/* Orders Tab */}
           {activeTab === 'orders' && (
@@ -501,7 +483,7 @@ const Profile = () => {
                   </button>
                 </div>
               </div>
-              
+
               {ordersLoading ? (
                 <div>Loading your orders...</div>
               ) : !userOrders?.content || userOrders.content.length === 0 ? (
@@ -511,18 +493,18 @@ const Profile = () => {
                   <div style={{ color: '#888', fontSize: 14, marginBottom: 20 }}>
                     To see orders here, you need to buy books from other users.
                   </div>
-                  <div style={{ 
-                    background: '#f8f9fa', 
-                    padding: '16px', 
-                    borderRadius: 8, 
+                  <div style={{
+                    background: '#f8f9fa',
+                    padding: '16px',
+                    borderRadius: 8,
                     border: '1px solid #e9ecef',
                     marginBottom: 20
                   }}>
                     <div style={{ fontWeight: 600, color: '#333', marginBottom: 8 }}>How to place an order:</div>
                     <div style={{ fontSize: 13, color: '#666', lineHeight: 1.5 }}>
-                      1. Browse books in the BookStore<br/>
-                      2. Add books to your cart<br/>
-                      3. Go to checkout and complete your purchase<br/>
+                      1. Browse books in the BookStore<br />
+                      2. Add books to your cart<br />
+                      3. Go to checkout and complete your purchase<br />
                       4. Your orders will appear here
                     </div>
                   </div>
@@ -597,7 +579,10 @@ const Profile = () => {
                           </button>
                         </div>
                       </div>
-                      
+
+                      {/* Order Tracking Stepper */}
+                      <OrderTrackingStepper status={order.status} />
+
                       {/* Order Items */}
                       {order.orderItems && order.orderItems.length > 0 && (
                         <div style={{ borderTop: '1px solid #e0e0e0', paddingTop: 16 }}>
@@ -645,14 +630,14 @@ const Profile = () => {
           position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.25)', zIndex: 1000,
           display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
         }}>
-          <div style={{ 
-            background: '#fff', 
-            borderRadius: 16, 
-            padding: 0, 
-            width: '100%', 
-            maxWidth: 500, 
+          <div style={{
+            background: '#fff',
+            borderRadius: 16,
+            padding: 0,
+            width: '100%',
+            maxWidth: 500,
             maxHeight: '90vh',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.25)', 
+            boxShadow: '0 20px 60px rgba(0,0,0,0.25)',
             position: 'relative',
             overflow: 'hidden'
           }}>
@@ -668,18 +653,18 @@ const Profile = () => {
             </div>
 
             {/* Scrollable Content */}
-            <div style={{ 
-              maxHeight: 'calc(90vh - 140px)', 
-              overflowY: 'auto', 
+            <div style={{
+              maxHeight: 'calc(90vh - 140px)',
+              overflowY: 'auto',
               padding: '24px'
             }}>
               <form onSubmit={handleEditSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                
+
                 {/* Image Section */}
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'center', 
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
                   padding: '16px',
                   background: '#f8f9fa',
                   borderRadius: 10,
@@ -688,20 +673,20 @@ const Profile = () => {
                   <img
                     src={editImagePreview}
                     alt="Book Preview"
-                    style={{ 
-                      width: 100, 
-                      height: 100, 
-                      objectFit: 'cover', 
-                      borderRadius: 8, 
+                    style={{
+                      width: 100,
+                      height: 100,
+                      objectFit: 'cover',
+                      borderRadius: 8,
                       border: '2px solid #fff',
                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                       marginBottom: 10
                     }}
                   />
-                  <label htmlFor="edit-image-upload" style={{ 
-                    cursor: 'pointer', 
-                    color: '#2E8B57', 
-                    fontWeight: 500, 
+                  <label htmlFor="edit-image-upload" style={{
+                    cursor: 'pointer',
+                    color: '#2E8B57',
+                    fontWeight: 500,
                     fontSize: 13,
                     padding: '6px 12px',
                     background: '#fff',
@@ -728,20 +713,20 @@ const Profile = () => {
                   <label style={{ fontWeight: 600, color: '#333', fontSize: 13 }}>
                     Book Title
                   </label>
-                  <input 
-                    name="title" 
-                    value={editForm.title} 
-                    onChange={handleEditChange} 
-                    placeholder="Enter book title" 
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px 12px', 
-                      borderRadius: 8, 
-                      border: '1px solid #ddd', 
+                  <input
+                    name="title"
+                    value={editForm.title}
+                    onChange={handleEditChange}
+                    placeholder="Enter book title"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: '1px solid #ddd',
                       fontSize: 14,
                       transition: 'border-color 0.2s'
-                    }} 
-                    required 
+                    }}
+                    required
                   />
                 </div>
 
@@ -750,20 +735,20 @@ const Profile = () => {
                   <label style={{ fontWeight: 600, color: '#333', fontSize: 13 }}>
                     Author
                   </label>
-                  <input 
-                    name="author" 
-                    value={editForm.author} 
-                    onChange={handleEditChange} 
-                    placeholder="Enter author name" 
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px 12px', 
-                      borderRadius: 8, 
-                      border: '1px solid #ddd', 
+                  <input
+                    name="author"
+                    value={editForm.author}
+                    onChange={handleEditChange}
+                    placeholder="Enter author name"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: '1px solid #ddd',
                       fontSize: 14,
                       transition: 'border-color 0.2s'
-                    }} 
-                    required 
+                    }}
+                    required
                   />
                 </div>
 
@@ -772,23 +757,23 @@ const Profile = () => {
                   <label style={{ fontWeight: 600, color: '#333', fontSize: 13 }}>
                     Description
                   </label>
-                  <textarea 
-                    name="description" 
-                    value={editForm.description} 
-                    onChange={handleEditChange} 
-                    placeholder="Describe your book..." 
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px 12px', 
-                      borderRadius: 8, 
-                      border: '1px solid #ddd', 
+                  <textarea
+                    name="description"
+                    value={editForm.description}
+                    onChange={handleEditChange}
+                    placeholder="Describe your book..."
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: '1px solid #ddd',
                       fontSize: 14,
                       minHeight: 70,
                       resize: 'vertical',
                       transition: 'border-color 0.2s'
-                    }} 
-                    rows={3} 
-                    required 
+                    }}
+                    rows={3}
+                    required
                   />
                 </div>
 
@@ -797,21 +782,21 @@ const Profile = () => {
                   <label style={{ fontWeight: 600, color: '#333', fontSize: 13 }}>
                     Price (Rs.)
                   </label>
-                  <input 
-                    name="price" 
-                    value={editForm.price} 
-                    onChange={handleEditChange} 
-                    placeholder="Enter price" 
-                    type="number" 
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px 12px', 
-                      borderRadius: 8, 
-                      border: '1px solid #ddd', 
+                  <input
+                    name="price"
+                    value={editForm.price}
+                    onChange={handleEditChange}
+                    placeholder="Enter price"
+                    type="number"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: '1px solid #ddd',
                       fontSize: 14,
                       transition: 'border-color 0.2s'
-                    }} 
-                    required 
+                    }}
+                    required
                   />
                 </div>
 
@@ -820,18 +805,18 @@ const Profile = () => {
                   <label style={{ fontWeight: 600, color: '#333', fontSize: 13 }}>
                     Condition
                   </label>
-                  <select 
-                    name="condition" 
-                    value={editForm.condition} 
-                    onChange={handleEditChange} 
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px 12px', 
-                      borderRadius: 8, 
-                      border: '1px solid #ddd', 
+                  <select
+                    name="condition"
+                    value={editForm.condition}
+                    onChange={handleEditChange}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: '1px solid #ddd',
                       fontSize: 14,
                       transition: 'border-color 0.2s'
-                    }} 
+                    }}
                     required
                   >
                     <option value="">Select book condition</option>
@@ -847,18 +832,18 @@ const Profile = () => {
                   <label style={{ fontWeight: 600, color: '#333', fontSize: 13 }}>
                     Category
                   </label>
-                  <select 
-                    name="category" 
-                    value={editForm.category} 
-                    onChange={handleEditChange} 
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px 12px', 
-                      borderRadius: 8, 
-                      border: '1px solid #ddd', 
+                  <select
+                    name="category"
+                    value={editForm.category}
+                    onChange={handleEditChange}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: '1px solid #ddd',
                       fontSize: 14,
                       transition: 'border-color 0.2s'
-                    }} 
+                    }}
                     required
                   >
                     <option value="">Select book category</option>
@@ -876,20 +861,20 @@ const Profile = () => {
                   <label style={{ fontWeight: 600, color: '#333', fontSize: 13 }}>
                     Location
                   </label>
-                  <input 
-                    name="location" 
-                    value={editForm.location} 
-                    onChange={handleEditChange} 
-                    placeholder="Enter your location" 
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px 12px', 
-                      borderRadius: 8, 
-                      border: '1px solid #ddd', 
+                  <input
+                    name="location"
+                    value={editForm.location}
+                    onChange={handleEditChange}
+                    placeholder="Enter your location"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: '1px solid #ddd',
                       fontSize: 14,
                       transition: 'border-color 0.2s'
-                    }} 
-                    required 
+                    }}
+                    required
                   />
                 </div>
 
@@ -898,19 +883,19 @@ const Profile = () => {
                   <label style={{ fontWeight: 600, color: '#333', fontSize: 13 }}>
                     ISBN (Optional)
                   </label>
-                  <input 
-                    name="isbn" 
-                    value={editForm.isbn} 
-                    onChange={handleEditChange} 
-                    placeholder="Enter ISBN number" 
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px 12px', 
-                      borderRadius: 8, 
-                      border: '1px solid #ddd', 
+                  <input
+                    name="isbn"
+                    value={editForm.isbn}
+                    onChange={handleEditChange}
+                    placeholder="Enter ISBN number"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: '1px solid #ddd',
                       fontSize: 14,
                       transition: 'border-color 0.2s'
-                    }} 
+                    }}
                   />
                 </div>
 
@@ -919,19 +904,19 @@ const Profile = () => {
                   <label style={{ fontWeight: 600, color: '#333', fontSize: 13 }}>
                     Edition (Optional)
                   </label>
-                  <input 
-                    name="edition" 
-                    value={editForm.edition} 
-                    onChange={handleEditChange} 
-                    placeholder="Enter edition" 
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px 12px', 
-                      borderRadius: 8, 
-                      border: '1px solid #ddd', 
+                  <input
+                    name="edition"
+                    value={editForm.edition}
+                    onChange={handleEditChange}
+                    placeholder="Enter edition"
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: '1px solid #ddd',
                       fontSize: 14,
                       transition: 'border-color 0.2s'
-                    }} 
+                    }}
                   />
                 </div>
 
@@ -940,18 +925,18 @@ const Profile = () => {
                   <label style={{ fontWeight: 600, color: '#333', fontSize: 13 }}>
                     Listing Type
                   </label>
-                  <select 
-                    name="listingType" 
-                    value={editForm.listingType} 
-                    onChange={handleEditChange} 
-                    style={{ 
-                      width: '100%', 
-                      padding: '10px 12px', 
-                      borderRadius: 8, 
-                      border: '1px solid #ddd', 
+                  <select
+                    name="listingType"
+                    value={editForm.listingType}
+                    onChange={handleEditChange}
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      borderRadius: 8,
+                      border: '1px solid #ddd',
                       fontSize: 14,
                       transition: 'border-color 0.2s'
-                    }} 
+                    }}
                     required
                   >
                     <option value="">Select listing type</option>
@@ -961,42 +946,42 @@ const Profile = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div style={{ 
-                  display: 'flex', 
-                  gap: 10, 
-                  justifyContent: 'flex-end', 
+                <div style={{
+                  display: 'flex',
+                  gap: 10,
+                  justifyContent: 'flex-end',
                   marginTop: 20,
                   paddingTop: 16,
                   borderTop: '1px solid #eee'
                 }}>
-                  <button 
-                    type="button" 
-                    onClick={closeEditModal} 
-                    style={{ 
-                      background: '#f8f9fa', 
-                      color: '#6c757d', 
-                      border: '1px solid #dee2e6', 
-                      borderRadius: 8, 
-                      padding: '10px 20px', 
-                      fontWeight: 500, 
-                      cursor: 'pointer', 
-                      fontSize: 14, 
+                  <button
+                    type="button"
+                    onClick={closeEditModal}
+                    style={{
+                      background: '#f8f9fa',
+                      color: '#6c757d',
+                      border: '1px solid #dee2e6',
+                      borderRadius: 8,
+                      padding: '10px 20px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      fontSize: 14,
                       transition: 'all 0.2s'
                     }}
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="submit" 
-                    style={{ 
-                      background: '#2E8B57', 
-                      color: '#fff', 
-                      border: 'none', 
-                      borderRadius: 8, 
-                      padding: '10px 20px', 
-                      fontWeight: 500, 
-                      cursor: 'pointer', 
-                      fontSize: 14, 
+                  <button
+                    type="submit"
+                    style={{
+                      background: '#2E8B57',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: 8,
+                      padding: '10px 20px',
+                      fontWeight: 500,
+                      cursor: 'pointer',
+                      fontSize: 14,
                       transition: 'all 0.2s'
                     }}
                   >

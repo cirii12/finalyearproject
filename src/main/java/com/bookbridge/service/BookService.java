@@ -92,7 +92,8 @@ public class BookService {
         try {
             return bookRepository.save(book);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create book", e);
+            e.printStackTrace();
+            throw new RuntimeException("Failed to create book: " + e.getMessage(), e);
         }
     }
 

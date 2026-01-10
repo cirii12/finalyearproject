@@ -29,8 +29,7 @@ public class User {
     @Size(max = 100)
     @Column(unique = true)
     private String email;
-    
-    
+
     @Size(max = 100)
     @Column(name = "username")
     private String username;
@@ -94,8 +93,12 @@ public class User {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-    
 
+    @Column(name = "agreed_to_terms")
+    private Boolean agreedToTerms = false;
+
+    @Column(name = "terms_accepted_at")
+    private LocalDateTime termsAcceptedAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -114,7 +117,8 @@ public class User {
     private List<Order> orders;
 
     // Constructors
-    public User() {}
+    public User() {
+    }
 
     public User(String fullName, String email, String password, UserType userType) {
         this.fullName = fullName;
@@ -124,80 +128,221 @@ public class User {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getFullName() {
+        return fullName;
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 
-    public UserType getUserType() { return userType; }
-    public void setUserType(UserType userType) { this.userType = userType; }
+    public String getEmail() {
+        return email;
+    }
 
-    public UserStatus getStatus() { return status; }
-    public void setStatus(UserStatus status) { this.status = status; }
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-    public String getIdCardNumber() { return idCardNumber; }
-    public void setIdCardNumber(String idCardNumber) { this.idCardNumber = idCardNumber; }
+    public String getPassword() {
+        return password;
+    }
 
-    public String getIdCardPhoto() { return idCardPhoto; }
-    public void setIdCardPhoto(String idCardPhoto) { this.idCardPhoto = idCardPhoto; }
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-    public String getOrganizationName() { return organizationName; }
-    public void setOrganizationName(String organizationName) { this.organizationName = organizationName; }
+    public UserType getUserType() {
+        return userType;
+    }
 
-    public String getContactPerson() { return contactPerson; }
-    public void setContactPerson(String contactPerson) { this.contactPerson = contactPerson; }
+    public void setUserType(UserType userType) {
+        this.userType = userType;
+    }
 
-    public String getBusinessRegistrationNumber() { return businessRegistrationNumber; }
-    public void setBusinessRegistrationNumber(String businessRegistrationNumber) { this.businessRegistrationNumber = businessRegistrationNumber; }
+    public UserStatus getStatus() {
+        return status;
+    }
 
-    public String getPanNumber() { return panNumber; }
-    public void setPanNumber(String panNumber) { this.panNumber = panNumber; }
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
 
-    public String getDocumentPhoto() { return documentPhoto; }
-    public void setDocumentPhoto(String documentPhoto) { this.documentPhoto = documentPhoto; }
+    public String getIdCardNumber() {
+        return idCardNumber;
+    }
 
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
+    public void setIdCardNumber(String idCardNumber) {
+        this.idCardNumber = idCardNumber;
+    }
 
-    public String getProfileImage() { return profileImage; }
-    public void setProfileImage(String profileImage) { this.profileImage = profileImage; }
+    public String getIdCardPhoto() {
+        return idCardPhoto;
+    }
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+    public void setIdCardPhoto(String idCardPhoto) {
+        this.idCardPhoto = idCardPhoto;
+    }
 
-    public String getResetToken() { return resetToken; }
-    public void setResetToken(String resetToken) { this.resetToken = resetToken; }
+    public String getOrganizationName() {
+        return organizationName;
+    }
 
-    public LocalDateTime getResetTokenExpiry() { return resetTokenExpiry; }
-    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) { this.resetTokenExpiry = resetTokenExpiry; }
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
 
-    public Boolean getIsVerified() { return isVerified; }
-    public void setIsVerified(Boolean isVerified) { this.isVerified = isVerified; }
+    public String getContactPerson() {
+        return contactPerson;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setContactPerson(String contactPerson) {
+        this.contactPerson = contactPerson;
+    }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public String getBusinessRegistrationNumber() {
+        return businessRegistrationNumber;
+    }
 
-    public List<Book> getBooks() { return books; }
-    public void setBooks(List<Book> books) { this.books = books; }
+    public void setBusinessRegistrationNumber(String businessRegistrationNumber) {
+        this.businessRegistrationNumber = businessRegistrationNumber;
+    }
 
-    public List<Message> getSentMessages() { return sentMessages; }
-    public void setSentMessages(List<Message> sentMessages) { this.sentMessages = sentMessages; }
+    public String getPanNumber() {
+        return panNumber;
+    }
 
-    public List<Message> getReceivedMessages() { return receivedMessages; }
-    public void setReceivedMessages(List<Message> receivedMessages) { this.receivedMessages = receivedMessages; }
+    public void setPanNumber(String panNumber) {
+        this.panNumber = panNumber;
+    }
 
-    public List<Order> getOrders() { return orders; }
-    public void setOrders(List<Order> orders) { this.orders = orders; }
+    public String getDocumentPhoto() {
+        return documentPhoto;
+    }
+
+    public void setDocumentPhoto(String documentPhoto) {
+        this.documentPhoto = documentPhoto;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getResetToken() {
+        return resetToken;
+    }
+
+    public void setResetToken(String resetToken) {
+        this.resetToken = resetToken;
+    }
+
+    public LocalDateTime getResetTokenExpiry() {
+        return resetTokenExpiry;
+    }
+
+    public void setResetTokenExpiry(LocalDateTime resetTokenExpiry) {
+        this.resetTokenExpiry = resetTokenExpiry;
+    }
+
+    public Boolean getIsVerified() {
+        return isVerified;
+    }
+
+    public void setIsVerified(Boolean isVerified) {
+        this.isVerified = isVerified;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public Boolean getAgreedToTerms() {
+        return agreedToTerms;
+    }
+
+    public void setAgreedToTerms(Boolean agreedToTerms) {
+        this.agreedToTerms = agreedToTerms;
+    }
+
+    public LocalDateTime getTermsAcceptedAt() {
+        return termsAcceptedAt;
+    }
+
+    public void setTermsAcceptedAt(LocalDateTime termsAcceptedAt) {
+        this.termsAcceptedAt = termsAcceptedAt;
+    }
+
+    public List<Book> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<Book> books) {
+        this.books = books;
+    }
+
+    public List<Message> getSentMessages() {
+        return sentMessages;
+    }
+
+    public void setSentMessages(List<Message> sentMessages) {
+        this.sentMessages = sentMessages;
+    }
+
+    public List<Message> getReceivedMessages() {
+        return receivedMessages;
+    }
+
+    public void setReceivedMessages(List<Message> receivedMessages) {
+        this.receivedMessages = receivedMessages;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
 
     // Enums
     public enum UserType {

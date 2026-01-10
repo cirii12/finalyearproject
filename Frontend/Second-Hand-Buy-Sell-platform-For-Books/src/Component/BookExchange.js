@@ -9,11 +9,11 @@ const BookExchange = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    bookTitle: '',
-    author: '',
-    genre: '',
+    productTitle: '',
+    authorBrand: '',
+    category: '',
     condition: '',
-    desiredGenre: '',
+    desiredCategory: '',
     description: '',
     images: []
   });
@@ -37,16 +37,16 @@ const BookExchange = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       toast.success('Exchange request submitted successfully!');
       setFormData({
-        bookTitle: '',
-        author: '',
-        genre: '',
+        productTitle: '',
+        authorBrand: '',
+        category: '',
         condition: '',
-        desiredGenre: '',
+        desiredCategory: '',
         description: '',
         images: []
       });
@@ -58,64 +58,72 @@ const BookExchange = () => {
   return (
     <div className="book-form-page">
       <Navbar />
-      
+
       <main className="book-form-main">
         <div className="form-header">
           <div className="form-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7 16L3 12L7 8M17 8L21 12L17 16M14 4L10 20" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M7 16L3 12L7 8M17 8L21 12L17 16M14 4L10 20" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h1>Exchange Your Book</h1>
-          <p>Swap your book for another one from our community</p>
+          <h1>Exchange Your Item</h1>
+          <p>Swap your crochet item for another one from our community</p>
         </div>
 
         <form onSubmit={handleSubmit} className="book-form">
           <div className="form-section">
-            <h3>Book Information</h3>
+            <h3>Product Information</h3>
             <div className="form-grid">
               <div className="form-group">
-                <label htmlFor="bookTitle">Book Title *</label>
+                <label htmlFor="productTitle">Product Title *</label>
                 <input
                   type="text"
-                  id="bookTitle"
-                  name="bookTitle"
-                  value={formData.bookTitle}
+                  id="productTitle"
+                  name="productTitle"
+                  value={formData.productTitle}
                   onChange={handleInputChange}
                   required
-                  placeholder="Enter book title"
+                  placeholder="Enter product title"
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="author">Author *</label>
+                <label htmlFor="authorBrand">Author/Brand *</label>
                 <input
                   type="text"
-                  id="author"
-                  name="author"
-                  value={formData.author}
+                  id="authorBrand"
+                  name="authorBrand"
+                  value={formData.authorBrand}
                   onChange={handleInputChange}
                   required
-                  placeholder="Enter author name"
+                  placeholder="Enter brand or artisan name"
                 />
               </div>
             </div>
 
             <div className="form-grid">
               <div className="form-group">
-                <label htmlFor="isbn">ISBN (Optional)</label>
-                <input
-                  type="text"
-                  id="isbn"
-                  name="isbn"
-                  value={formData.isbn}
+                <label htmlFor="category">Category *</label>
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category}
                   onChange={handleInputChange}
-                  placeholder="Enter ISBN number"
-                />
+                  required
+                >
+                  <option value="">Select Category</option>
+                  <option value="BLANKET">Blanket</option>
+                  <option value="BOUQUET">Bouquet</option>
+                  <option value="FLOWERS">Flowers</option>
+                  <option value="AMIGURUMI">Amigurumi</option>
+                  <option value="KEYRINGS">Keyrings</option>
+                  <option value="DRESS">Dress</option>
+                  <option value="OTHER">Other</option>
+                </select>
               </div>
 
               <div className="form-group">
-                <label htmlFor="condition">Book Condition *</label>
+                <label htmlFor="condition">Product Condition *</label>
                 <select
                   id="condition"
                   name="condition"
@@ -135,25 +143,22 @@ const BookExchange = () => {
           <div className="form-section">
             <h3>Exchange Preferences</h3>
             <div className="form-group">
-              <label htmlFor="desiredGenre">Desired Genre</label>
+              <label htmlFor="desiredCategory">Desired Category</label>
               <select
-                id="desiredGenre"
-                name="desiredGenre"
-                value={formData.desiredGenre}
+                id="desiredCategory"
+                name="desiredCategory"
+                value={formData.desiredCategory}
                 onChange={handleInputChange}
               >
-                <option value="">Select preferred genre</option>
-                <option value="Fiction">Fiction</option>
-                <option value="Non-Fiction">Non-Fiction</option>
-                <option value="Mystery">Mystery</option>
-                <option value="Romance">Romance</option>
-                <option value="Sci-Fi">Science Fiction</option>
-                <option value="Fantasy">Fantasy</option>
-                <option value="Biography">Biography</option>
-                <option value="History">History</option>
-                <option value="Science">Science</option>
-                <option value="Self-Help">Self-Help</option>
-                <option value="Any">Any Genre</option>
+                <option value="">Select preferred category</option>
+                <option value="BLANKET">Blanket</option>
+                <option value="BOUQUET">Bouquet</option>
+                <option value="FLOWERS">Flowers</option>
+                <option value="AMIGURUMI">Amigurumi</option>
+                <option value="KEYRINGS">Keyrings</option>
+                <option value="DRESS">Dress</option>
+                <option value="OTHER">Other</option>
+                <option value="Any">Any Category</option>
               </select>
             </div>
 
@@ -166,13 +171,13 @@ const BookExchange = () => {
                 onChange={handleInputChange}
                 required
                 rows="4"
-                placeholder="Describe your book's condition, what you're looking for in exchange, any specific preferences..."
+                placeholder="Describe your item's condition, what you're looking for in exchange, any specific preferences..."
               />
             </div>
           </div>
 
           <div className="form-section">
-            <h3>Book Images</h3>
+            <h3>Product Images</h3>
             <div className="form-group">
               <label htmlFor="images">Upload Images</label>
               <div className="file-upload-area">
@@ -186,32 +191,32 @@ const BookExchange = () => {
                 />
                 <div className="upload-placeholder">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z" fill="#9CA3AF"/>
+                    <path d="M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z" fill="#9CA3AF" />
                   </svg>
                   <p>Click to upload images or drag and drop</p>
-                  <span>Upload up to 5 images (front cover, back cover, spine, etc.)</span>
+                  <span>Upload up to 5 images (product shots, details, etc.)</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="form-actions">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="submit-btn"
               disabled={loading}
             >
               {loading ? (
                 <>
                   <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   Submitting Request...
                 </>
               ) : (
                 <>
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M7 16L3 12L7 8M17 8L21 12L17 16M14 4L10 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M7 16L3 12L7 8M17 8L21 12L17 16M14 4L10 20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   Submit Exchange Request
                 </>

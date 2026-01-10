@@ -110,7 +110,6 @@ const Product = () => {
 
   const filteredBooks = books?.filter(book => {
     const matchesSearch = book.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      book.author?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       book.isbn?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'all' || book.status === filterStatus.toUpperCase();
     const matchesCategory = filterCategory === 'all' || book.category === filterCategory;
@@ -197,7 +196,7 @@ const Product = () => {
               Product Management
             </h1>
             <p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
-              Manage all books on the BookBridge platform
+              Manage all products on the Lunasu Crochet platform
             </p>
           </div>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -263,7 +262,7 @@ const Product = () => {
               </div>
               <div>
                 <div className="stat-value">{books?.length || 0}</div>
-                <div className="stat-label">Total Books</div>
+                <div className="stat-label">Total Items</div>
               </div>
             </div>
           </div>
@@ -308,7 +307,7 @@ const Product = () => {
               }} />
               <input
                 type="text"
-                placeholder="Search books by title, author, or ISBN..."
+                placeholder="Search products by title or SKU..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="search-input"
@@ -342,7 +341,7 @@ const Product = () => {
         {/* Books Grid */}
         <div className="books-grid-container">
           <div className="books-grid-header">
-            <h3 className="books-grid-title">Books ({filteredBooks.length})
+            <h3 className="books-grid-title">Products ({filteredBooks.length})
               {totalPages > 1 && (
                 <span className="books-grid-page-info">
                   (Page {currentPage} of {totalPages})
@@ -362,7 +361,6 @@ const Product = () => {
                       </div>
                       <div>
                         <h4 className="book-title">{book.title}</h4>
-                        <p className="book-author">by {book.author}</p>
                       </div>
                     </div>
 
@@ -370,7 +368,7 @@ const Product = () => {
                       <button
                         onClick={() => handleDeleteBook(book.id, book.title)}
                         className="delete-button"
-                        title="Delete Book"
+                        title="Delete Product"
                       >
                         <Trash2 className="delete-icon" />
                       </button>
@@ -386,11 +384,6 @@ const Product = () => {
                     <div className="detail-row">
                       <span className="detail-label">Category:</span>
                       <span className="detail-value">{book.category || 'Unknown'}</span>
-                    </div>
-
-                    <div className="detail-row">
-                      <span className="detail-label">Condition:</span>
-                      <span className="detail-value">{book.condition || 'Unknown'}</span>
                     </div>
 
                     <div className="detail-row">
@@ -423,7 +416,7 @@ const Product = () => {
 
             {filteredBooks.length === 0 && (
               <div className="no-books-message">
-                No books found matching your criteria
+                No items found matching your criteria
               </div>
             )}
 

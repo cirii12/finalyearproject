@@ -364,7 +364,11 @@ const Analytics = () => {
       data.push({
         date: dateStr,
         orders: dayOrders.length,
-        revenue: dayOrders.reduce((sum, order) => sum + (order.totalAmount || 0), 0)
+        // Calculate net revenue (deduct 150 delivery charge per order, then 5% platform commission)
+        revenue: dayOrders.reduce((sum, order) => {
+          const productAmount = Math.max(0, (order.totalAmount || 0) - 150);
+          return sum + (productAmount * 0.95);
+        }, 0)
       });
     }
 
@@ -535,7 +539,7 @@ const Analytics = () => {
               Analytics Dashboard
             </h1>
             <p style={{ margin: '4px 0 0 0', color: '#6b7280', fontSize: '14px' }}>
-              Comprehensive insights into your BookBridge platform performance
+              Comprehensive insights into your Lunasu Crochet platform performance
             </p>
           </div>
           <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -719,7 +723,7 @@ const Analytics = () => {
                 <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>
                   Rs. {stats?.bookRevenue || 0}/-
                 </div>
-                <div style={{ fontSize: '14px', color: '#6b7280' }}>Book Revenue</div>
+                <div style={{ fontSize: '14px', color: '#6b7280' }}>Product Revenue (Net 95%)</div>
               </div>
             </div>
           </div>
@@ -811,7 +815,7 @@ const Analytics = () => {
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="orders" fill="#3b82f6" name="Orders" />
-                <Bar dataKey="revenue" fill="#10b981" name="Revenue (Rs.)" />
+                <Bar dataKey="revenue" fill="#10b981" name="Net Revenue (Rs.)" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -834,7 +838,7 @@ const Analytics = () => {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} name="Revenue (Rs.)" />
+                <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} name="Net Revenue (Rs.)" />
               </RechartsLineChart>
             </ResponsiveContainer>
           </div>
@@ -1000,11 +1004,11 @@ const Analytics = () => {
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{orderAnalytics.deliveredOrders || 0}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>Book Revenue</span>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Book Revenue (Net 95%)</span>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {orderAnalytics.bookRevenue || orderAnalytics.totalRevenue || 0}/-</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>Tutorial Revenue</span>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Tutorial Revenue (Net 95%)</span>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {orderAnalytics.tutorialRevenue || 0}/-</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#dcfce7', borderRadius: '6px' }}>
@@ -1045,11 +1049,11 @@ const Analytics = () => {
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{paymentAnalytics.failedPayments || 0}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>Book Revenue</span>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Book Revenue (Net 95%)</span>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {paymentAnalytics.bookRevenue || paymentAnalytics.totalRevenue || 0}/-</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>Tutorial Revenue</span>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Tutorial Revenue (Net 95%)</span>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {paymentAnalytics.tutorialRevenue || 0}/-</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#dcfce7', borderRadius: '6px' }}>
@@ -1090,11 +1094,11 @@ const Analytics = () => {
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.totalBooks || 0}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>Book Revenue</span>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Book Revenue (Net 95%)</span>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {businessAnalytics.bookRevenue || businessAnalytics.orderRevenue || 0}/-</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>Tutorial Revenue</span>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Tutorial Revenue (Net 95%)</span>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {businessAnalytics.tutorialRevenue || 0}/-</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#ede9fe', borderRadius: '6px' }}>
@@ -1109,7 +1113,7 @@ const Analytics = () => {
         {/* Settlement Tracking Table */}
         <div style={{ marginTop: '32px' }}>
           <h3 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1f2937', marginBottom: '16px' }}>
-            Payment Settlement from Platform
+            Payment Settlement (Net of 5% Commission)
           </h3>
           <div style={{
             background: 'white',
@@ -1123,7 +1127,7 @@ const Analytics = () => {
                 <tr>
                   <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Order #</th>
                   <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Order Date</th>
-                  <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Total Amount</th>
+                  <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Settlement Amount</th>
                   <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Platform Settlement</th>
                   <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Settled Date</th>
                 </tr>
@@ -1136,7 +1140,7 @@ const Analytics = () => {
                       {new Date(order.createdAt).toLocaleDateString()}
                     </td>
                     <td style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#10b981' }}>
-                      Rs. {order.totalAmount}/-
+                      Rs. {(Math.max(0, order.totalAmount - 150) * 0.95).toFixed(2)}/-
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <span style={{

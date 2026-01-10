@@ -38,7 +38,7 @@ import OrganizationOrder from './Component/aadmin/Order'
 import Product from './Component/aadmin/Product'
 import Analytics from './Component/aadmin/Analytics'
 import TutorialAdd from './Component/aadmin/TutorialAdd';
-
+import Contactus from './Component/aadmin/Contactus';
 
 // Admin Components
 import AdminLogin from './Component/admin/src/pages/Login'
@@ -64,7 +64,7 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <CartProvider> 
+      <CartProvider>
         <Router>
           <Routes>
             {/* Main App Routes */}
@@ -96,7 +96,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/notifications" element={<Notification />} />
             <Route path="/notification" element={<Notification />} />
-            <Route path="/search" element={<SearchPage/>} />
+            <Route path="/search" element={<SearchPage />} />
             <Route path="/forget-password" element={<ForgetPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/change-password" element={<ChangePassword />} />
@@ -108,10 +108,11 @@ function App() {
             <Route path="/organization-orders" element={<OrganizationOrder />} />
             <Route path="/organization-products" element={<Product />} />
             <Route path="/organization-analytics" element={<Analytics />} />
-        <Route path="/organization-tutorials-add" element={<TutorialAdd />} />
+            <Route path="/organization-tutorials-add" element={<TutorialAdd />} />
+            <Route path="/organization-contact" element={<Contactus />} />
 
 
-      
+
 
             {/* 404 Route - Catch all undefined routes */}
             <Route path="*" element={<div style={{ padding: '20px', textAlign: 'center' }}>
@@ -132,7 +133,7 @@ function App() {
               <Route path="books" element={<AdminBooks />} />
               <Route path="orders" element={<AdminOrders />} />
               <Route path="analytics" element={<AdminAnalytics />} />
-          
+
               <Route path="payments" element={<div style={{ padding: '20px' }}>Payments Management - Coming Soon</div>} />
               <Route path="reports" element={<div style={{ padding: '20px' }}>Reports - Coming Soon</div>} />
               <Route path="settings" element={<div style={{ padding: '20px' }}>Settings - Coming Soon</div>} />

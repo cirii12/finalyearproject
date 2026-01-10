@@ -201,7 +201,7 @@ export default function AdminUsers() {
           User Management
         </h1>
         <p style={{ color: '#6b7280', margin: 0 }}>
-          Manage all users on the BookBridge platform
+          Manage all users on the Lunasu Crochet platform
         </p>
       </div>
 

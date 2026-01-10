@@ -7,16 +7,16 @@ import './HomePage.css';
 import { fetchBooks, getImageUrl } from '../services/api';
 
 const suggestions = [
-  'Fiction',
-  'Non-Fiction',
-  'Science Fiction',
-  'Romance',
-  'Mystery',
-  'Biography',
-  'History',
-  'Self-Help',
-  'Children Books',
-  'Academic'
+  'Blankets',
+  'Bouquets',
+  'Flowers',
+  'Amigurumi',
+  'Keyrings',
+  'Dress',
+  'Handmade',
+  'Crochet Art',
+  'Gift Items',
+  'Accessories'
 ];
 
 const SearchPage = () => {
@@ -34,23 +34,25 @@ const SearchPage = () => {
 
   const categories = [
     'All Products',
-    'Blankets',
-    'Toys',
-    'Accessories',
-    'Home Decor',
-    'Baby Items'
+    'Blanket',
+    'Bouquet',
+    'Flowers',
+    'Amigurumi',
+    'Keyrings',
+    'Dress',
+    'Other'
   ];
 
   const priceRanges = [
-    { label: 'Under $20', value: 'under-20' },
-    { label: '$20 - $40', value: '20-40' },
-    { label: '$40 - $60', value: '40-60' },
-    { label: 'Over $60', value: 'over-60' }
+    { label: 'Under Rs. 200', value: 'under-200' },
+    { label: 'Rs. 200 - Rs. 400', value: '200-400' },
+    { label: 'Rs. 400 - Rs. 600', value: '400-600' },
+    { label: 'Over Rs. 600', value: 'over-600' }
   ];
 
   const handlePriceRangeChange = (value) => {
-    setSelectedPriceRange(prev => 
-      prev.includes(value) 
+    setSelectedPriceRange(prev =>
+      prev.includes(value)
         ? prev.filter(p => p !== value)
         : [...prev, value]
     );
@@ -100,7 +102,7 @@ const SearchPage = () => {
     // eslint-disable-next-line
   }, [searchParams, books]);
 
-  const filterBooks = (search) => {
+  const filterBooks = (search, category = selectedCategory) => {
     let filtered = books;
     if (search) {
       const searchLower = search.toLowerCase();
@@ -111,8 +113,19 @@ const SearchPage = () => {
         (book.description && book.description.toLowerCase().includes(searchLower))
       );
     }
+
+    if (category !== 'All Products') {
+      filtered = filtered.filter(book =>
+        book.category === category.toUpperCase()
+      );
+    }
+
     setFilteredBooks(filtered);
   };
+
+  useEffect(() => {
+    filterBooks(searchQuery, selectedCategory);
+  }, [selectedCategory, books, searchQuery]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -197,7 +210,7 @@ const SearchPage = () => {
               </span>
               <div className="shop-sort-container">
                 <span className="sort-label">Sort by:</span>
-                <select 
+                <select
                   className="sort-dropdown"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
@@ -234,7 +247,7 @@ const SearchPage = () => {
                         <span className="star">⭐</span>
                         <span className="star">⭐</span>
                       </div>
-                      <p className="price">NRP. {book.price}/-</p>
+                      <p className="price">Rs. {book.price}/-</p>
                       <button className="details-button" onClick={() => handleViewDetails(book)}>View Detail</button>
                     </div>
                   ))}

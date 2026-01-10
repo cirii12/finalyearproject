@@ -9,15 +9,15 @@ const RequestBook = () => {
     orgName: '',
     contactPerson: '',
     email: '',
-    bookTypes: [],
-    bookQuantity: '',
+    itemTypes: [],
+    itemQuantity: '',
     requestReason: '',
     shippingAddress: '',
   });
 
-  const bookGenres = [
-    'Children Books', 'Textbooks (K-12)', 'University Textbooks', 'Fiction', 
-    'Non-Fiction', 'Science & Technology', 'History', 'Biographies', 'Arts & Music'
+  const productCategories = [
+    'Blanket', 'Bouquet', 'Flowers', 'Amigurumi',
+    'Keyrings', 'Dress', 'Other'
   ];
 
   const handleChange = (e) => {
@@ -28,17 +28,17 @@ const RequestBook = () => {
   const handleCheckboxChange = (e) => {
     const { value, checked } = e.target;
     setFormData(prev => {
-      const newBookTypes = checked 
-        ? [...prev.bookTypes, value] 
-        : prev.bookTypes.filter(type => type !== value);
-      return { ...prev, bookTypes: newBookTypes };
+      const newItemTypes = checked
+        ? [...prev.itemTypes, value]
+        : prev.itemTypes.filter(type => type !== value);
+      return { ...prev, itemTypes: newItemTypes };
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Book Request Data:', formData);
-    toast.success('Your book request has been submitted! We will get back to you soon.');
+    console.log('Product Request Data:', formData);
+    toast.success('Your request has been submitted! We will get back to you soon.');
   };
 
   return (
@@ -48,12 +48,12 @@ const RequestBook = () => {
         <div className="form-header">
           <div className="form-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 6V12L16 14" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M12 6V12L16 14" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h1>Request Book Donation</h1>
-          <p>Let us know what books your organization needs to support your cause</p>
+          <h1>Request Crochet Items</h1>
+          <p>Let us know what handcrafted items your organization needs to support your cause</p>
         </div>
 
         <form onSubmit={handleSubmit} className="book-form">
@@ -102,36 +102,36 @@ const RequestBook = () => {
           </div>
 
           <div className="form-section">
-            <h3>Donation Request Details</h3>
+            <h3>Request Details</h3>
             <div className="form-group">
-              <label>Types of Books Needed *</label>
+              <label>Types of Items Needed *</label>
               <div className="checkbox-grid">
-                {bookGenres.map(genre => (
-                  <label key={genre} className="checkbox-item">
+                {productCategories.map(cat => (
+                  <label key={cat} className="checkbox-item">
                     <input
                       type="checkbox"
-                      name="bookTypes"
-                      value={genre}
+                      name="itemTypes"
+                      value={cat}
                       onChange={handleCheckboxChange}
                       className="checkbox-input"
                     />
-                    <span className="checkbox-label">{genre}</span>
+                    <span className="checkbox-label">{cat}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             <div className="form-group">
-              <label htmlFor="bookQuantity">Approximate Number of Books Needed *</label>
+              <label htmlFor="itemQuantity">Approximate Number of Items Needed *</label>
               <input
                 type="number"
-                id="bookQuantity"
-                name="bookQuantity"
-                value={formData.bookQuantity}
+                id="itemQuantity"
+                name="itemQuantity"
+                value={formData.itemQuantity}
                 onChange={handleChange}
                 required
                 min="1"
-                placeholder="Enter number of books"
+                placeholder="Enter number of items"
               />
             </div>
 
@@ -144,7 +144,7 @@ const RequestBook = () => {
                 onChange={handleChange}
                 required
                 rows="4"
-                placeholder="Briefly explain how these books will be used and the impact they will have..."
+                placeholder="Briefly explain how these handcrafted items will be used and the impact they will have..."
               />
             </div>
 
@@ -157,7 +157,7 @@ const RequestBook = () => {
                 onChange={handleChange}
                 required
                 rows="3"
-                placeholder="Please provide the full address where the books should be sent..."
+                placeholder="Please provide the full address where the items should be sent..."
               />
             </div>
           </div>
@@ -165,7 +165,7 @@ const RequestBook = () => {
           <div className="form-actions">
             <button type="submit" className="submit-btn">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               Submit Request
             </button>

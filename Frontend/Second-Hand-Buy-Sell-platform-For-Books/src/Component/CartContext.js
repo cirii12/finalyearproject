@@ -33,7 +33,7 @@ export const CartProvider = ({ children }) => {
       setCart([]);
       return;
     }
-    
+
     try {
       setLoading(true);
       setError(null);
@@ -57,20 +57,15 @@ export const CartProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Call backend API
-      await addToCartAPI(book.id, 1);
-      
-      // Update local state
-      setCart((prevCart) => {
-        const existing = prevCart.find((i) => i.book.id === book.id);
-        if (existing) {
-          return prevCart.map((i) =>
-            i.book.id === book.id ? { ...i, quantity: i.quantity + 1 } : i
-          );
-        }
-        return [...prevCart, { book, quantity: 1 }];
-      });
+      const result = await addToCartAPI(book.id, 1);
+      const newCartItem = result.cartItem;
+
+      // Update local state - reload from server to be safe and get correct IDs
+      await loadCartItems();
+
+      return newCartItem;
     } catch (err) {
       console.error('Error adding to cart:', err);
       setError(err.message);
@@ -84,10 +79,10 @@ export const CartProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Call backend API
       await updateCartItemQuantityAPI(cartItemId, quantity);
-      
+
       // Update local state
       setCart((prevCart) =>
         prevCart.map((item) =>
@@ -107,10 +102,10 @@ export const CartProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Call backend API
       await removeFromCartAPI(cartItemId);
-      
+
       // Update local state
       setCart((prevCart) => prevCart.filter((item) => item.id !== cartItemId));
     } catch (err) {
@@ -126,10 +121,10 @@ export const CartProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       // Call backend API
       await clearCartAPI();
-      
+
       // Update local state
       setCart([]);
     } catch (err) {
@@ -153,13 +148,13 @@ export const CartProvider = ({ children }) => {
   };
 
   return (
-    <CartContext.Provider value={{ 
-      cart, 
-      loading, 
-      error, 
-      addToCart, 
-      updateQuantity, 
-      removeFromCart, 
+    <CartContext.Provider value={{
+      cart,
+      loading,
+      error,
+      addToCart,
+      updateQuantity,
+      removeFromCart,
       clearCart,
       getCartTotal,
       getCartItemCount,

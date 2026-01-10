@@ -9,9 +9,9 @@ const BookDonate = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    bookTitle: '',
-    author: '',
-    genre: '',
+    productTitle: '',
+    authorBrand: '',
+    category: '',
     condition: '',
     targetAudience: '',
     description: '',
@@ -37,14 +37,14 @@ const BookDonate = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-    
+
     // Simulate API call
     setTimeout(() => {
-      toast.success('Book donation submitted successfully! Thank you for your generosity.');
+      toast.success('Donation submitted successfully! Thank you for your generosity.');
       setFormData({
-        bookTitle: '',
-        author: '',
-        genre: '',
+        productTitle: '',
+        authorBrand: '',
+        category: '',
         condition: '',
         targetAudience: '',
         description: '',
@@ -58,66 +58,74 @@ const BookDonate = () => {
   return (
     <div className="book-form-page">
       <Navbar />
-      
+
       <main className="book-form-main">
         <div className="form-header">
           <div className="form-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M19 15L20 17L22 18L20 19L19 21L18 19L16 18L18 17L19 15Z" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M5 15L6 17L8 18L6 19L5 21L4 19L2 18L4 17L5 15Z" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M19 15L20 17L22 18L20 19L19 21L18 19L16 18L18 17L19 15Z" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M5 15L6 17L8 18L6 19L5 21L4 19L2 18L4 17L5 15Z" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h1>Donate Your Book</h1>
-          <p>Share the gift of knowledge with those who need it most</p>
+          <h1>Donate Your Item</h1>
+          <p>Share the gift of handcrafted art with those who need it most</p>
         </div>
 
         <form onSubmit={handleSubmit} className="book-form">
           <div className="form-section">
-            <h3>Book Information</h3>
+            <h3>Product Information</h3>
             <div className="form-grid">
               <div className="form-group">
-                <label htmlFor="bookTitle">Book Title *</label>
+                <label htmlFor="productTitle">Product Title *</label>
                 <input
                   type="text"
-                  id="bookTitle"
-                  name="bookTitle"
-                  value={formData.bookTitle}
+                  id="productTitle"
+                  name="productTitle"
+                  value={formData.productTitle}
                   onChange={handleInputChange}
                   required
-                  placeholder="Enter book title"
+                  placeholder="Enter product title"
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="author">Author *</label>
+                <label htmlFor="authorBrand">Author/Brand *</label>
                 <input
                   type="text"
-                  id="author"
-                  name="author"
-                  value={formData.author}
+                  id="authorBrand"
+                  name="authorBrand"
+                  value={formData.authorBrand}
                   onChange={handleInputChange}
                   required
-                  placeholder="Enter author name"
+                  placeholder="Enter brand or artisan name"
                 />
               </div>
             </div>
 
             <div className="form-grid">
               <div className="form-group">
-                <label htmlFor="isbn">ISBN (Optional)</label>
-                <input
-                  type="text"
-                  id="isbn"
-                  name="isbn"
-                  value={formData.isbn}
+                <label htmlFor="category">Category *</label>
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category}
                   onChange={handleInputChange}
-                  placeholder="Enter ISBN number"
-                />
+                  required
+                >
+                  <option value="">Select Category</option>
+                  <option value="BLANKET">Blanket</option>
+                  <option value="BOUQUET">Bouquet</option>
+                  <option value="FLOWERS">Flowers</option>
+                  <option value="AMIGURUMI">Amigurumi</option>
+                  <option value="KEYRINGS">Keyrings</option>
+                  <option value="DRESS">Dress</option>
+                  <option value="OTHER">Other</option>
+                </select>
               </div>
 
               <div className="form-group">
-                <label htmlFor="condition">Book Condition *</label>
+                <label htmlFor="condition">Product Condition *</label>
                 <select
                   id="condition"
                   name="condition"
@@ -165,13 +173,13 @@ const BookDonate = () => {
                 onChange={handleInputChange}
                 required
                 rows="4"
-                placeholder="Describe your book's condition, content, why you're donating it, and any special notes..."
+                placeholder="Describe your item's condition, content, why you're donating it, and any special notes..."
               />
             </div>
           </div>
 
           <div className="form-section">
-            <h3>Book Images</h3>
+            <h3>Product Images</h3>
             <div className="form-group">
               <label htmlFor="images">Upload Images</label>
               <div className="file-upload-area">
@@ -185,37 +193,30 @@ const BookDonate = () => {
                 />
                 <div className="upload-placeholder">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z" fill="#9CA3AF"/>
+                    <path d="M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z" fill="#9CA3AF" />
                   </svg>
                   <p>Click to upload images or drag and drop</p>
-                  <span>Upload up to 5 images (front cover, back cover, spine, etc.)</span>
+                  <span>Upload up to 5 images (product shots, details, etc.)</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="form-actions">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="submit-btn"
               disabled={loading}
             >
               {loading ? (
                 <>
                   <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M12 2V6M12 18V22M4.93 4.93L7.76 7.76M16.24 16.24L19.07 19.07M2 12H6M18 12H22M4.93 19.07L7.76 16.24M16.24 7.76L19.07 4.93" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  Donating Book...
+                  Donating Item...
                 </>
               ) : (
-                <>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L13.09 8.26L20 9L13.09 9.74L12 16L10.91 9.74L4 9L10.91 8.26L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M19 15L20 17L22 18L20 19L19 21L18 19L16 18L18 17L19 15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M5 15L6 17L8 18L6 19L5 21L4 19L2 18L4 17L5 15Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                  Donate Book
-                </>
+                "Donate Item"
               )}
             </button>
           </div>
@@ -227,4 +228,4 @@ const BookDonate = () => {
   );
 };
 
-export default BookDonate; 
+export default BookDonate;

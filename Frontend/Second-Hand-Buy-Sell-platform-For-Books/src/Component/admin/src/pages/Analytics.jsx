@@ -295,7 +295,7 @@ export default function Analytics() {
             Analytics Dashboard
           </h1>
           <p style={{ color: '#6b7280', margin: 0 }}>
-            Comprehensive insights into your BookBridge platform performance
+            Comprehensive insights into your Lunasu Crochet platform performance
           </p>
         </div>
         <button

@@ -3,6 +3,10 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import './RegisterOrganization.css';
 import { toast } from 'react-toastify';
+import { Modal, Typography } from 'antd';
+import 'antd/dist/reset.css';
+
+const { Title, Link } = Typography;
 
 const RegisterOrganization = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +23,8 @@ const RegisterOrganization = () => {
     description: '',
     proof: null,
   });
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -30,9 +36,28 @@ const RegisterOrganization = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    if (!showTermsModal && !isSubmitting) {
+      setShowTermsModal(true);
+      return;
+    }
+
+    setIsSubmitting(true);
     console.log('Organization Registration Data:', formData);
+
+    // In a real app, this would be an API call
+    // const payload = new FormData();
+    // append all fields...
+    // payload.append('agreedToTerms', 'true');
+    // await register('organization', payload);
+
     toast.success('Thank you for registering! Your application will be reviewed shortly.');
+    setShowTermsModal(false);
+    setIsSubmitting(false);
+  };
+
+  const handleTermsAgree = () => {
+    handleSubmit();
   };
 
   return (
@@ -42,12 +67,12 @@ const RegisterOrganization = () => {
         <div className="form-header">
           <div className="form-icon">
             <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 21V19C19 17.9391 18.5786 16.9217 17.8284 16.1716C17.0783 15.4214 16.0609 15 15 15H9C7.93913 15 6.92172 15.4214 6.17157 16.1716C5.42143 16.9217 5 17.9391 5 19V21" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M19 21V19C19 17.9391 18.5786 16.9217 17.8284 16.1716C17.0783 15.4214 16.0609 15 15 15H9C7.93913 15 6.92172 15.4214 6.17157 16.1716C5.42143 16.9217 5 17.9391 5 19V21" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z" stroke="#2E8B57" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
           <h1>Register Your Organization</h1>
-          <p>Join our network of organizations dedicated to spreading the joy of reading</p>
+          <p>Join our network of organizations dedicated to spreading the warmth of handcrafted items</p>
         </div>
 
         <form onSubmit={handleSubmit} className="book-form">
@@ -211,7 +236,7 @@ const RegisterOrganization = () => {
                 onChange={handleChange}
                 required
                 rows="4"
-                placeholder="Describe your organization's mission, activities, and how you plan to use donated books..."
+                placeholder="Describe your organization's mission, activities, and how you plan to use donated items..."
               />
             </div>
 
@@ -228,11 +253,11 @@ const RegisterOrganization = () => {
                 />
                 <div className="upload-placeholder">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M14 2V8H20" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M16 13H8" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M16 17H8" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M10 9H9H8" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M14 2V8H20" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M16 13H8" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M16 17H8" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M10 9H9H8" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <p>Click to upload document or drag and drop</p>
                   <span>Upload registration certificate, license, or other proof (PDF, JPG, PNG)</span>
@@ -244,12 +269,37 @@ const RegisterOrganization = () => {
           <div className="form-actions">
             <button type="submit" className="submit-btn">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               Submit Application
             </button>
           </div>
         </form>
+
+        <Modal
+          title="Terms and Conditions"
+          open={showTermsModal}
+          onOk={handleTermsAgree}
+          onCancel={() => setShowTermsModal(false)}
+          okText="I Agree"
+          cancelText="Cancel"
+          maskClosable={false}
+          okButtonProps={{ style: { backgroundColor: '#2E8B57', borderColor: '#2E8B57' } }}
+        >
+          <div style={{ maxHeight: '400px', overflowY: 'auto', padding: '10px' }}>
+            <Title level={4}>Lunasu Crochet Organization Terms</Title>
+            <p>By registering as an organization on Lunasu Crochet, you agree to the following terms and conditions:</p>
+            <ol>
+              <li><strong>Verification:</strong> All organization accounts are subject to verification and approval by the admin.</li>
+              <li><strong>Usage of Items:</strong> Handcrafted items purchased or donated through this platform must be used for the stated charitable or organizational purposes.</li>
+              <li><strong>Content Accuracy:</strong> You ensure that all information provided during registration, including registration numbers and documents, is accurate and up to date.</li>
+              <li><strong>Respectful Conduct:</strong> Organizations must maintain professional and respectful communication with sellers and other users.</li>
+              <li><strong>Platform Fees:</strong> You agree to any platform fees or transaction charges applicable to organization accounts.</li>
+              <li><strong>Liability:</strong> Lunasu Crochet is not liable for any disputes arising from items received or interactions between users.</li>
+            </ol>
+            <p>Please read our full <Link href="/about">Privacy Policy</Link> for more details on how we handle your data.</p>
+          </div>
+        </Modal>
       </main>
       <Footer />
     </div>

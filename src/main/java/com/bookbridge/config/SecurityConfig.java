@@ -64,6 +64,7 @@ public class SecurityConfig {
                         // Auth endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/login", "/api/register/**", "/api/password/reset/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
 
                         // Admin endpoints (they handle auth internally)
                         .requestMatchers("/api/admin/**").permitAll()

@@ -44,9 +44,9 @@ const AdminLogin = () => {
         email: formData.username,
         password: formData.password
       };
-      
+
       const response = await adminLogin(credentials);
-      
+
       // Check for successful login response
       if (response.message === 'Admin login successful' || response.admin) {
         // Store admin session in localStorage WITH TOKEN
@@ -56,7 +56,7 @@ const AdminLogin = () => {
           loginTime: new Date().toISOString(),
           ...response.admin
         });
-        
+
         console.log('Admin login successful:', response);
         toast.success('Login successful! Welcome to Admin Panel', {
           position: "top-right",
@@ -66,7 +66,7 @@ const AdminLogin = () => {
           pauseOnHover: true,
           draggable: true,
         });
-        
+
         // Redirect to admin dashboard
         setTimeout(() => {
           window.location.href = '/admin';
@@ -78,7 +78,7 @@ const AdminLogin = () => {
     } catch (error) {
       console.error('Login error:', error);
       let errorMessage = 'Login failed. Please try again.';
-      
+
       if (error.message.includes('403')) {
         errorMessage = 'Access denied. Please check your credentials.';
       } else if (error.message.includes('empty response')) {
@@ -90,7 +90,7 @@ const AdminLogin = () => {
       } else {
         errorMessage = error.message || errorMessage;
       }
-      
+
       setError(errorMessage);
       toast.error(errorMessage, {
         position: "top-right",
@@ -124,7 +124,7 @@ const AdminLogin = () => {
             </button>
           </div>
           <div className="nav-center">
-            <h1 className="brand-name">BookBridge</h1>
+            <h1 className="brand-name">Lunasu Crochet</h1>
           </div>
           <div className="nav-right">
             <div className="nav-spacer"></div>
@@ -242,7 +242,7 @@ const AdminLogin = () => {
       <footer className="admin-footer">
         <div className="footer-content">
           <div className="footer-left">
-            <p className="copyright">© 2024 BookBridge. All rights reserved.</p>
+            <p className="copyright">© 2024 Lunasu Crochet. All rights reserved.</p>
           </div>
           <div className="footer-right">
             <button type="button" className="footer-link" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>Privacy Policy</button>
@@ -255,5 +255,4 @@ const AdminLogin = () => {
   );
 };
 
-export default AdminLogin; 
- 
+export default AdminLogin;

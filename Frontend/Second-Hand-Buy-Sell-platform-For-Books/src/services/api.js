@@ -210,8 +210,13 @@ export const addToCart = async (bookId, quantity = 1) => {
 
 // Update cart item quantity
 export const updateCartItemQuantity = async (cartItemId, quantity) => {
+  if (!cartItemId) {
+    console.error('updateCartItemQuantity: cartItemId is missing!');
+    throw new Error('Update failed: Cart item ID is missing');
+  }
+  console.log('Updating cart item:', cartItemId, 'to quantity:', quantity);
   try {
-    const response = await fetch(`${BASE_URL}/cart/update/${cartItemId}`, {
+    const response = await fetch(`${BASE_URL}/cart/${cartItemId}`, {
       method: 'PUT',
       headers: getAuthHeaders(),
       body: JSON.stringify({ quantity }),
@@ -225,8 +230,13 @@ export const updateCartItemQuantity = async (cartItemId, quantity) => {
 
 // Remove item from cart
 export const removeFromCart = async (cartItemId) => {
+  if (!cartItemId) {
+    console.error('removeFromCart: cartItemId is missing!');
+    throw new Error('Remove failed: Cart item ID is missing');
+  }
+  console.log('Removing cart item:', cartItemId);
   try {
-    const response = await fetch(`${BASE_URL}/cart/remove/${cartItemId}`, {
+    const response = await fetch(`${BASE_URL}/cart/${cartItemId}`, {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
@@ -708,7 +718,7 @@ export const downloadAnalyticsPDF = async () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `bookbridge-analytics-report-${new Date().toISOString().split('T')[0]}.pdf`;
+    a.download = `lunasucrochet-analytics-report-${new Date().toISOString().split('T')[0]}.pdf`;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
@@ -820,5 +830,63 @@ export const purchaseTutorial = async (tutorialId, transactionId) => {
   } catch (error) {
     console.error('Record tutorial purchase error:', error);
     throw error;
+  }
+};
+
+// ===================== CONTACT US =====================
+// Submit contact message (public)
+export const submitContactMessage = async (formData) => {
+  try {
+    const response = await fetch(`${BASE_URL}/contact`, {
+      method: "POST",
+      body: JSON.stringify(formData),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return handleResponse(response);
+  } catch (err) {
+    console.error("Submit contact message error:", err);
+    throw err;
+  }
+};
+
+// Get all contact messages (organization)
+export const getContactMessages = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/organization/contact-messages`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(response);
+  } catch (err) {
+    console.error("Get contact messages error:", err);
+    throw err;
+  }
+};
+
+export const getUnreadMessageCount = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/organization/contact-messages/unread-count`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(response);
+  } catch (err) {
+    console.error("Get unread count error:", err);
+    throw err;
+  }
+};
+
+export const markMessagesAsRead = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/organization/contact-messages/mark-read`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(response);
+  } catch (err) {
+    console.error("Mark messages read error:", err);
+    throw err;
   }
 };

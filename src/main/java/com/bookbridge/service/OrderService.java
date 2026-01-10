@@ -35,6 +35,8 @@ public class OrderService {
     private final TutorialRepository tutorialRepository;
     private final TutorialPurchaseRepository tutorialPurchaseRepository;
 
+    private static final BigDecimal DELIVERY_CHARGE = new BigDecimal("150.00");
+
     public OrderService(OrderRepository orderRepository,
             OrderItemRepository orderItemRepository,
             CartItemRepository cartItemRepository,
@@ -173,6 +175,9 @@ public class OrderService {
                 }
             }
 
+            // Add delivery charge
+            totalAmount = totalAmount.add(DELIVERY_CHARGE);
+
             // Create order
             Order order = new Order(user, totalAmount, deliveryAddress);
             order.setDeliveryPhone(deliveryPhone);
@@ -185,9 +190,9 @@ public class OrderService {
             for (CartItem cartItem : cartItems) {
                 Book book = cartItem.getBook();
 
-                // Update book status to RESERVED
-                book.setStatus(Book.BookStatus.RESERVED);
-                bookRepository.save(book);
+                // Update book status to RESERVED - COMMENTED OUT TO KEEP IN SHOP
+                // book.setStatus(Book.BookStatus.RESERVED);
+                // bookRepository.save(book);
 
                 // Create order item
                 BigDecimal unitPrice = ((book.getListingType() == Book.ListingType.SELL
@@ -228,20 +233,22 @@ public class OrderService {
                 Order order = orderOpt.get();
                 order.setStatus(status);
 
-                // Update book statuses based on order status
-                if (status == Order.OrderStatus.CANCELLED) {
-                    for (OrderItem item : order.getOrderItems()) {
-                        Book book = item.getBook();
-                        book.setStatus(Book.BookStatus.AVAILABLE);
-                        bookRepository.save(book);
-                    }
-                } else if (status == Order.OrderStatus.DELIVERED) {
-                    for (OrderItem item : order.getOrderItems()) {
-                        Book book = item.getBook();
-                        book.setStatus(Book.BookStatus.SOLD);
-                        bookRepository.save(book);
-                    }
-                }
+                // Update book statuses based on order status - COMMENTED OUT TO KEEP IN SHOP
+                /*
+                 * if (status == Order.OrderStatus.CANCELLED) {
+                 * for (OrderItem item : order.getOrderItems()) {
+                 * Book book = item.getBook();
+                 * book.setStatus(Book.BookStatus.AVAILABLE);
+                 * bookRepository.save(book);
+                 * }
+                 * } else if (status == Order.OrderStatus.DELIVERED) {
+                 * for (OrderItem item : order.getOrderItems()) {
+                 * Book book = item.getBook();
+                 * book.setStatus(Book.BookStatus.SOLD);
+                 * bookRepository.save(book);
+                 * }
+                 * }
+                 */
 
                 return orderRepository.save(order);
             }
@@ -289,12 +296,14 @@ public class OrderService {
                 Order order = orderOpt.get();
                 order.setStatus(Order.OrderStatus.CANCELLED);
 
-                // Return books to available status
-                for (OrderItem item : order.getOrderItems()) {
-                    Book book = item.getBook();
-                    book.setStatus(Book.BookStatus.AVAILABLE);
-                    bookRepository.save(book);
-                }
+                // Return books to available status - COMMENTED OUT AS THEY NEVER CHANGED
+                /*
+                 * for (OrderItem item : order.getOrderItems()) {
+                 * Book book = item.getBook();
+                 * book.setStatus(Book.BookStatus.AVAILABLE);
+                 * bookRepository.save(book);
+                 * }
+                 */
 
                 orderRepository.save(order);
             } else {
@@ -464,8 +473,12 @@ public class OrderService {
             stats.put("totalOrders", totalOrders != null ? totalOrders : 0L);
 
             // 5. Total Revenue (from all sales by this organization)
-            BigDecimal totalRevenue = orderItemRepository.sumRevenueByOrganization(user);
-            stats.put("totalRevenue", totalRevenue != null ? totalRevenue.doubleValue() : 0.0);
+            BigDecimal totalRevenueRaw = orderItemRepository.sumRevenueByOrganization(user);
+            double bookRevenue = totalRevenueRaw != null ? totalRevenueRaw.doubleValue() : 0.0;
+
+            // Apply 5% commission: Org gets 95% of book revenue
+            double orgBookRevenue = bookRevenue * 0.95;
+            stats.put("bookRevenue", orgBookRevenue);
 
             // 6. Growth stats (optional but good for dashboard)
             Long newOrdersThisMonth = orderItemRepository.countOrdersByOrganizationAfterDate(user, startOfMonth);
@@ -485,12 +498,8 @@ public class OrderService {
             double orgTutorialRevenue = tutorialRevenue * 0.95;
             stats.put("tutorialRevenue", orgTutorialRevenue);
 
-            // Stats for breakdown
-            stats.put("bookRevenue", totalRevenue != null ? totalRevenue.doubleValue() : 0.0);
-
             // Update totalRevenue to be combined
-            double totalCombinedRevenue = (totalRevenue != null ? totalRevenue.doubleValue() : 0.0)
-                    + orgTutorialRevenue;
+            double totalCombinedRevenue = orgBookRevenue + orgTutorialRevenue;
             stats.put("totalRevenue", totalCombinedRevenue);
 
             return stats;

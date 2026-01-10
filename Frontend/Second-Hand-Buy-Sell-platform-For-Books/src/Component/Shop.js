@@ -21,23 +21,25 @@ const Shop = () => {
 
   const categories = [
     'All Products',
-    'Blankets',
-    'Toys',
-    'Accessories',
-    'Home Decor',
-    'Baby Items'
+    'Blanket',
+    'Bouquet',
+    'Flowers',
+    'Amigurumi',
+    'Keyrings',
+    'Dress',
+    'Other'
   ];
 
   const priceRanges = [
-    { label: 'Under $20', value: 'under-20' },
-    { label: '$20 - $40', value: '20-40' },
-    { label: '$40 - $60', value: '40-60' },
-    { label: 'Over $60', value: 'over-60' }
+    { label: 'Under Rs. 500', value: 'under-500' },
+    { label: 'Rs. 500 - Rs. 1000', value: '500-1000' },
+    { label: 'Rs. 1000 - Rs. 2000', value: '1000-2000' },
+    { label: 'Over Rs. 2000', value: 'over-2000' }
   ];
 
   const handlePriceRangeChange = (value) => {
-    setSelectedPriceRange(prev => 
-      prev.includes(value) 
+    setSelectedPriceRange(prev =>
+      prev.includes(value)
         ? prev.filter(p => p !== value)
         : [...prev, value]
     );
@@ -58,11 +60,25 @@ const Shop = () => {
     getBooks();
   }, []);
 
+  // Filtering logic
+  const filteredBooks = books.filter(book => {
+    // Category filter
+    if (selectedCategory !== 'All Products') {
+      if (book.category !== selectedCategory.toUpperCase()) {
+        return false;
+      }
+    }
+
+    // Price range filter (can be implemented later if needed)
+
+    return true;
+  });
+
   // Pagination logic
   const indexOfLastBook = currentPage * booksPerPage;
   const indexOfFirstBook = indexOfLastBook - booksPerPage;
-  const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
-  const totalPages = Math.ceil(books.length / booksPerPage);
+  const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
+  const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -80,7 +96,7 @@ const Shop = () => {
     // Check if user is trying to buy their own book
     const currentUser = JSON.parse(user);
     const isOwnBook = book.user && (book.user.id === currentUser.userId || book.userId === currentUser.userId);
-    
+
     if (isOwnBook) {
       toast.warning('You cannot purchase your own book!');
       return;
@@ -159,8 +175,8 @@ const Shop = () => {
               <div className="shop-filter-controls">
                 <div className="sort-by-dropdown">
                   <span>Sort by: </span>
-                  <select 
-                    value={sortBy} 
+                  <select
+                    value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
                     className="sort-select"
                   >
@@ -171,27 +187,27 @@ const Shop = () => {
                   </select>
                 </div>
                 <div className="view-mode-toggle">
-                  <button 
+                  <button
                     className={`view-mode-btn ${viewMode === 'grid' ? 'active' : ''}`}
                     onClick={() => setViewMode('grid')}
                     title="Grid View"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="3" y="3" width="7" height="7" stroke="currentColor" strokeWidth="2"/>
-                      <rect x="14" y="3" width="7" height="7" stroke="currentColor" strokeWidth="2"/>
-                      <rect x="3" y="14" width="7" height="7" stroke="currentColor" strokeWidth="2"/>
-                      <rect x="14" y="14" width="7" height="7" stroke="currentColor" strokeWidth="2"/>
+                      <rect x="3" y="3" width="7" height="7" stroke="currentColor" strokeWidth="2" />
+                      <rect x="14" y="3" width="7" height="7" stroke="currentColor" strokeWidth="2" />
+                      <rect x="3" y="14" width="7" height="7" stroke="currentColor" strokeWidth="2" />
+                      <rect x="14" y="14" width="7" height="7" stroke="currentColor" strokeWidth="2" />
                     </svg>
                   </button>
-                  <button 
+                  <button
                     className={`view-mode-btn ${viewMode === 'list' ? 'active' : ''}`}
                     onClick={() => setViewMode('list')}
                     title="List View"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="2"/>
-                      <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" strokeWidth="2"/>
-                      <line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" strokeWidth="2"/>
+                      <line x1="3" y1="6" x2="21" y2="6" stroke="currentColor" strokeWidth="2" />
+                      <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" strokeWidth="2" />
+                      <line x1="3" y1="18" x2="21" y2="18" stroke="currentColor" strokeWidth="2" />
                     </svg>
                   </button>
                 </div>
@@ -200,84 +216,84 @@ const Shop = () => {
 
             {/* Book Grid */}
             <div className={`book-grid ${viewMode === 'list' ? 'list-view' : ''}`}>
-          {loading ? (
-            <div>Loading...</div>
-          ) : books.length === 0 ? (
-            <div>No match found.</div>
-          ) : (
-            currentBooks.map((book, idx) => {
-              // Check if current user owns this book
-              const user = localStorage.getItem('user');
-              const currentUser = user ? JSON.parse(user) : null;
-              const isOwnBook = currentUser && book.user && (book.user.id === currentUser.userId || book.userId === currentUser.userId);
-              
-              // Generate random badges for demo (you can replace with actual data)
-              const badges = [];
-              if (idx % 3 === 0) badges.push('New');
-              if (idx % 4 === 0) badges.push('Sale');
-              
-              // Generate random rating for demo
-              const rating = (4 + Math.random()).toFixed(1);
-              const reviewCount = Math.floor(Math.random() * 30) + 10;
-              
-              return (
-                <div className="book-card" key={book.id || idx}>
-                  <div className="product-image-container">
-                    <img
-                      src={getImageUrl(book.bookImage)}
-                      alt={book.title}
-                      className="book-image"
-                    />
-                    {badges.length > 0 && (
-                      <div className="product-badges">
-                        {badges.includes('New') && <span className="badge badge-new">New</span>}
-                        {badges.includes('Sale') && <span className="badge badge-sale">Sale</span>}
+              {loading ? (
+                <div>Loading...</div>
+              ) : books.length === 0 ? (
+                <div>No match found.</div>
+              ) : (
+                currentBooks.map((book, idx) => {
+                  // Check if current user owns this book
+                  const user = localStorage.getItem('user');
+                  const currentUser = user ? JSON.parse(user) : null;
+                  const isOwnBook = currentUser && book.user && (book.user.id === currentUser.userId || book.userId === currentUser.userId);
+
+                  // Generate random badges for demo (you can replace with actual data)
+                  const badges = [];
+                  if (idx % 3 === 0) badges.push('New');
+                  if (idx % 4 === 0) badges.push('Sale');
+
+                  // Generate random rating for demo
+                  const rating = (4 + Math.random()).toFixed(1);
+                  const reviewCount = Math.floor(Math.random() * 30) + 10;
+
+                  return (
+                    <div className="book-card" key={book.id || idx}>
+                      <div className="product-image-container">
+                        <img
+                          src={getImageUrl(book.bookImage)}
+                          alt={book.title}
+                          className="book-image"
+                        />
+                        {badges.length > 0 && (
+                          <div className="product-badges">
+                            {badges.includes('New') && <span className="badge badge-new">New</span>}
+                            {badges.includes('Sale') && <span className="badge badge-sale">Sale</span>}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <h3>{book.title}</h3>
-                  <div className="product-rating">
-                    <div className="star-rating">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <span key={star} className={`star ${star <= Math.floor(rating) ? 'filled' : ''} ${star === Math.ceil(rating) && rating % 1 !== 0 ? 'half' : ''}`}>
-                          ⭐
-                        </span>
-                      ))}
+                      <h3>{book.title}</h3>
+                      <div className="product-rating">
+                        <div className="star-rating">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <span key={star} className={`star ${star <= Math.floor(rating) ? 'filled' : ''} ${star === Math.ceil(rating) && rating % 1 !== 0 ? 'half' : ''}`}>
+                              ⭐
+                            </span>
+                          ))}
+                        </div>
+                        <span className="review-count">({reviewCount})</span>
+                      </div>
+                      <p className="price">Rs. {book.price}/-</p>
+
+                      {/* Show warning if user owns the book */}
+                      {isOwnBook && (
+                        <div style={{
+                          background: '#fff3cd',
+                          color: '#856404',
+                          padding: '5px',
+                          borderRadius: '3px',
+                          marginBottom: '8px',
+                          fontSize: '12px',
+                          textAlign: 'center'
+                        }}>
+                          Your book
+                        </div>
+                      )}
+
+                      <button
+                        className="details-button"
+                        onClick={() => navigate('/view-details', { state: { book } })}
+                        disabled={isOwnBook}
+                        style={{
+                          opacity: isOwnBook ? 0.5 : 1,
+                          cursor: isOwnBook ? 'not-allowed' : 'pointer'
+                        }}
+                      >
+                        View Details
+                      </button>
                     </div>
-                    <span className="review-count">({reviewCount})</span>
-                  </div>
-                  <p className="price">NRP. {book.price}/-</p>
-                  
-                  {/* Show warning if user owns the book */}
-                  {isOwnBook && (
-                    <div style={{
-                      background: '#fff3cd',
-                      color: '#856404',
-                      padding: '5px',
-                      borderRadius: '3px',
-                      marginBottom: '8px',
-                      fontSize: '12px',
-                      textAlign: 'center'
-                    }}>
-                      Your book
-                    </div>
-                  )}
-                  
-                  <button 
-                    className="details-button"
-                    onClick={() => navigate('/view-details', { state: { book } })}
-                    disabled={isOwnBook}
-                    style={{
-                      opacity: isOwnBook ? 0.5 : 1,
-                      cursor: isOwnBook ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    View Details
-                  </button>
-                </div>
-              );
-            })
-          )}
+                  );
+                })
+              )}
             </div>
 
             {/* Pagination Controls */}
@@ -290,65 +306,65 @@ const Shop = () => {
                 margin: '40px 0',
                 padding: '20px'
               }}>
-            <button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              style={{
-                padding: '10px 16px',
-                border: '1px solid #d1d5db',
-                background: currentPage === 1 ? '#f3f4f6' : 'white',
-                color: currentPage === 1 ? '#9ca3af' : '#374151',
-                borderRadius: '6px',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}
-            >
-              Previous
-            </button>
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  style={{
+                    padding: '10px 16px',
+                    border: '1px solid #d1d5db',
+                    background: currentPage === 1 ? '#f3f4f6' : 'white',
+                    color: currentPage === 1 ? '#9ca3af' : '#374151',
+                    borderRadius: '6px',
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Previous
+                </button>
 
-            <div style={{ display: 'flex', gap: '4px' }}>
-              {Array.from({ length: totalPages }, (_, index) => {
-                const pageNumber = index + 1;
-                const isCurrentPage = pageNumber === currentPage;
-                
-                return (
-                  <button
-                    key={pageNumber}
-                    onClick={() => handlePageChange(pageNumber)}
-                    style={{
-                      padding: '10px 16px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '6px',
-                      background: isCurrentPage ? '#ec4899' : 'white',
-                      color: isCurrentPage ? 'white' : '#374151',
-                      cursor: 'pointer',
-                      fontSize: '14px',
-                      fontWeight: isCurrentPage ? '600' : '400'
-                    }}
-                  >
-                    {pageNumber}
-                  </button>
-                );
-              })}
-            </div>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  {Array.from({ length: totalPages }, (_, index) => {
+                    const pageNumber = index + 1;
+                    const isCurrentPage = pageNumber === currentPage;
 
-            <button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              style={{
-                padding: '10px 16px',
-                border: '1px solid #d1d5db',
-                background: currentPage === totalPages ? '#f3f4f6' : 'white',
-                color: currentPage === totalPages ? '#9ca3af' : '#374151',
-                borderRadius: '6px',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}
-            >
-              Next
-            </button>
+                    return (
+                      <button
+                        key={pageNumber}
+                        onClick={() => handlePageChange(pageNumber)}
+                        style={{
+                          padding: '10px 16px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          background: isCurrentPage ? '#ec4899' : 'white',
+                          color: isCurrentPage ? 'white' : '#374151',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          fontWeight: isCurrentPage ? '600' : '400'
+                        }}
+                      >
+                        {pageNumber}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    padding: '10px 16px',
+                    border: '1px solid #d1d5db',
+                    background: currentPage === totalPages ? '#f3f4f6' : 'white',
+                    color: currentPage === totalPages ? '#9ca3af' : '#374151',
+                    borderRadius: '6px',
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Next
+                </button>
               </div>
             )}
           </div>

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  BookOpen, 
-  Search, 
+import {
+  BookOpen,
+  Search,
   Trash2,
   DollarSign,
   Calendar,
@@ -21,7 +21,7 @@ import './Books.css';
 export default function AdminBooks() {
   // Add authentication redirect hook
   useAuthRedirect();
-  
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -32,7 +32,7 @@ export default function AdminBooks() {
     title: '',
     message: '',
     type: 'warning',
-    onConfirm: () => {},
+    onConfirm: () => { },
     icon: null
   });
   const [notification, setNotification] = useState({
@@ -78,8 +78,7 @@ export default function AdminBooks() {
 
   const filteredBooks = books?.filter(book => {
     const matchesSearch = book.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         book.author?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         book.isbn?.toLowerCase().includes(searchTerm.toLowerCase());
+      book.isbn?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'all' || book.status === filterStatus.toUpperCase();
     const matchesCategory = filterCategory === 'all' || book.category === filterCategory;
     return matchesSearch && matchesStatus && matchesCategory;
@@ -139,8 +138,8 @@ export default function AdminBooks() {
     <div className="books-container">
       {/* Header */}
       <div className="books-header">
-        <h1 className="books-title"> Management</h1>
-        <p className="books-subtitle">Manage all books on the BookBridge platform</p>
+        <h1 className="books-title">Product Management</h1>
+        <p className="books-subtitle">Manage all items on the Lunasu Crochet platform</p>
       </div>
 
       {/* Stats Cards */}
@@ -152,7 +151,7 @@ export default function AdminBooks() {
             </div>
             <div>
               <div className="stat-value">{books?.length || 0}</div>
-              <div className="stat-label">Total Books</div>
+              <div className="stat-label">Total Products</div>
             </div>
           </div>
         </div>
@@ -186,10 +185,10 @@ export default function AdminBooks() {
       <div className="filters-container">
         <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ position: 'relative', flex: 1, minWidth: '300px' }}>
-            <Search style={{ 
-              position: 'absolute', 
-              left: '12px', 
-              top: '50%', 
+            <Search style={{
+              position: 'absolute',
+              left: '12px',
+              top: '50%',
               transform: 'translateY(-50%)',
               width: '20px',
               height: '20px',
@@ -197,13 +196,13 @@ export default function AdminBooks() {
             }} />
             <input
               type="text"
-              placeholder="Search books by title, author, or ISBN..."
+              placeholder="Search products by title or SKU..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
             />
           </div>
-          
+
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -231,7 +230,7 @@ export default function AdminBooks() {
       {/* Books Grid */}
       <div className="books-grid-container">
         <div className="books-grid-header">
-          <h3 className="books-grid-title">Books ({filteredBooks.length})
+          <h3 className="books-grid-title">Products ({filteredBooks.length})
             {totalPages > 1 && (
               <span className="books-grid-page-info">
                 (Page {currentPage} of {totalPages})
@@ -251,15 +250,14 @@ export default function AdminBooks() {
                     </div>
                     <div>
                       <h4 className="book-title">{book.title}</h4>
-                      <p className="book-author">by {book.author}</p>
                     </div>
                   </div>
-                  
+
                   <div className="book-actions">
                     <button
                       onClick={() => handleDeleteBook(book.id, book.title)}
                       className="delete-button"
-                      title="Delete Book"
+                      title="Delete Product"
                     >
                       <Trash2 className="delete-icon" />
                     </button>
@@ -271,17 +269,12 @@ export default function AdminBooks() {
                     <span className="detail-label">Price:</span>
                     <span className="detail-value">Rs. {book.price || 0}/-</span>
                   </div>
-                  
+
                   <div className="detail-row">
                     <span className="detail-label">Category:</span>
                     <span className="detail-value">{book.category || 'Unknown'}</span>
                   </div>
-                  
-                  <div className="detail-row">
-                    <span className="detail-label">Condition:</span>
-                    <span className="detail-value">{book.condition || 'Unknown'}</span>
-                  </div>
-                  
+
                   <div className="detail-row">
                     <span className="detail-label">ISBN:</span>
                     <span className="detail-value">{book.isbn || 'N/A'}</span>
@@ -292,7 +285,7 @@ export default function AdminBooks() {
                   <span className={`status-badge ${book.status === 'AVAILABLE' ? 'available' : 'unavailable'}`}>
                     {book.status || 'UNKNOWN'}
                   </span>
-                  
+
                   <div className="status-meta">
                     <Calendar className="status-icon" />
                     {new Date(book.createdAt).toLocaleDateString()}
@@ -312,7 +305,7 @@ export default function AdminBooks() {
 
           {filteredBooks.length === 0 && (
             <div className="no-books-message">
-              No books found matching your criteria
+              No items found matching your criteria
             </div>
           )}
 
@@ -331,7 +324,7 @@ export default function AdminBooks() {
                 {Array.from({ length: totalPages }, (_, index) => {
                   const pageNumber = index + 1;
                   const isCurrentPage = pageNumber === currentPage;
-                  
+
                   return (
                     <button
                       key={pageNumber}
@@ -377,5 +370,4 @@ export default function AdminBooks() {
       />
     </div>
   );
-} 
- 
+}

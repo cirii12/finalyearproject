@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Users, 
-  BookOpen, 
-  ShoppingCart, 
+import {
+  LayoutDashboard,
+  Users,
+  BookOpen,
+  ShoppingCart,
   LogOut,
   Menu,
   X,
@@ -58,23 +58,23 @@ export default function AppLayout() {
       }}>
         <div style={{ padding: '24px' }}>
           {/* Logo */}
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'space-between',
             marginBottom: '32px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <Shield style={{ width: '32px', height: '32px', color: '#3b82f6' }} />
-              <h1 style={{ 
-                fontSize: '20px', 
-                fontWeight: 'bold', 
+              <h1 style={{
+                fontSize: '20px',
+                fontWeight: 'bold',
                 margin: 0,
                 background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent'
               }}>
-                BookBridge Admin
+                Lunasu Crochet Admin
               </h1>
             </div>
             <button
@@ -138,11 +138,11 @@ export default function AppLayout() {
           </nav>
 
           {/* Logout */}
-          <div style={{ 
-            position: 'absolute', 
-            bottom: '24px', 
-            left: '24px', 
-            right: '24px' 
+          <div style={{
+            position: 'absolute',
+            bottom: '24px',
+            left: '24px',
+            right: '24px'
           }}>
             <button
               onClick={handleLogout}
@@ -213,20 +213,20 @@ export default function AppLayout() {
             >
               <Menu style={{ width: '20px', height: '20px' }} />
             </button>
-            <h2 style={{ 
-              fontSize: '18px', 
-              fontWeight: '600', 
+            <h2 style={{
+              fontSize: '18px',
+              fontWeight: '600',
               color: '#1f2937',
               margin: 0
             }}>
               {navigation.find(item => isActive(item.href))?.name || 'Dashboard'}
             </h2>
           </div>
-          
+
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
               gap: '8px',
               padding: '8px 12px',
               background: '#f3f4f6',

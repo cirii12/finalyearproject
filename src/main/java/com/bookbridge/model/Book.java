@@ -24,7 +24,7 @@ public class Book {
     private String title;
 
     @NotBlank
-    @Column(length = 100)
+    @Column(length = 200)
     private String author;
 
     private String edition;
@@ -34,22 +34,23 @@ public class Book {
 
     @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(name = "item_category", length = 50)
     private BookCategory category;
 
-    @Column(name = "`condition`")
     @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(name = "item_condition", length = 50)
     private BookCondition condition;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "listing_type")
+    @Column(name = "listing_type", length = 50)
     private ListingType listingType;
 
     @DecimalMin(value = "0.0", inclusive = false)
     private BigDecimal price;
 
-    @Column(length = 1000)
+    @Column(length = 2000)
     private String description;
 
     @NotBlank
@@ -60,6 +61,7 @@ public class Book {
 
     @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 50)
     private BookStatus status = BookStatus.AVAILABLE;
 
     @Column(name = "view_count")
@@ -70,7 +72,7 @@ public class Book {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
     private User user;
 
     @CreationTimestamp
@@ -82,14 +84,15 @@ public class Book {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "book"})
+    @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler", "book" })
     private List<CartItem> cartItems;
 
     // Constructors
-    public Book() {}
+    public Book() {
+    }
 
-    public Book(String title, String author, BookCategory category, BookCondition condition, 
-                ListingType listingType, String location, User user) {
+    public Book(String title, String author, BookCategory category, BookCondition condition,
+            ListingType listingType, String location, User user) {
         this.title = title;
         this.author = author;
         this.category = category;
@@ -100,62 +103,157 @@ public class Book {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
+    public String getTitle() {
+        return title;
+    }
 
-    public String getEdition() { return edition; }
-    public void setEdition(String edition) { this.edition = edition; }
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-    public String getIsbn() { return isbn; }
-    public void setIsbn(String isbn) { this.isbn = isbn; }
+    public String getAuthor() {
+        return author;
+    }
 
-    public BookCategory getCategory() { return category; }
-    public void setCategory(BookCategory category) { this.category = category; }
+    public void setAuthor(String author) {
+        this.author = author;
+    }
 
-    public BookCondition getCondition() { return condition; }
-    public void setCondition(BookCondition condition) { this.condition = condition; }
+    public String getEdition() {
+        return edition;
+    }
 
-    public ListingType getListingType() { return listingType; }
-    public void setListingType(ListingType listingType) { this.listingType = listingType; }
+    public void setEdition(String edition) {
+        this.edition = edition;
+    }
 
-    public BigDecimal getPrice() { return price; }
-    public void setPrice(BigDecimal price) { this.price = price; }
+    public String getIsbn() {
+        return isbn;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
 
-    public String getLocation() { return location; }
-    public void setLocation(String location) { this.location = location; }
+    public BookCategory getCategory() {
+        return category;
+    }
 
-    public String getBookImage() { return bookImage; }
-    public void setBookImage(String bookImage) { this.bookImage = bookImage; }
+    public void setCategory(BookCategory category) {
+        this.category = category;
+    }
 
-    public BookStatus getStatus() { return status; }
-    public void setStatus(BookStatus status) { this.status = status; }
+    public BookCondition getCondition() {
+        return condition;
+    }
 
-    public Integer getViewCount() { return viewCount; }
-    public void setViewCount(Integer viewCount) { this.viewCount = viewCount; }
+    public void setCondition(BookCondition condition) {
+        this.condition = condition;
+    }
 
-    public Integer getInterestCount() { return interestCount; }
-    public void setInterestCount(Integer interestCount) { this.interestCount = interestCount; }
+    public ListingType getListingType() {
+        return listingType;
+    }
 
-    public User getUser() { return user; }
-    public void setUser(User user) { this.user = user; }
+    public void setListingType(ListingType listingType) {
+        this.listingType = listingType;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public BigDecimal getPrice() {
+        return price;
+    }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
 
-    public List<CartItem> getCartItems() { return cartItems; }
-    public void setCartItems(List<CartItem> cartItems) { this.cartItems = cartItems; }
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public String getBookImage() {
+        return bookImage;
+    }
+
+    public void setBookImage(String bookImage) {
+        this.bookImage = bookImage;
+    }
+
+    public BookStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BookStatus status) {
+        this.status = status;
+    }
+
+    public Integer getViewCount() {
+        return viewCount;
+    }
+
+    public void setViewCount(Integer viewCount) {
+        this.viewCount = viewCount;
+    }
+
+    public Integer getInterestCount() {
+        return interestCount;
+    }
+
+    public void setInterestCount(Integer interestCount) {
+        this.interestCount = interestCount;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    public List<CartItem> getCartItems() {
+        return cartItems;
+    }
+
+    public void setCartItems(List<CartItem> cartItems) {
+        this.cartItems = cartItems;
+    }
 
     // Helper method to increment view count
     public void incrementViewCount() {
@@ -169,20 +267,18 @@ public class Book {
 
     // Enums
     public enum BookCategory {
-        SCIENCE, LITERATURE, ENGINEERING, MATHEMATICS, HISTORY, 
-        PHILOSOPHY, ARTS, BUSINESS, TECHNOLOGY, MEDICAL, 
-        LAW, EDUCATION, FICTION, NON_FICTION, TEXTBOOK, OTHER
+        BLANKET, BOUQUET, FLOWERS, AMIGURUMI, KEYRINGS, DRESS, OTHER;
     }
 
     public enum BookCondition {
-        EXCELLENT, NEW, GOOD, FAIR, POOR
+        EXCELLENT, NEW, GOOD, FAIR, POOR;
     }
 
     public enum ListingType {
-        SELL, RENT, EXCHANGE, DONATE
+        SELL, RENT, EXCHANGE, DONATE;
     }
 
     public enum BookStatus {
-        AVAILABLE, RESERVED, SOLD, EXCHANGED, DONATED, DELETED
+        AVAILABLE, RESERVED, SOLD, EXCHANGED, DONATED, DELETED;
     }
 }

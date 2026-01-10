@@ -12,7 +12,7 @@ const CartPage = () => {
 
   const handleQuantityChange = async (cartItemId, newQuantity) => {
     if (newQuantity < 1) return;
-    
+
     try {
       setProcessingItem(cartItemId);
       await updateQuantity(cartItemId, newQuantity);
@@ -61,20 +61,20 @@ const CartPage = () => {
       <Navbar />
       <main style={{ maxWidth: 800, margin: '40px auto', background: '#fff', borderRadius: 12, padding: 32 }}>
         <h2 style={{ textAlign: 'center', marginBottom: 32, color: '#333' }}>Your Cart</h2>
-        
+
         {error && (
-          <div style={{ 
-            background: '#fee', 
-            color: '#c33', 
-            padding: '12px', 
-            borderRadius: '8px', 
+          <div style={{
+            background: '#fee',
+            color: '#c33',
+            padding: '12px',
+            borderRadius: '8px',
             marginBottom: '20px',
             border: '1px solid #fcc'
           }}>
             Error: {error}
           </div>
         )}
-        
+
         {cart.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>
             <div style={{ fontSize: '18px', color: '#666', marginBottom: '20px' }}>
@@ -102,7 +102,7 @@ const CartPage = () => {
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
                   <tr style={{ borderBottom: '2px solid #eee', background: '#f8f9fa' }}>
-                    <th style={{ textAlign: 'left', padding: '16px 8px', fontWeight: '600' }}>Book</th>
+                    <th style={{ textAlign: 'left', padding: '16px 8px', fontWeight: '600' }}>Product</th>
                     <th style={{ textAlign: 'left', padding: '16px 8px', fontWeight: '600' }}>Author</th>
                     <th style={{ textAlign: 'center', padding: '16px 8px', fontWeight: '600' }}>Quantity</th>
                     <th style={{ textAlign: 'right', padding: '16px 8px', fontWeight: '600' }}>Price</th>
@@ -113,16 +113,16 @@ const CartPage = () => {
                   {cart.map(item => (
                     <tr key={item.id} style={{ borderBottom: '1px solid #eee' }}>
                       <td style={{ padding: '16px 8px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <img 
-                          src={item.book.imageUrl || '/default-book.jpg'} 
-                          alt={item.book.title} 
-                          style={{ 
-                            width: 60, 
-                            height: 80, 
-                            objectFit: 'cover', 
+                        <img
+                          src={item.book.imageUrl || '/default-book.jpg'}
+                          alt={item.book.title}
+                          style={{
+                            width: 60,
+                            height: 80,
+                            objectFit: 'cover',
                             borderRadius: '8px',
                             boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-                          }} 
+                          }}
                         />
                         <div>
                           <div style={{ fontWeight: '600', marginBottom: '4px' }}>{item.book.title}</div>
@@ -149,8 +149,8 @@ const CartPage = () => {
                           >
                             -
                           </button>
-                          <span style={{ 
-                            minWidth: '40px', 
+                          <span style={{
+                            minWidth: '40px',
                             textAlign: 'center',
                             fontWeight: '600'
                           }}>
@@ -202,17 +202,17 @@ const CartPage = () => {
                 </tbody>
               </table>
             </div>
-            
-            <div style={{ 
-              marginTop: '32px', 
-              padding: '24px', 
-              background: '#f8f9fa', 
+
+            <div style={{
+              marginTop: '32px',
+              padding: '24px',
+              background: '#f8f9fa',
               borderRadius: '12px',
               border: '1px solid #e9ecef'
             }}>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
                 marginBottom: '20px'
               }}>
@@ -223,7 +223,7 @@ const CartPage = () => {
                   Rs. {getCartTotal().toFixed(2)}/-
                 </span>
               </div>
-              
+
               <div style={{ display: 'flex', gap: '16px', justifyContent: 'flex-end' }}>
                 <button
                   onClick={() => navigate('/search')}

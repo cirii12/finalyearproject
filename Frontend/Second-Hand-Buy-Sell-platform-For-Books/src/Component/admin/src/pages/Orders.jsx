@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { 
-  ShoppingCart, 
-  Eye, 
-  Search, 
+import {
+  ShoppingCart,
+  Eye,
+  Search,
   AlertCircle,
   CheckCircle,
   Clock,
@@ -17,7 +17,7 @@ import { useAuthRedirect } from '../hooks/useAuthRedirect';
 export default function AdminOrders() {
   // Add authentication redirect hook
   useAuthRedirect();
-  
+
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState(null);
@@ -91,7 +91,7 @@ export default function AdminOrders() {
     onError: (error) => {
       console.error('Update order status error:', error);
       let errorMessage = 'Failed to update order status';
-      
+
       if (error.message.includes('403')) {
         errorMessage = 'Access denied. Please login as admin again.';
       } else if (error.message.includes('401')) {
@@ -103,7 +103,7 @@ export default function AdminOrders() {
       } else if (error.message) {
         errorMessage = error.message;
       }
-      
+
       setSuccessMessage(errorMessage);
       setShowSuccessModal(true);
     }
@@ -111,8 +111,8 @@ export default function AdminOrders() {
 
   const filteredOrders = orders?.filter(order => {
     const matchesSearch = order.orderNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.user?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
+      order.user?.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.user?.email?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === 'all' || order.status === filterStatus.toUpperCase();
     return matchesSearch && matchesFilter;
   }) || [];
@@ -204,9 +204,9 @@ export default function AdminOrders() {
       </div>
 
       {/* Stats Cards */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
         gap: '20px',
         marginBottom: '32px'
       }}>
@@ -319,7 +319,7 @@ export default function AdminOrders() {
             }}
           />
         </div>
-        
+
         <select
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
@@ -366,6 +366,7 @@ export default function AdminOrders() {
               <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
                 <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Order #</th>
                 <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Customer</th>
+                <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Organization Location</th>
                 <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Amount</th>
                 <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Status</th>
                 <th style={{ padding: '12px', textAlign: 'left', fontWeight: '600', color: '#374151' }}>Date</th>
@@ -385,6 +386,12 @@ export default function AdminOrders() {
                     </div>
                   </td>
                   <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <Truck className="w-4 h-4" style={{ color: '#6b7280' }} />
+                      <span>{order.orderItems?.[0]?.book?.user?.location || 'N/A'}</span>
+                    </div>
+                  </td>
+                  <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
                     <strong>Rs. {order.totalAmount}</strong>
                   </td>
                   <td style={{ padding: '16px' }}>
@@ -400,7 +407,7 @@ export default function AdminOrders() {
                       background: getStatusColor(order.status)
                     }}>
                       {getStatusIcon(order.status)}
-                      {order.status}
+                      {order.status === 'CONFIRMED' ? 'Pickup Confirmed' : order.status}
                     </span>
                   </td>
                   <td style={{ padding: '16px', fontSize: '14px', color: '#374151' }}>
@@ -426,7 +433,7 @@ export default function AdminOrders() {
                         <Eye style={{ width: '14px', height: '14px' }} />
                         View
                       </button>
-                      
+
                       <select
                         value={order.status}
                         onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
@@ -564,7 +571,7 @@ export default function AdminOrders() {
                   boxShadow: '2px 2px 4px rgba(0, 0, 0, 0.2)'
                 }}></div>
               </div>
-              
+
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', zIndex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                   {/* Book Image from Order */}
@@ -579,18 +586,18 @@ export default function AdminOrders() {
                     transition: 'all 0.3s ease',
                     background: 'rgba(255, 255, 255, 0.1)'
                   }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = 'scale(1.05)';
-                    e.target.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.3)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = 'scale(1)';
-                    e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-                  }}
+                    onMouseEnter={(e) => {
+                      e.target.style.transform = 'scale(1.05)';
+                      e.target.style.boxShadow = '0 8px 16px rgba(0, 0, 0, 0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.target.style.transform = 'scale(1)';
+                      e.target.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+                    }}
                   >
                     {selectedOrder.orderItems && selectedOrder.orderItems.length > 0 ? (
-                      <img 
-                        src={getImageUrl(selectedOrder.orderItems[0].book?.image || selectedOrder.orderItems[0].book?.bookImage)} 
+                      <img
+                        src={getImageUrl(selectedOrder.orderItems[0].book?.image || selectedOrder.orderItems[0].book?.bookImage)}
                         alt={selectedOrder.orderItems[0].book?.title || 'Book'}
                         style={{
                           width: '100%',
@@ -645,11 +652,11 @@ export default function AdminOrders() {
                       }}></div>
                     </div>
                   </div>
-                  
+
                   <div>
-                    <h2 style={{ 
-                      margin: '0 0 4px 0', 
-                      fontSize: '28px', 
+                    <h2 style={{
+                      margin: '0 0 4px 0',
+                      fontSize: '28px',
                       fontWeight: 'bold',
                       textShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
                       background: 'linear-gradient(45deg, #ffffff, #f0f0f0)',
@@ -661,9 +668,9 @@ export default function AdminOrders() {
                       📋 Order Details
                     </h2>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <p style={{ 
-                        margin: 0, 
-                        opacity: 0.9, 
+                      <p style={{
+                        margin: 0,
+                        opacity: 0.9,
                         fontSize: '14px',
                         fontWeight: '500'
                       }}>
@@ -679,7 +686,7 @@ export default function AdminOrders() {
                     </div>
                   </div>
                 </div>
-                
+
                 <button
                   onClick={() => setShowOrderDetails(false)}
                   style={{
@@ -710,7 +717,7 @@ export default function AdminOrders() {
                   ×
                 </button>
               </div>
-              
+
               {/* Decorative line */}
               <div style={{
                 position: 'absolute',
@@ -723,9 +730,9 @@ export default function AdminOrders() {
             </div>
 
             {/* Content */}
-            <div style={{ 
-              padding: '24px 24px 0 24px', 
-              maxHeight: 'calc(90vh - 140px)', 
+            <div style={{
+              padding: '24px 24px 0 24px',
+              maxHeight: 'calc(90vh - 140px)',
               overflowY: 'auto',
               overflowX: 'hidden'
             }}>
@@ -772,9 +779,9 @@ export default function AdminOrders() {
 
               {/* Customer Info */}
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ 
-                  margin: '0 0 16px 0', 
-                  fontSize: '18px', 
+                <h3 style={{
+                  margin: '0 0 16px 0',
+                  fontSize: '18px',
                   fontWeight: '600',
                   color: '#1e293b',
                   display: 'flex',
@@ -820,9 +827,9 @@ export default function AdminOrders() {
 
               {/* Order Items */}
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ 
-                  margin: '0 0 16px 0', 
-                  fontSize: '18px', 
+                <h3 style={{
+                  margin: '0 0 16px 0',
+                  fontSize: '18px',
                   fontWeight: '600',
                   color: '#1e293b',
                   display: 'flex',
@@ -833,7 +840,7 @@ export default function AdminOrders() {
                 </h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {selectedOrder.orderItems?.map((item, index) => (
-                    <div key={index} style={{ 
+                    <div key={index} style={{
                       background: 'white',
                       borderRadius: '12px',
                       padding: '20px',
@@ -842,17 +849,17 @@ export default function AdminOrders() {
                     }}>
                       <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
                         {/* Book Image */}
-                        <div style={{ 
-                          width: '100px', 
-                          height: '120px', 
+                        <div style={{
+                          width: '100px',
+                          height: '120px',
                           borderRadius: '8px',
                           overflow: 'hidden',
                           flexShrink: 0,
                           border: '1px solid #e2e8f0',
                           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
                         }}>
-                          <img 
-                            src={getImageUrl(item.book?.image || item.book?.bookImage)} 
+                          <img
+                            src={getImageUrl(item.book?.image || item.book?.bookImage)}
                             alt={item.book?.title}
                             style={{
                               width: '100%',
@@ -864,22 +871,19 @@ export default function AdminOrders() {
                             }}
                           />
                         </div>
-                        
+
                         {/* Book Details */}
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '120px' }}>
                           <div>
                             <div style={{ fontWeight: '700', fontSize: '18px', marginBottom: '6px', color: '#1e293b' }}>
                               {item.book?.title}
                             </div>
-                            <div style={{ color: '#64748b', fontSize: '14px', marginBottom: '8px' }}>
-                              by {item.book?.author}
-                            </div>
                           </div>
-                          
+
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ 
-                              background: '#f1f5f9', 
-                              padding: '6px 12px', 
+                            <div style={{
+                              background: '#f1f5f9',
+                              padding: '6px 12px',
                               borderRadius: '20px',
                               fontSize: '14px',
                               fontWeight: '500',
@@ -954,8 +958,8 @@ export default function AdminOrders() {
           }}>
             {/* Header */}
             <div style={{
-              background: successMessage.includes('successfully') 
-                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
+              background: successMessage.includes('successfully')
+                ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
                 : 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
               color: 'white',
               padding: '24px',
@@ -990,9 +994,9 @@ export default function AdminOrders() {
 
             {/* Content */}
             <div style={{ padding: '24px' }}>
-              <p style={{ 
-                margin: 0, 
-                fontSize: '16px', 
+              <p style={{
+                margin: 0,
+                fontSize: '16px',
                 color: '#374151',
                 lineHeight: '1.5'
               }}>

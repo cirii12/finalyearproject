@@ -55,7 +55,7 @@ export default function Dashboard() {
           Dashboard
         </h1>
         <p style={{ color: '#6b7280', margin: 0 }}>
-          Overview of your platform
+          Overview of your Lunasu Crochet platform
         </p>
         <div style={{ fontSize: '14px', color: '#6b7280', marginTop: '8px' }}>
           Last updated: {new Date().toLocaleTimeString()}
