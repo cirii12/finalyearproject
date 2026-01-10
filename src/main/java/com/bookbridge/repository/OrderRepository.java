@@ -100,4 +100,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
        @Query("SELECT SUM(o.totalAmount) FROM Order o WHERE o.user = :user AND o.createdAt BETWEEN :startDate AND :endDate")
        BigDecimal sumTotalAmountByUserAndCreatedAtBetween(@Param("user") User user,
                      @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+
+       @Query("SELECT COUNT(o) FROM Order o WHERE o.status != :status")
+       Long countByStatusNot(@Param("status") Order.OrderStatus status);
 }

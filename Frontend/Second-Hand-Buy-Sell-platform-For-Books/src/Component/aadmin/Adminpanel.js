@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Adminpanel.css';
 import { toast } from 'react-toastify';
-import { addBook, getUnreadMessageCount } from '../../services/api';
+import { addBook, getUnreadMessageCount, getActiveOrdersCount } from '../../services/api';
 import { showLogoutConfirmation } from '../ConfirmationToast';
 import NotificationBell from './NotificationBell';
 
@@ -11,6 +11,7 @@ const AdminPanel = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [activeOrdersCount, setActiveOrdersCount] = useState(0);
   const [formData, setFormData] = useState({
     bookTitle: '',
     category: '',
@@ -43,7 +44,18 @@ const AdminPanel = () => {
         console.error("Failed to fetch unread count", err);
       }
     };
+
+    const fetchActiveOrdersCount = async () => {
+      try {
+        const data = await getActiveOrdersCount();
+        setActiveOrdersCount(data.count);
+      } catch (err) {
+        console.error("Failed to fetch active orders count", err);
+      }
+    };
+
     fetchUnreadCount();
+    fetchActiveOrdersCount();
 
   }, [navigate]);
 
@@ -130,8 +142,27 @@ const AdminPanel = () => {
             <button className="admin-orders-btn" onClick={() => navigate('/organization-products')}>
               View Products
             </button>
-            <button className="admin-orders-btn" onClick={() => navigate('/organization-orders')}>
+            <button className="admin-orders-btn" onClick={() => navigate('/organization-orders')} style={{ position: 'relative' }}>
               View Orders
+              {activeOrdersCount > 0 && (
+                <span style={{
+                  position: 'absolute',
+                  top: '-5px',
+                  right: '-5px',
+                  background: '#ef4444',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '20px',
+                  height: '20px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12px',
+                  fontWeight: 'bold'
+                }}>
+                  {activeOrdersCount}
+                </span>
+              )}
             </button>
             <button className="admin-orders-btn" onClick={() => navigate('/organization-analytics')}>
               Analytics

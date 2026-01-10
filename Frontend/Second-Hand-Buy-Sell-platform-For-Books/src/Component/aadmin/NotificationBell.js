@@ -26,15 +26,16 @@ const NotificationBell = () => {
     const fetchRecentNotifications = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await fetch('http://localhost:8082/api/notifications/unread', {
+            // Fetch top 5 recent notifications (including read ones)
+            const response = await fetch('http://localhost:8082/api/notifications?page=0&size=5', {
                 headers: getAuthHeaders()
             });
             if (response.ok) {
                 const data = await response.json();
-                setNotifications(data.notifications || []);
+                setNotifications(data.content || []);
             }
         } catch (error) {
-            console.error('Error fetching unread notifications:', error);
+            console.error('Error fetching notifications:', error);
         } finally {
             setLoading(false);
         }
@@ -71,11 +72,29 @@ const NotificationBell = () => {
                 headers: getAuthHeaders()
             });
             if (response.ok) {
-                setNotifications(notifications.filter(n => n.id !== id));
+                setNotifications(prev => prev.map(n => n.id === id ? { ...n, isRead: true } : n));
                 setUnreadCount(prev => Math.max(0, prev - 1));
             }
         } catch (error) {
             console.error('Error marking notification as read:', error);
+        }
+    };
+
+    const clearAll = async () => {
+        if (window.confirm('Are you sure you want to clear all notifications?')) {
+            try {
+                const response = await fetch('http://localhost:8082/api/notifications/clear-all', {
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
+                if (response.ok) {
+                    setNotifications([]);
+                    setUnreadCount(0);
+                    setShowDropdown(false);
+                }
+            } catch (error) {
+                console.error('Error clearing notifications:', error);
+            }
         }
     };
 
@@ -93,26 +112,40 @@ const NotificationBell = () => {
                 <div className="notification-dropdown">
                     <div className="dropdown-header">
                         <h3>Notifications</h3>
+                        <div className="header-actions">
+                            <button className="clear-all-btn" onClick={clearAll}>Clear All</button>
+                        </div>
                     </div>
                     <div className="dropdown-content">
                         {loading ? (
                             <div className="dropdown-message">Loading...</div>
                         ) : notifications.length === 0 ? (
-                            <div className="dropdown-message">No new notifications</div>
+                            <div className="dropdown-message">No notifications</div>
                         ) : (
                             notifications.map(notification => (
-                                <div key={notification.id} className="dropdown-item">
+                                <div
+                                    key={notification.id}
+                                    className={`dropdown-item ${!notification.isRead ? 'unread' : ''}`}
+                                    onClick={(e) => !notification.isRead && markAsRead(notification.id, e)}
+                                >
                                     <div className="item-content">
                                         <p className="item-title">{notification.title}</p>
                                         <p className="item-text">{notification.message}</p>
                                         <p className="item-time">{new Date(notification.createdAt).toLocaleString()}</p>
                                     </div>
-                                    <button className="mark-read-btn" onClick={(e) => markAsRead(notification.id, e)}>
-                                        Read
-                                    </button>
+                                    {!notification.isRead && (
+                                        <button className="mark-read-btn" onClick={(e) => markAsRead(notification.id, e)}>
+                                            Read
+                                        </button>
+                                    )}
                                 </div>
                             ))
                         )}
+                    </div>
+                    <div className="dropdown-footer">
+                        <span className="view-all-link" onClick={() => { setShowDropdown(false); window.location.href = '/notifications'; }}>
+                            View All Notifications
+                        </span>
                     </div>
                 </div>
             )}

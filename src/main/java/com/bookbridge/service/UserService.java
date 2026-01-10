@@ -26,31 +26,31 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepository;
-    
+
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
-    
+
     @Autowired
     private EmailService emailService;
-    
+
     @Autowired
     private BookRepository bookRepository;
-    
+
     @Autowired
     private OrderRepository orderRepository;
-    
+
     @Autowired
     private OrderItemRepository orderItemRepository;
-    
+
     @Autowired
     private CartItemRepository cartItemRepository;
-    
+
     @Autowired
     private PaymentRepository paymentRepository;
-    
+
     @Autowired
     private MessageRepository messageRepository;
-    
+
     @Autowired
     private NotificationRepository notificationRepository;
 
@@ -90,41 +90,42 @@ public class UserService {
         Optional<User> userOpt = userRepository.findById(id);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            
+
             // Delete notifications related to this user
             notificationRepository.deleteByUser(user);
-            
+
             // Delete messages sent by or received by this user
             messageRepository.deleteBySenderOrReceiver(user, user);
-            
+
             // Delete payments related to user's orders
             List<Order> userOrders = orderRepository.findByUser(user);
             for (Order order : userOrders) {
                 paymentRepository.deleteByOrder(order);
             }
-            
+
             // Delete order items related to user's orders
             for (Order order : userOrders) {
                 orderItemRepository.deleteByOrder(order);
             }
-            
+
             // Delete user's orders
             orderRepository.deleteByUser(user);
-            
+
             // Delete cart items related to user's books
             List<Book> userBooks = bookRepository.findByUser(user);
             for (Book book : userBooks) {
                 cartItemRepository.deleteByBook(book);
             }
-            
-            // Delete order items that reference user's books (to handle foreign key constraints)
+
+            // Delete order items that reference user's books (to handle foreign key
+            // constraints)
             for (Book book : userBooks) {
                 orderItemRepository.deleteByBook(book);
             }
-            
+
             // Delete user's books
             bookRepository.deleteByUser(user);
-            
+
             // Finally delete the user
             userRepository.delete(user);
         }
@@ -145,7 +146,7 @@ public class UserService {
     }
 
     @Transactional
-    public boolean initiatePasswordReset(String token,String email) {
+    public boolean initiatePasswordReset(String token, String email) {
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();

@@ -1,9 +1,11 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom';
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import "./Aboutus.css";
 
 const AboutUs = () => {
+    const navigate = useNavigate();
   return (
     <div className="about-page">
       <Navbar />
@@ -21,7 +23,7 @@ const AboutUs = () => {
               home studio. Today, we are a community of artisans dedicated to creating beautiful, handmade crochet items that bring joy families worldwide.
 
             </p>
-            <button className="primary-btn">Shop Our Collection</button>
+            <button className="primary-btn"  onClick={() => navigate('/shop')}>Shop Our Collection</button>
           </div>
 
           <div className="about-hero-card">
@@ -160,8 +162,8 @@ const AboutUs = () => {
               Explore hundreds of handcrafted items or find the perfect gift for your loved ones.
             </p>
             <div className="cta-actions">
-              <button className="primary-btn light">Shop Now</button>
-              <button className="secondary-btn light">Contact Us</button>
+              <button className="primary-btn light"onClick={() => navigate('/shop')} >Shop Now</button>
+              <button className="secondary-btn light"onClick={() => navigate('/contact')} >Contact Us</button>
             </div>
           </div>
         </div>

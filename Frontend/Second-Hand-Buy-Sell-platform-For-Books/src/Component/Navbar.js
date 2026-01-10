@@ -160,7 +160,7 @@ const Navbar = () => {
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         /> */}
-      <span className="brand-name">LunasuCrochet</span>
+      <span className="brand-name" onClick={() => navigate('/')}>LunasuCrochet</span>
       {/* </div> */}
 
       {/* Middle Navigation */}

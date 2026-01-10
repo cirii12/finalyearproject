@@ -1,6 +1,7 @@
 package com.bookbridge.config;
 
 import com.bookbridge.service.CustomUserDetailsService;
+import com.bookbridge.model.User;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +26,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private CustomUserDetailsService userDetailsService;
 
+    @Autowired
+    private com.bookbridge.repository.UserRepository userRepository;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -38,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         System.out.println("JwtAuthenticationFilter: Authorization header = " + authHeader);
 
         // Check for admin session authentication first
-        if (requestURI.startsWith("/api/admin/") &&
+        if ((requestURI.startsWith("/api/admin/") || requestURI.startsWith("/api/notifications/")) &&
                 !requestURI.equals("/api/admin/login") &&
                 !requestURI.equals("/api/admin/setup") &&
                 !requestURI.equals("/api/admin/test-session") &&
@@ -48,10 +52,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (session != null) {
                 Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
                 Long adminId = (Long) session.getAttribute("adminId");
+                String adminEmail = (String) session.getAttribute("adminEmail");
                 if (isAdmin != null && isAdmin && adminId != null) {
                     System.out.println("JwtAuthenticationFilter: Admin session found for admin ID: " + adminId);
+                    if (adminEmail == null) {
+                        User adminUser = userRepository.findById(adminId).orElse(null);
+                        adminEmail = adminUser != null ? adminUser.getEmail() : "admin";
+                        session.setAttribute("adminEmail", adminEmail);
+                    }
+                    String principal = adminEmail;
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            "admin", null, java.util.Collections.emptyList());
+                            principal, null, java.util.Collections.emptyList());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {

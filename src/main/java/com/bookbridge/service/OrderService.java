@@ -210,6 +210,9 @@ public class OrderService {
             // Clear the cart
             cartItemRepository.deleteByUser(user);
 
+            // Notify buyer
+            notificationService.notifyBuyerOrderConfirmed(savedOrder);
+
             return savedOrder;
         } catch (IllegalArgumentException | IllegalStateException e) {
             throw e;
@@ -219,7 +222,7 @@ public class OrderService {
     }
 
     @Transactional
-    public Order updateOrderStatus(Long orderId, Order.OrderStatus status) {
+    public Order updateOrderStatus(Long orderId, Order.OrderStatus status, User updatedBy) {
         if (orderId == null) {
             throw new IllegalArgumentException("Order ID cannot be null");
         }
@@ -231,6 +234,7 @@ public class OrderService {
             Optional<Order> orderOpt = orderRepository.findById(orderId);
             if (orderOpt.isPresent()) {
                 Order order = orderOpt.get();
+                Order.OrderStatus previousStatus = order.getStatus();
                 order.setStatus(status);
 
                 // Update book statuses based on order status - COMMENTED OUT TO KEEP IN SHOP
@@ -249,6 +253,19 @@ public class OrderService {
                  * }
                  * }
                  */
+
+                // Notify Admin if Pickup is Confirmed
+                if (status == Order.OrderStatus.CONFIRMED) {
+                    notificationService.notifyAdminOrderPickupConfirmed(order, updatedBy);
+                }
+
+                // Notify Admin if Pickup is Cancelled (CONFIRMED -> PENDING)
+                if (previousStatus == Order.OrderStatus.CONFIRMED && status == Order.OrderStatus.PENDING) {
+                    notificationService.notifyAdminOrderPickupCancelled(order, updatedBy);
+                }
+
+                // Notify Buyer of status change
+                notificationService.notifyBuyerOrderStatusChanged(order);
 
                 return orderRepository.save(order);
             }
@@ -274,6 +291,10 @@ public class OrderService {
             if (orderOpt.isPresent()) {
                 Order order = orderOpt.get();
                 order.setDeliveryStatus(status);
+
+                // Notify Buyer of delivery status change
+                notificationService.notifyBuyerDeliveryStatusChanged(order);
+
                 return orderRepository.save(order);
             }
             throw new IllegalArgumentException("Order not found with ID: " + orderId);
@@ -294,6 +315,12 @@ public class OrderService {
             Optional<Order> orderOpt = orderRepository.findById(orderId);
             if (orderOpt.isPresent()) {
                 Order order = orderOpt.get();
+
+                // Only allow cancellation if status is PENDING
+                if (order.getStatus() != Order.OrderStatus.PENDING) {
+                    throw new IllegalStateException("Order can only be cancelled while in PENDING status.");
+                }
+
                 order.setStatus(Order.OrderStatus.CANCELLED);
 
                 // Return books to available status - COMMENTED OUT AS THEY NEVER CHANGED
@@ -306,6 +333,9 @@ public class OrderService {
                  */
 
                 orderRepository.save(order);
+
+                // Notify Buyer of cancellation
+                notificationService.notifyBuyerOrderStatusChanged(order);
             } else {
                 throw new IllegalArgumentException("Order not found with ID: " + orderId);
             }
@@ -679,5 +709,13 @@ public class OrderService {
                 .forEach(org -> notificationService.notifyOrgPaymentCleared(org, savedOrder));
 
         return savedOrder;
+    }
+
+    public Long countActiveOrders() {
+        return orderRepository.countByStatusNot(Order.OrderStatus.DELIVERED);
+    }
+
+    public Long countActiveOrdersByOrganization(User organization) {
+        return orderItemRepository.countOrdersByOrganizationAndStatusNot(organization, Order.OrderStatus.DELIVERED);
     }
 }

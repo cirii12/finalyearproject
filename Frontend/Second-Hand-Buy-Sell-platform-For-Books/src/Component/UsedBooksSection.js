@@ -1,8 +1,10 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './UsedBooksSection.css';
 import { fetchBooks, getImageUrl } from '../services/api';
 
 const UsedBooksSection = () => {
+  const navigate = useNavigate();
   const [items, setItems] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -37,7 +39,14 @@ const UsedBooksSection = () => {
       <div className="bookshelf-container">
         <div className="items-on-shelf">
           {items.map(item => (
-            <img key={item.id} src={getImageUrl(item.bookImage)} alt={item.title} className="item-on-shelf" />
+            <img
+              key={item.id}
+              src={getImageUrl(item.bookImage)}
+              alt={item.title}
+              className="item-on-shelf"
+              onClick={() => navigate('/view-details', { state: { book: item } })}
+              style={{ cursor: 'pointer' }}
+            />
           ))}
         </div>
         <div className="bookshelf"></div>

@@ -182,6 +182,22 @@ export const getAllPayments = async (page = 0, size = 10) => {
 };
 
 // Orders Management
+export const getActiveOrdersCount = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/orders/count/active`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch active orders count: ${response.status}`);
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching active orders count:', error);
+    return { count: 0 };
+  }
+};
+
 export const getAllOrders = async () => {
   const response = await fetch(`${BASE_URL}/admin/orders`, {
     headers: getAuthHeaders(),
@@ -371,4 +387,126 @@ export const getAdminSession = () => {
 export const adminLogout = () => {
   localStorage.removeItem('adminUser');
   localStorage.removeItem('adminToken');
+};
+
+// Notifications Management
+export const getUnreadNotifications = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/notifications/unread`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch unread notifications');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Get unread notifications error:', error);
+    throw error;
+  }
+};
+
+export const markNotificationAsRead = async (id) => {
+  try {
+    const response = await fetch(`${BASE_URL}/notifications/${id}/read`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to mark notification as read');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Mark notification as read error:', error);
+    throw error;
+  }
+};
+// Mark all notifications as read
+export const markAllNotificationsAsRead = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/notifications/read-all`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to mark all notifications as read');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Mark all notifications as read error:', error);
+    throw error;
+  }
+};
+
+// Clear all notifications
+export const clearAllNotifications = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/notifications/clear-all`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to clear notifications');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Clear all notifications error:', error);
+    throw error;
+  }
+};
+
+// Get recent notifications (including read ones)
+export const getRecentNotifications = async (limit = 10) => {
+  try {
+    const response = await fetch(`${BASE_URL}/notifications?page=0&size=${limit}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch recent notifications');
+    }
+
+    const data = await response.json();
+    return {
+      notifications: data.content || [],
+      totalElements: data.totalElements
+    };
+  } catch (error) {
+    console.error('Get recent notifications error:', error);
+    throw error;
+  }
+};
+
+// Get paged notifications
+export const getPagedNotifications = async (page = 0, size = 10) => {
+  try {
+    const response = await fetch(`${BASE_URL}/notifications?page=${page}&size=${size}`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch paged notifications');
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error('Get paged notifications error:', error);
+    throw error;
+  }
 };

@@ -238,7 +238,11 @@ const Shop = () => {
 
                   return (
                     <div className="book-card" key={book.id || idx}>
-                      <div className="product-image-container">
+                      <div
+                        className="product-image-container"
+                        onClick={() => !isOwnBook && navigate('/view-details', { state: { book } })}
+                        style={{ cursor: isOwnBook ? 'default' : 'pointer' }}
+                      >
                         <img
                           src={getImageUrl(book.bookImage)}
                           alt={book.title}

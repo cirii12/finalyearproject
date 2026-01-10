@@ -48,6 +48,7 @@ import AdminUsers from './Component/admin/src/pages/Users'
 import AdminBooks from './Component/admin/src/pages/Books'
 import AdminOrders from './Component/admin/src/pages/Orders'
 import AdminAnalytics from './Component/admin/src/pages/Analytics'
+import AdminNotifications from './Component/admin/src/pages/Notifications'
 import AdminProtectedRoute from './Component/admin/src/components/AdminProtectedRoute'
 
 
@@ -133,6 +134,7 @@ function App() {
               <Route path="books" element={<AdminBooks />} />
               <Route path="orders" element={<AdminOrders />} />
               <Route path="analytics" element={<AdminAnalytics />} />
+              <Route path="notifications" element={<AdminNotifications />} />
 
               <Route path="payments" element={<div style={{ padding: '20px' }}>Payments Management - Coming Soon</div>} />
               <Route path="reports" element={<div style={{ padding: '20px' }}>Reports - Coming Soon</div>} />

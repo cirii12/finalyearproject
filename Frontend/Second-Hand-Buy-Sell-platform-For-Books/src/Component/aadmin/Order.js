@@ -427,9 +427,25 @@ const Order = () => {
                               <Truck style={{ width: '14px', height: '14px' }} />
                               Pickup
                             </button>
+                          ) : order.status === 'CONFIRMED' ? (
+                            <button
+                              onClick={() => handleStatusUpdate(order.id, 'PENDING')}
+                              className="order-view-btn"
+                              style={{
+                                background: '#ef4444',
+                                color: 'white',
+                                borderColor: '#ef4444',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              <XCircle style={{ width: '14px', height: '14px' }} />
+                              Cancel Pickup
+                            </button>
                           ) : (
                             <span style={{ fontSize: '12px', color: '#6b7280', fontStyle: 'italic' }}>
-                              {order.status === 'CONFIRMED' ? 'Pickup Confirmed' : 'Action Locked'}
+                              Action Locked
                             </span>
                           )}
 

@@ -6,10 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@Transactional
 public class NotificationService {
 
     @Autowired
@@ -85,6 +86,77 @@ public class NotificationService {
         createNotification(buyer, title, message, Notification.NotificationType.DELIVERY, book, order);
     }
 
+    public void notifyBuyerOrderConfirmed(Order order) {
+        User buyer = order.getUser();
+        String title = "Order Confirmed!";
+        String message = String.format(
+                "Your order #%s has been successfully placed. " +
+                        "We'll notify you once your books are ready for delivery.",
+                order.getOrderNumber());
+
+        createNotification(buyer, title, message, Notification.NotificationType.ORDER, null, order);
+    }
+
+    public void notifyBuyerOrderStatusChanged(Order order) {
+        User buyer = order.getUser();
+        String title = "Order Status Updated";
+        String message = String.format(
+                "The status of your order #%s has been updated to: %s.",
+                order.getOrderNumber(),
+                order.getStatus());
+
+        createNotification(buyer, title, message, Notification.NotificationType.ORDER, null, order);
+    }
+
+    public void notifyBuyerDeliveryStatusChanged(Order order) {
+        User buyer = order.getUser();
+        String title = "Delivery Status Updated";
+        String message = String.format(
+                "The delivery status of your order #%s has been updated to: %s.",
+                order.getOrderNumber(),
+                order.getDeliveryStatus());
+
+        createNotification(buyer, title, message, Notification.NotificationType.DELIVERY, null, order);
+    }
+
+    @Autowired
+    private UserService userService;
+
+    public void notifyAdminOrderPickupConfirmed(Order order, User organization) {
+        System.out.println("DEBUG: notifyAdminOrderPickupConfirmed called for order " + order.getOrderNumber());
+        List<User> admins = userService.getUsersByType(User.UserType.ADMIN);
+        System.out.println("DEBUG: Found " + admins.size() + " admin users.");
+
+        String location = organization != null ? organization.getLocation() : "Unknown";
+        String title = "Pickup Confirmed";
+        String message = String.format(
+                "the pickup has been confirmed please come for the pickup address: %s (Order #%s)",
+                location,
+                order.getOrderNumber());
+
+        for (User admin : admins) {
+            System.out.println(
+                    "DEBUG: Sending notification to admin: " + admin.getEmail() + " (ID: " + admin.getId() + ")");
+            createNotification(admin, title, message, Notification.NotificationType.ORDER, null, order);
+        }
+    }
+
+    public void notifyAdminOrderPickupCancelled(Order order, User organization) {
+        System.out.println("DEBUG: notifyAdminOrderPickupCancelled called for order " + order.getOrderNumber());
+        List<User> admins = userService.getUsersByType(User.UserType.ADMIN);
+
+        String location = organization != null ? organization.getLocation() : "Unknown";
+        String title = "Pickup Cancelled";
+        String message = String.format(
+                "the order pickup has been canceled for address: %s (Order #%s)",
+                location,
+                order.getOrderNumber());
+
+        for (User admin : admins) {
+            createNotification(admin, title, message, Notification.NotificationType.ORDER, null, order);
+        }
+    }
+
     public List<Notification> getUserNotifications(User user) {
         return notificationRepository.findByUserOrderByCreatedAtDesc(user);
     }
@@ -118,5 +190,9 @@ public class NotificationService {
 
     public void deleteNotification(Long notificationId) {
         notificationRepository.deleteById(notificationId);
+    }
+
+    public void deleteAllNotifications(User user) {
+        notificationRepository.deleteByUser(user);
     }
 }

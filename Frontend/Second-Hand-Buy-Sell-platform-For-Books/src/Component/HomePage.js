@@ -100,7 +100,11 @@ const HomePage = () => {
             <div>Loading...</div>
           ) : books.slice(0, 3).map((book, idx) => (
             <div className="book-card" key={idx}>
-              <div className="product-image-placeholder">
+              <div
+                className="product-image-placeholder"
+                onClick={() => navigate('/view-details', { state: { book } })}
+                style={{ cursor: 'pointer' }}
+              >
                 <img src={getImageUrl(book.bookImage)} alt={book.title} className="book-image" />
               </div>
               <h3>{book.title}</h3>

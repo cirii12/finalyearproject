@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import './HomePage.css';
-import { fetchBooksByUser, deleteBook, updateBook, getUserOrders, downloadOrderPDF, testAuthentication } from '../services/api';
+import { fetchBooksByUser, deleteBook, updateBook, getUserOrders, downloadOrderPDF, testAuthentication, cancelOrder } from '../services/api';
 import { toast } from 'react-toastify';
 import { showDeleteConfirmation } from './ConfirmationToast';
 import { useNavigate } from 'react-router-dom';
@@ -227,6 +227,19 @@ const Profile = () => {
       toast.success('PDF downloaded successfully!');
     } catch (error) {
       toast.error('Failed to download PDF: ' + error.message);
+    }
+  };
+
+  // Handle Cancel Order
+  const handleCancelOrder = async (orderId) => {
+    if (window.confirm('Are you sure you want to cancel this order?')) {
+      try {
+        await cancelOrder(orderId);
+        toast.success('Order cancelled successfully!');
+        loadOrders(); // Refresh order list
+      } catch (error) {
+        toast.error('Failed to cancel order: ' + error.message);
+      }
     }
   };
 
@@ -459,7 +472,7 @@ const Profile = () => {
           </div>
 
           {/* Books Tab */}
-       
+
 
           {/* Orders Tab */}
           {activeTab === 'orders' && (
@@ -562,21 +575,40 @@ const Profile = () => {
                           }}>
                             {order.status}
                           </span>
-                          <button
-                            onClick={() => handleDownloadPDF(order.id)}
-                            style={{
-                              background: '#007bff',
-                              color: '#fff',
-                              border: 'none',
-                              borderRadius: 6,
-                              padding: '6px 12px',
-                              fontSize: 12,
-                              cursor: 'pointer',
-                              fontWeight: 500
-                            }}
-                          >
-                            📄 Download PDF
-                          </button>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            {order.status?.toLowerCase() === 'pending' && (
+                              <button
+                                onClick={() => handleCancelOrder(order.id)}
+                                style={{
+                                  background: '#dc3545',
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: 6,
+                                  padding: '6px 12px',
+                                  fontSize: 12,
+                                  cursor: 'pointer',
+                                  fontWeight: 500
+                                }}
+                              >
+                                ❌ Cancel
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDownloadPDF(order.id)}
+                              style={{
+                                background: '#007bff',
+                                color: '#fff',
+                                border: 'none',
+                                borderRadius: 6,
+                                padding: '6px 12px',
+                                fontSize: 12,
+                                cursor: 'pointer',
+                                fontWeight: 500
+                              }}
+                            >
+                              📄 PDF
+                            </button>
+                          </div>
                         </div>
                       </div>
 

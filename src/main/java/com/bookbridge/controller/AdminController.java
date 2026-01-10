@@ -60,29 +60,57 @@ public class AdminController {
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
 
-        // Hardcoded admin for testing
+        // Check if user exists in DB
+        Optional<User> userOpt = userService.getUserByEmail(email);
+
+        // Handle "admin@bookbridge.com" / "admin123" special case
         if ("admin@bookbridge.com".equals(email) && "admin123".equals(password)) {
-            // Generate JWT token for admin
+            User adminUser;
+            if (userOpt.isEmpty()) {
+                // Auto-create admin if not exists (Self-healing)
+                adminUser = new User();
+                adminUser.setFullName("Admin User");
+                adminUser.setEmail("admin@bookbridge.com");
+                adminUser.setPassword(passwordEncoder.encode("admin123"));
+                adminUser.setUserType(User.UserType.ADMIN);
+                adminUser.setStatus(User.UserStatus.ACTIVE);
+                adminUser.setLocation("Kathmandu");
+                adminUser.setPhone("9871234567");
+                adminUser.setIsVerified(true);
+                userService.registerOrganizationUser(adminUser); // Use generic register or update to ADMIN type
+                // Force ADMIN type just in case register sets it to ORG
+                adminUser.setUserType(User.UserType.ADMIN);
+                userService.updateUser(adminUser);
+            } else {
+                adminUser = userOpt.get();
+                // Ensure it's an admin
+                if (adminUser.getUserType() != User.UserType.ADMIN) {
+                    adminUser.setUserType(User.UserType.ADMIN);
+                    userService.updateUser(adminUser);
+                }
+            }
+
+            // Proceed with login using REAL ID
             Map<String, Object> claims = new HashMap<>();
             claims.put("isAdmin", true);
-            claims.put("adminId", 999L);
+            claims.put("adminId", adminUser.getId());
             String token = jwtUtil.generateToken(email, claims);
 
-            // Also set session for backward compatibility
             HttpSession session = request.getSession();
-            session.setAttribute("adminId", 999L);
+            session.setAttribute("adminId", adminUser.getId());
             session.setAttribute("isAdmin", true);
+            session.setAttribute("adminEmail", adminUser.getEmail());
 
             return ResponseEntity.ok(Map.of(
                     "message", "Admin login successful",
                     "token", token,
                     "admin", Map.of(
-                            "id", 999L,
-                            "fullName", "Admin User",
-                            "email", "admin@bookbridge.com")));
+                            "id", adminUser.getId(),
+                            "fullName", adminUser.getFullName(),
+                            "email", adminUser.getEmail())));
         }
 
-        Optional<User> userOpt = userService.getUserByEmail(email);
+        // Normal DB Login for other admins
         if (userOpt.isPresent()) {
             User user = userOpt.get();
 
@@ -100,10 +128,10 @@ public class AdminController {
                 claims.put("adminId", user.getId());
                 String token = jwtUtil.generateToken(email, claims);
 
-                // Also set session for backward compatibility
                 HttpSession session = request.getSession();
                 session.setAttribute("adminId", user.getId());
                 session.setAttribute("isAdmin", true);
+                session.setAttribute("adminEmail", user.getEmail());
 
                 return ResponseEntity.ok(Map.of(
                         "message", "Admin login successful",
@@ -218,6 +246,28 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Error deleting user: " + e.getMessage()));
+        }
+    }
+
+    @GetMapping("/orders/count/active")
+    public ResponseEntity<?> getActiveOrdersCount(HttpServletRequest request) {
+        if (!isAdminAuthenticated(request)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Authentication required"));
+        }
+
+        try {
+            User currentUser = getAuthenticatedUser(request);
+            if (currentUser != null && currentUser.getUserType() == User.UserType.ORGANIZATION) {
+                Long count = orderService.countActiveOrdersByOrganization(currentUser);
+                return ResponseEntity.ok(Map.of("count", count));
+            }
+
+            Long count = orderService.countActiveOrders();
+            return ResponseEntity.ok(Map.of("count", count));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Error fetching active orders count: " + e.getMessage()));
         }
     }
 
@@ -607,7 +657,8 @@ public class AdminController {
 
             Order.OrderStatus orderStatus = Order.OrderStatus.valueOf(status.toUpperCase());
 
-            Order updatedOrder = orderService.updateOrderStatus(orderId, orderStatus);
+            User currentUser = getAuthenticatedUser(request);
+            Order updatedOrder = orderService.updateOrderStatus(orderId, orderStatus, currentUser);
 
             return ResponseEntity.ok(Map.of(
                     "message", "Order status updated successfully",

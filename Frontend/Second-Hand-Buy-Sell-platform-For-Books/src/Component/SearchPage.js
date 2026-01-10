@@ -40,14 +40,17 @@ const SearchPage = () => {
     'Amigurumi',
     'Keyrings',
     'Dress',
-    'Other'
+    'Handmade',
+    'Crochet Art',
+    'Gift Items',
+    'Accessories'
   ];
 
   const priceRanges = [
-    { label: 'Under Rs. 200', value: 'under-200' },
-    { label: 'Rs. 200 - Rs. 400', value: '200-400' },
-    { label: 'Rs. 400 - Rs. 600', value: '400-600' },
-    { label: 'Over Rs. 600', value: 'over-600' }
+    { label: 'Under Rs. 500', value: 'under-500' },
+    { label: 'Rs. 500 - Rs. 1000', value: '500-1000' },
+    { label: 'Rs. 1000 - Rs. 2000', value: '1000-2000' },
+    { label: 'Over Rs. 2000', value: 'over-2000' }
   ];
 
   const handlePriceRangeChange = (value) => {
@@ -94,49 +97,75 @@ const SearchPage = () => {
     const query = searchParams.get('q');
     if (query) {
       setSearchQuery(query);
-      filterBooks(query);
     } else {
       setSearchQuery('');
-      setFilteredBooks(books);
     }
     // eslint-disable-next-line
-  }, [searchParams, books]);
+  }, [searchParams]);
 
-  const filterBooks = (search, category = selectedCategory) => {
-    let filtered = books;
-    if (search) {
-      const searchLower = search.toLowerCase();
+  const filterAndSortBooks = () => {
+    let filtered = [...books];
+
+    // 1. Search filter
+    if (searchQuery) {
+      const searchLower = searchQuery.toLowerCase();
       filtered = filtered.filter(book =>
         (book.title && book.title.toLowerCase().includes(searchLower)) ||
         (book.author && book.author.toLowerCase().includes(searchLower)) ||
-        (book.genre && book.genre.toLowerCase().includes(searchLower)) ||
+        (book.category && book.category.toLowerCase().includes(searchLower)) ||
         (book.description && book.description.toLowerCase().includes(searchLower))
       );
     }
 
-    if (category !== 'All Products') {
+    // 2. Category filter
+    if (selectedCategory !== 'All Products') {
       filtered = filtered.filter(book =>
-        book.category === category.toUpperCase()
+        book.category && (
+          book.category.toUpperCase() === selectedCategory.toUpperCase() ||
+          book.category.toUpperCase() === selectedCategory.toUpperCase().replace(/S$/, '') // Handle plural/singular
+        )
       );
+    }
+
+    // 3. Price Range filter
+    if (selectedPriceRange.length > 0) {
+      filtered = filtered.filter(book => {
+        return selectedPriceRange.some(range => {
+          const price = parseFloat(book.price);
+          if (range === 'under-500') return price < 500;
+          if (range === '500-1000') return price >= 500 && price <= 1000;
+          if (range === '1000-2000') return price >= 1000 && price <= 2000;
+          if (range === 'over-2000') return price > 2000;
+          return true;
+        });
+      });
+    }
+
+    // 4. Sorting
+    if (sortBy === 'Price Low to High') {
+      filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+    } else if (sortBy === 'Price High to Low') {
+      filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+    } else if (sortBy === 'Newest') {
+      filtered.sort((a, b) => (b.id || 0) - (a.id || 0));
     }
 
     setFilteredBooks(filtered);
   };
 
   useEffect(() => {
-    filterBooks(searchQuery, selectedCategory);
-  }, [selectedCategory, books, searchQuery]);
+    filterAndSortBooks();
+    // Reset to first page when any filter changes
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, selectedPriceRange, sortBy, books]);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      filterBooks(searchQuery.trim());
-    }
+    // Logic already handled by useEffect since searchQuery state is updated
   };
 
   const handleSuggestionClick = (suggestion) => {
     setSearchQuery(suggestion);
-    filterBooks(suggestion);
   };
 
   const handleViewDetails = (book) => {
@@ -172,7 +201,10 @@ const SearchPage = () => {
                   <li
                     key={category}
                     className={`sidebar-category-item ${selectedCategory === category ? 'active' : ''}`}
-                    onClick={() => setSelectedCategory(category)}
+                    onClick={() => {
+                      setSelectedCategory(category);
+                      setSearchQuery(''); // Clear search when a category is selected
+                    }}
                   >
                     {category}
                   </li>
@@ -236,7 +268,11 @@ const SearchPage = () => {
                 <div className="book-grid">
                   {paginatedBooks.map((book, idx) => (
                     <div className="book-card" key={book.id || idx}>
-                      <div className="product-image-placeholder">
+                      <div
+                        className="product-image-placeholder"
+                        onClick={() => handleViewDetails(book)}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <img src={getImageUrl(book.bookImage)} alt={book.title} className="book-image" />
                       </div>
                       <h3>{book.title}</h3>

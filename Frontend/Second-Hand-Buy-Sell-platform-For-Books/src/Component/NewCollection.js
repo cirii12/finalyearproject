@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Slider from 'react-slick';
+import { useNavigate } from 'react-router-dom';
 import './NewCollection.css';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { fetchBooks, getImageUrl } from '../services/api';
 
 const NewCollection = () => {
+  const navigate = useNavigate();
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const settings = {
@@ -44,18 +46,24 @@ const NewCollection = () => {
       {loading ? (
         <div>Loading...</div>
       ) : (
-      <Slider {...settings}>
-        {books.map((book, index) => (
-          <div key={index} className="book-card-slider">
-            <div className="book-card-slider-inner">
-                <img src={getImageUrl(book.bookImage)} alt={book.title} className="book-card-slider-img" />
-              <h3 className="book-card-slider-title">{book.title}</h3>
-              <p className="book-card-slider-author">{book.author}</p>
+        <Slider {...settings}>
+          {books.map((book, index) => (
+            <div key={index} className="book-card-slider">
+              <div className="book-card-slider-inner">
+                <img
+                  src={getImageUrl(book.bookImage)}
+                  alt={book.title}
+                  className="book-card-slider-img"
+                  onClick={() => navigate('/view-details', { state: { book } })}
+                  style={{ cursor: 'pointer' }}
+                />
+                <h3 className="book-card-slider-title">{book.title}</h3>
+                <p className="book-card-slider-author">{book.author}</p>
                 <p className="book-card-slider-price">Rs. {book.price}</p>
+              </div>
             </div>
-          </div>
-        ))}
-      </Slider>
+          ))}
+        </Slider>
       )}
     </div>
   );

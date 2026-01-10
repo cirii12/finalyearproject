@@ -306,6 +306,20 @@ export const getOrderById = async (orderId) => {
   }
 };
 
+// Cancel order
+export const cancelOrder = async (orderId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/orders/${orderId}/cancel`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Cancel order API error:', error);
+    throw error;
+  }
+};
+
 // ========== PAYMENT API FUNCTIONS ==========
 
 // Initiate eSewa payment
@@ -590,6 +604,19 @@ export const getAllOrders = async () => {
   } catch (error) {
     console.error('Get orders error:', error);
     throw error;
+  }
+};
+
+export const getActiveOrdersCount = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/orders/count/active`, {
+      headers: getAuthHeaders(),
+      credentials: 'include'
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Error fetching active orders count:', error);
+    return { count: 0 };
   }
 };
 
@@ -888,5 +915,33 @@ export const markMessagesAsRead = async () => {
   } catch (err) {
     console.error("Mark messages read error:", err);
     throw err;
+  }
+};
+
+// ===================== NOTIFICATIONS =====================
+
+export const getUnreadNotifications = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/notifications/unread`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Get unread notifications error:', error);
+    throw error;
+  }
+};
+
+export const markNotificationAsRead = async (id) => {
+  try {
+    const response = await fetch(`${BASE_URL}/notifications/${id}/read`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Mark notification as read error:', error);
+    throw error;
   }
 };

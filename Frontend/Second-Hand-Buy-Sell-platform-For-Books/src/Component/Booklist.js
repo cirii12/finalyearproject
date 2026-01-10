@@ -146,7 +146,13 @@ const BookList = () => {
           <div className="book-grid">
             {filteredBooks.map(book => (
               <div key={book.id} className="book-card-item">
-                <img src={getImageUrl(book.bookImage)} alt={book.title} className="book-card-image" />
+                <img
+                  src={getImageUrl(book.bookImage)}
+                  alt={book.title}
+                  className="book-card-image"
+                  onClick={() => navigate('/view-details', { state: { book } })}
+                  style={{ cursor: 'pointer' }}
+                />
                 <div className="book-card-content">
                   <h3 className="book-card-title">{book.title}</h3>
                   <p className="book-card-author">{book.author}</p>
