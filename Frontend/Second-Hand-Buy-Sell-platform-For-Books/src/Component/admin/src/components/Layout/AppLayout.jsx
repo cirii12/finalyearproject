@@ -38,7 +38,7 @@ export default function AppLayout() {
   const navigation = [
     { label: 'Dashboard', path: '/admin', icon: LayoutDashboard },
     { label: 'Users', path: '/admin/users', icon: Users },
-    { label: 'Products', path: '/admin/books', icon: BookOpen },
+    // { label: 'Products', path: '/admin/books', icon: BookOpen },
     { label: 'Orders', path: '/admin/orders', icon: ShoppingCart, badge: activeOrdersCount },
     { label: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
   ];
