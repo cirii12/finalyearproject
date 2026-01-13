@@ -47,6 +47,12 @@ const HomePage = () => {
           </div>
           <div className="hero-right">
             <div className="hero-image-placeholder">
+                <img 
+      src="/herosec.jpg"
+      alt="Hero Section Image"
+      className="hero-image"
+    />
+
               <div className="review-badge">
                 <span className="star-icon">⭐</span>
                 <span>4.9/5 from 200+ reviews</span>

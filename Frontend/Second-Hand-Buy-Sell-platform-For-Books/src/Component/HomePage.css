@@ -171,6 +171,13 @@ body, html {
   align-items: center;
 }
 
+.hero-image{
+      width: 431px;
+    height: 399px;
+    border-radius: 12px;
+    object-fit: cover;
+}
+
 .hero-left {
   flex: 1.5;
   text-align: left;
@@ -239,6 +246,7 @@ body, html {
 .hero-right {
   flex: 1;
   position: relative;
+  
 }
 
 .hero-image-placeholder {
@@ -247,6 +255,7 @@ body, html {
   background-color: #e5e7eb;
   border-radius: 12px;
   position: relative;
+  
 }
 
 .review-badge {
@@ -265,6 +274,8 @@ body, html {
   color: #000;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+
 
 .star-icon {
   font-size: 18px;
