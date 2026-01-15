@@ -39,7 +39,7 @@ const Analytics = () => {
 
   // Check organization authentication
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
     const userType = storedUser.userType?.toLowerCase();
 
     if (!storedUser.token || (userType !== 'admin' && userType !== 'organization')) {
@@ -183,6 +183,24 @@ const Analytics = () => {
       }
       const errorText = await response.text().catch(() => 'Failed to fetch business analytics');
       throw new Error(errorText || 'Failed to fetch business analytics');
+    }
+
+    return response.json();
+  };
+
+  const fetchTutorialPurchases = async () => {
+    const headers = getAuthHeaders();
+    const response = await fetch('http://localhost:8082/api/admin/tutorials/purchases', {
+      headers: headers,
+      credentials: 'include'
+    });
+
+    if (!response.ok) {
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('Authentication failed');
+      }
+      const errorText = await response.text().catch(() => 'Failed to fetch tutorial purchases');
+      throw new Error(errorText || 'Failed to fetch tutorial purchases');
     }
 
     return response.json();
@@ -343,6 +361,18 @@ const Analytics = () => {
     }
   });
 
+  const { data: tutorialPurchases, isLoading: tutorialPurchasesLoading } = useQuery({
+    queryKey: ['organization-tutorial-purchases'],
+    queryFn: fetchTutorialPurchases,
+    enabled: !!user,
+    retry: (failureCount, error) => {
+      if (error?.message?.includes('401') || error?.message?.includes('403')) {
+        return false;
+      }
+      return failureCount < 3;
+    }
+  });
+
   // Calculate analytics data
   const calculateOrderTrends = () => {
     if (!orders) return [];
@@ -430,7 +460,7 @@ const Analytics = () => {
   const userStats = calculateUserStats();
 
   const isLoading = statsLoading || ordersLoading || booksLoading || usersLoading ||
-    orderAnalyticsLoading || paymentAnalyticsLoading || businessAnalyticsLoading;
+    orderAnalyticsLoading || paymentAnalyticsLoading || businessAnalyticsLoading || tutorialPurchasesLoading;
 
   // PDF Download Function
   const downloadPDF = async () => {
@@ -448,7 +478,7 @@ const Analytics = () => {
 
   const handleLogout = () => {
     const performLogout = () => {
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
       navigate('/login');
     };
     showLogoutConfirmation(performLogout);
@@ -569,8 +599,29 @@ const Analytics = () => {
               Back to Panel
             </button>
             <button
+              onClick={() => navigate('/organization-settlement')}
+              style={{
+                padding: '12px 24px',
+                background: '#ec4899',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                boxShadow: '0 4px 6px -1px rgba(236, 72, 153, 0.4)'
+              }}
+            >
+              <DollarSign style={{ width: '16px', height: '16px' }} />
+              Settlement & Payouts
+            </button>
+            <button
               onClick={downloadPDF}
               disabled={isGeneratingPDF}
+
               style={{
                 padding: '12px 24px',
                 background: '#3b82f6',
@@ -700,64 +751,68 @@ const Analytics = () => {
           </div>
 
           {/* Book Revenue */}
-          <div style={{
-            background: 'white',
-            padding: '24px',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                background: '#ede9fe',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <BookOpen style={{ width: '20px', height: '20px', color: '#8b5cf6' }} />
-              </div>
-              <div>
-                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>
-                  Rs. {stats?.bookRevenue || 0}/-
+          {stats?.bookRevenue > 0 && (
+            <div style={{
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              border: '1px solid #e5e7eb'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  background: '#ede9fe',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <BookOpen style={{ width: '20px', height: '20px', color: '#8b5cf6' }} />
                 </div>
-                <div style={{ fontSize: '14px', color: '#6b7280' }}>Product Revenue (Net 95%)</div>
+                <div>
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>
+                    Rs. {stats?.bookRevenue || 0}/-
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#6b7280' }}>Product Revenue (Net 95%)</div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Tutorial Revenue */}
-          <div style={{
-            background: 'white',
-            padding: '24px',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '40px',
-                height: '40px',
-                background: '#fef3c7',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <DollarSign style={{ width: '20px', height: '20px', color: '#f59e0b' }} />
-              </div>
-              <div>
-                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>
-                  Rs. {stats?.tutorialRevenue || 0}/-
+          {stats?.tutorialRevenue > 0 && (
+            <div style={{
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              border: '1px solid #e5e7eb'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '40px',
+                  height: '40px',
+                  background: '#fef3c7',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <DollarSign style={{ width: '20px', height: '20px', color: '#f59e0b' }} />
                 </div>
-                <div style={{ fontSize: '14px', color: '#6b7280' }}>
-                  Tutorial Revenue ({stats?.tutorialSales || 0} sales)
+                <div>
+                  <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>
+                    Rs. {stats?.tutorialRevenue || 0}/-
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#6b7280' }}>
+                    Tutorial Revenue ({stats?.tutorialSales || 0} sales)
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Total Revenue */}
           <div style={{
@@ -859,7 +914,7 @@ const Analytics = () => {
             border: '1px solid #e5e7eb'
           }}>
             <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', margin: '0 0 20px 0' }}>
-              Book Categories Distribution
+              Product Categories Distribution
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={Object.entries(bookStats.categories || {}).map(([name, value]) => ({ name, value }))}>
@@ -880,7 +935,7 @@ const Analytics = () => {
             border: '1px solid #e5e7eb'
           }}>
             <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', margin: '0 0 20px 0' }}>
-              Book Status Distribution
+              Product Status Distribution
             </h3>
             <ResponsiveContainer width="100%" height={300}>
               <RechartsPieChart>
@@ -1004,7 +1059,7 @@ const Analytics = () => {
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{orderAnalytics.deliveredOrders || 0}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>Book Revenue (Net 95%)</span>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Product Revenue (Net 95%)</span>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {orderAnalytics.bookRevenue || orderAnalytics.totalRevenue || 0}/-</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
@@ -1049,7 +1104,7 @@ const Analytics = () => {
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{paymentAnalytics.failedPayments || 0}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>Book Revenue (Net 95%)</span>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Product Revenue (Net 95%)</span>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {paymentAnalytics.bookRevenue || paymentAnalytics.totalRevenue || 0}/-</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
@@ -1090,11 +1145,11 @@ const Analytics = () => {
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.newUsersThisMonth || 0}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>Total Books</span>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Total Products</span>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.totalBooks || 0}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                  <span style={{ fontSize: '14px', color: '#374151' }}>Book Revenue (Net 95%)</span>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Product Revenue (Net 95%)</span>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {businessAnalytics.bookRevenue || businessAnalytics.orderRevenue || 0}/-</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
@@ -1134,7 +1189,7 @@ const Analytics = () => {
               </thead>
               <tbody>
                 {orders?.filter(o => o.status === 'DELIVERED').map(order => (
-                  <tr key={order.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <tr key={`order-${order.id}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
                     <td style={{ padding: '12px 16px', fontSize: '14px', color: '#1f2937' }}>{order.orderNumber}</td>
                     <td style={{ padding: '12px 16px', fontSize: '14px', color: '#4b5563' }}>
                       {new Date(order.createdAt).toLocaleDateString()}
@@ -1159,10 +1214,36 @@ const Analytics = () => {
                     </td>
                   </tr>
                 ))}
-                {(!orders || orders.filter(o => o.status === 'DELIVERED').length === 0) && (
+                {tutorialPurchases?.map(purchase => (
+                  <tr key={`tutorial-${purchase.id}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#1f2937' }}>Tutorial: {purchase.tutorial?.title?.substring(0, 15)}...</td>
+                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#4b5563' }}>
+                      {new Date(purchase.purchasedAt).toLocaleDateString()}
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#10b981' }}>
+                      Rs. {(purchase.tutorial?.price * 0.95).toFixed(2)}/-
+                    </td>
+                    <td style={{ padding: '12px 16px' }}>
+                      <span style={{
+                        padding: '4px 10px',
+                        borderRadius: '9999px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        background: purchase.orgPaymentStatus === 'PAID' ? '#dcfce7' : '#fee2e2',
+                        color: purchase.orgPaymentStatus === 'PAID' ? '#15803d' : '#991b1b'
+                      }}>
+                        {purchase.orgPaymentStatus || 'UNPAID'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '12px 16px', fontSize: '14px', color: '#4b5563' }}>
+                      {purchase.orgPaymentClearedAt ? new Date(purchase.orgPaymentClearedAt).toLocaleDateString() : '—'}
+                    </td>
+                  </tr>
+                ))}
+                {(!orders || orders.filter(o => o.status === 'DELIVERED').length === 0) && (!tutorialPurchases || tutorialPurchases.length === 0) && (
                   <tr>
                     <td colSpan="5" style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>
-                      No delivered orders found for settlement tracking.
+                      No delivered orders or tutorial sales found for settlement tracking.
                     </td>
                   </tr>
                 )}

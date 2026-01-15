@@ -11,19 +11,29 @@ import java.util.Optional;
 
 @Repository
 public interface TutorialPurchaseRepository extends JpaRepository<TutorialPurchase, Long> {
-    List<TutorialPurchase> findByUser(User user);
+        List<TutorialPurchase> findByUser(User user);
 
-    Optional<TutorialPurchase> findByUserAndTutorial(User user, Tutorial tutorial);
+        Optional<TutorialPurchase> findByUserAndTutorial(User user, Tutorial tutorial);
 
-    boolean existsByUserAndTutorial(User user, Tutorial tutorial);
+        boolean existsByUserAndTutorial(User user, Tutorial tutorial);
 
-    @org.springframework.data.jpa.repository.Query("SELECT COUNT(p) FROM TutorialPurchase p JOIN p.tutorial t WHERE t.organization = :organization")
-    long countByTutorialOrganization(
-            @org.springframework.data.repository.query.Param("organization") User organization);
+        @org.springframework.data.jpa.repository.Query("SELECT COUNT(p) FROM TutorialPurchase p JOIN p.tutorial t WHERE t.organization = :organization")
+        long countByTutorialOrganization(
+                        @org.springframework.data.repository.query.Param("organization") User organization);
 
-    @org.springframework.data.jpa.repository.Query("SELECT SUM(t.price) FROM TutorialPurchase p JOIN p.tutorial t")
-    Double sumTotalRevenue();
+        @org.springframework.data.jpa.repository.Query("SELECT SUM(t.price) FROM TutorialPurchase p JOIN p.tutorial t")
+        Double sumTotalRevenue();
 
-    @org.springframework.data.jpa.repository.Query("SELECT SUM(t.price) FROM TutorialPurchase p JOIN p.tutorial t WHERE t.organization = :organization")
-    Double sumRevenueByOrganization(@org.springframework.data.repository.query.Param("organization") User organization);
+        @org.springframework.data.jpa.repository.Query("SELECT SUM(t.price) FROM TutorialPurchase p JOIN p.tutorial t WHERE t.organization = :organization")
+        Double sumRevenueByOrganization(
+                        @org.springframework.data.repository.query.Param("organization") User organization);
+
+        @org.springframework.data.jpa.repository.Query("SELECT SUM(t.price) FROM TutorialPurchase p JOIN p.tutorial t WHERE t.organization = :organization AND p.orgPaymentStatus != 'PAID'")
+        Double sumPendingRevenueByOrganization(
+                        @org.springframework.data.repository.query.Param("organization") User organization);
+
+        @org.springframework.data.jpa.repository.Query("SELECT p FROM TutorialPurchase p JOIN p.tutorial t WHERE t.organization = :organization AND p.orgPaymentStatus = :status")
+        List<TutorialPurchase> findByTutorialOrganizationAndOrgPaymentStatus(
+                        @org.springframework.data.repository.query.Param("organization") User organization,
+                        @org.springframework.data.repository.query.Param("status") com.bookbridge.model.Order.OrgPaymentStatus status);
 }

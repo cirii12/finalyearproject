@@ -42,20 +42,11 @@ const Navbar = () => {
   const profileRef = useRef(null);
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
     const token = storedUser.token || null;
     const type = storedUser.userType?.toLowerCase() || null;
     setIsLoggedIn(!!token);
     setUserType(type);
-
-    const syncAcrossTabs = () => {
-      const updatedUser = JSON.parse(localStorage.getItem('user') || '{}');
-      setIsLoggedIn(!!updatedUser.token);
-      setUserType(updatedUser.userType?.toLowerCase() || null);
-    };
-
-    window.addEventListener('storage', syncAcrossTabs);
-    return () => window.removeEventListener('storage', syncAcrossTabs);
   }, []);
 
   // Load notification count when user is logged in
@@ -106,7 +97,7 @@ const Navbar = () => {
   };
 
   const performLogout = () => {
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
     setIsLoggedIn(false);
     setUserType(null);
     navigate('/');
@@ -119,7 +110,7 @@ const Navbar = () => {
   // Load notification count
   const loadNotificationCount = async () => {
     try {
-      const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
       const token = storedUser.token;
 
       if (!token) {
@@ -202,7 +193,7 @@ const Navbar = () => {
             )}
           </li>
         )} */}
-        {isLoggedIn && userType === 'organization' && (
+        {/* {isLoggedIn && userType === 'organization' && (
           <li ref={orgDropdownRef} className="dropdown" onClick={() => setOrgDropdownOpen(!orgDropdownOpen)}>
             <span>Organization <span className="arrow">▼</span></span>
             {orgDropdownOpen && (
@@ -213,7 +204,7 @@ const Navbar = () => {
               </div>
             )}
           </li>
-        )}
+        )} */}
       </ul>
 
       {/* Right Section */}
@@ -243,7 +234,7 @@ const Navbar = () => {
                 onBlur={(e) => e.currentTarget.style.width = '200px'}
               />
             </form>
-            <span className="icon" onClick={() => handleNavigation('/notification')} style={{ position: 'relative' }}>
+            <span className="icon" onClick={() => handleNavigation(userType === 'organization' ? '/organization-notifications' : '/notification')} style={{ position: 'relative' }}>
               <NotificationIcon />
               {unreadNotificationCount > 0 && (
                 <span style={{
@@ -293,8 +284,8 @@ const Navbar = () => {
               </span>
               {profileDropdownOpen && (
                 <div ref={profileRef} className="list-book-dropdown">
-                  <div className="dropdown-item" onClick={() => handleNavigation('/profile')}>
-                    Profile
+                  <div className="dropdown-item" onClick={() => handleNavigation(userType === 'organization' ? '/adminpanel' : '/profile')}>
+                    {userType === 'organization' ? 'Organization Panel' : 'Profile'}
                   </div>
                   {userType === 'admin' && (
                     <div className="dropdown-item" onClick={() => handleNavigation('/admin')}>

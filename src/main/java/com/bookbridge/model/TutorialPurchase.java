@@ -2,6 +2,7 @@ package com.bookbridge.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.bookbridge.model.Order.OrgPaymentStatus;
 
 @Entity
 @Table(name = "tutorial_purchases")
@@ -26,6 +27,13 @@ public class TutorialPurchase {
 
     @Column(nullable = false)
     private Boolean active = true;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "org_payment_status", length = 20)
+    private OrgPaymentStatus orgPaymentStatus = OrgPaymentStatus.UNPAID;
+
+    @Column(name = "org_payment_cleared_at")
+    private LocalDateTime orgPaymentClearedAt;
 
     @PrePersist
     public void onCreate() {
@@ -79,5 +87,21 @@ public class TutorialPurchase {
 
     public void setActive(Boolean active) {
         this.active = active;
+    }
+
+    public OrgPaymentStatus getOrgPaymentStatus() {
+        return orgPaymentStatus;
+    }
+
+    public void setOrgPaymentStatus(OrgPaymentStatus orgPaymentStatus) {
+        this.orgPaymentStatus = orgPaymentStatus;
+    }
+
+    public LocalDateTime getOrgPaymentClearedAt() {
+        return orgPaymentClearedAt;
+    }
+
+    public void setOrgPaymentClearedAt(LocalDateTime orgPaymentClearedAt) {
+        this.orgPaymentClearedAt = orgPaymentClearedAt;
     }
 }

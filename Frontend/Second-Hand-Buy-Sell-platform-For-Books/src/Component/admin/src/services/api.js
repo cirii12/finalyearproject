@@ -2,7 +2,7 @@ const BASE_URL = 'http://localhost:8082/api';
 
 // Helper function to get auth headers with JWT token
 const getAuthHeaders = () => {
-  const adminData = localStorage.getItem('adminUser');
+  const adminData = sessionStorage.getItem('adminUser');
   const token = adminData ? JSON.parse(adminData).token : null;
   return token ? {
     'Content-Type': 'application/json',
@@ -241,6 +241,61 @@ export const clearOrgPayment = async (orderId) => {
   return response.json();
 };
 
+export const getAllTutorialPurchases = async () => {
+  const response = await fetch(`${BASE_URL}/admin/tutorials/purchases`, {
+    headers: getAuthHeaders(),
+    credentials: 'include'
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch tutorial purchases');
+  }
+
+  return response.json();
+};
+
+export const clearTutorialPayment = async (purchaseId) => {
+  const response = await fetch(`${BASE_URL}/admin/tutorials/purchases/${purchaseId}/clear-payment`, {
+    method: 'PUT',
+    headers: getAuthHeaders(),
+    credentials: 'include'
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(errorText || 'Failed to clear tutorial payment');
+  }
+
+  return response.json();
+};
+
+export const getPendingSettlements = async () => {
+  const response = await fetch(`${BASE_URL}/admin/pending-settlements`, {
+    headers: getAuthHeaders(),
+    credentials: 'include'
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch pending settlements');
+  }
+
+  return response.json();
+};
+
+export const settlePayment = async (orgId) => {
+  const response = await fetch(`${BASE_URL}/admin/settle-payment/${orgId}`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    credentials: 'include'
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to settle payment');
+  }
+
+  return response.json();
+};
+
 // Upwork Transactions
 export const logUpworkTransaction = async (transactionData) => {
   const response = await fetch(`${BASE_URL}/admin/upwork`, {
@@ -349,7 +404,7 @@ export const downloadAnalyticsPDF = async () => {
 
 // Check if admin is authenticated (synchronous check for route protection)
 export const isAdminAuthenticated = () => {
-  const adminData = localStorage.getItem('adminUser');
+  const adminData = sessionStorage.getItem('adminUser');
   return adminData !== null;
 };
 
@@ -362,31 +417,31 @@ export const verifyAdminSession = async () => {
     });
     const data = await response.json();
     if (!data.authenticated) {
-      localStorage.removeItem('adminUser');
+      sessionStorage.removeItem('adminUser');
     }
     return data.authenticated === true;
   } catch (error) {
     console.error('Admin auth check failed:', error);
-    localStorage.removeItem('adminUser');
+    sessionStorage.removeItem('adminUser');
     return false;
   }
 };
 
 // Store admin session
 export const setAdminSession = (adminData) => {
-  localStorage.setItem('adminUser', JSON.stringify(adminData));
+  sessionStorage.setItem('adminUser', JSON.stringify(adminData));
 };
 
 // Get admin session
 export const getAdminSession = () => {
-  const data = localStorage.getItem('adminUser');
+  const data = sessionStorage.getItem('adminUser');
   return data ? JSON.parse(data) : null;
 };
 
 // Logout admin
 export const adminLogout = () => {
-  localStorage.removeItem('adminUser');
-  localStorage.removeItem('adminToken');
+  sessionStorage.removeItem('adminUser');
+  sessionStorage.removeItem('adminToken');
 };
 
 // Notifications Management

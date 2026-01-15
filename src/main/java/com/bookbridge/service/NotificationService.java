@@ -30,11 +30,11 @@ public class NotificationService {
 
     public void notifySellerBookOrdered(Book book, Order order, User buyer) {
         User seller = book.getUser();
-        String title = "Your Book Has Been Ordered!";
+        String title = "Your Product Has Been Ordered!";
         String message = String.format(
-                "Great news! Your book '%s' has been ordered by %s. " +
-                        "Order #%s. Please submit your book to our nearest pickup point within 48 hours. " +
-                        "You'll receive payment once the book is transferred to the buyer.",
+                "Great news! Your product '%s' has been ordered by %s. " +
+                        "Order #%s. Please submit your product to our nearest pickup point within 48 hours. " +
+                        "You'll receive payment once the product is transferred to the buyer.",
                 book.getTitle(),
                 buyer.getFullName(),
                 order.getOrderNumber());
@@ -44,9 +44,9 @@ public class NotificationService {
 
     public void notifySellerBookPickedUp(Book book, Order order) {
         User seller = book.getUser();
-        String title = "Book Picked Up Successfully!";
+        String title = "Product Picked Up Successfully!";
         String message = String.format(
-                "Your book '%s' has been picked up from the pickup point. " +
+                "Your product '%s' has been picked up from the pickup point. " +
                         "Payment of Rs. %s will be processed within 24 hours.",
                 book.getTitle(),
                 book.getPrice());
@@ -58,7 +58,7 @@ public class NotificationService {
         User seller = book.getUser();
         String title = "Payment Processed!";
         String message = String.format(
-                "Payment of Rs. %s for your book '%s' has been processed and credited to your account.",
+                "Payment of Rs. %s for your product '%s' has been processed and credited to your account.",
                 book.getPrice(),
                 book.getTitle());
 
@@ -68,7 +68,7 @@ public class NotificationService {
     public void notifyOrgPaymentCleared(User organization, Order order) {
         String title = "Payment Cleared for Order #" + order.getOrderNumber();
         String message = String.format(
-                "The platform has cleared the payment for your books in order #%s. " +
+                "The platform has cleared the payment for your products in order #%s. " +
                         "The funds should be available in your account now.",
                 order.getOrderNumber());
         createNotification(organization, title, message, Notification.NotificationType.PAYMENT, null, order);
@@ -76,10 +76,10 @@ public class NotificationService {
 
     public void notifyBuyerBookDelivered(Book book, Order order) {
         User buyer = order.getUser();
-        String title = "Your Book Has Been Delivered!";
+        String title = "Your Product Has Been Delivered!";
         String message = String.format(
                 "Your order for '%s' has been delivered successfully. " +
-                        "Order #%s. Enjoy your book!",
+                        "Order #%s. Enjoy your product!",
                 book.getTitle(),
                 order.getOrderNumber());
 
@@ -91,7 +91,7 @@ public class NotificationService {
         String title = "Order Confirmed!";
         String message = String.format(
                 "Your order #%s has been successfully placed. " +
-                        "We'll notify you once your books are ready for delivery.",
+                        "We'll notify you once your products are ready for delivery.",
                 order.getOrderNumber());
 
         createNotification(buyer, title, message, Notification.NotificationType.ORDER, null, order);
@@ -194,5 +194,14 @@ public class NotificationService {
 
     public void deleteAllNotifications(User user) {
         notificationRepository.deleteByUser(user);
+    }
+
+    public void notifyOrgPaymentSettled(User organization, int orderCount) {
+        String title = "Payment Settled!";
+        String message = String.format(
+                "The admin has settled the payment for %d orders. " +
+                        "The funds have been transferred to your settled balance.",
+                orderCount);
+        createNotification(organization, title, message, Notification.NotificationType.PAYMENT);
     }
 }

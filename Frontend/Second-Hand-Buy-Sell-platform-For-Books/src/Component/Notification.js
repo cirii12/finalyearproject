@@ -11,18 +11,18 @@ const Notification = () => {
   const [loading, setLoading] = useState(true);
   const [user] = useState(() => {
     try {
-      const userData = localStorage.getItem('user');
+      const userData = sessionStorage.getItem('user');
       if (!userData) return null;
-      
+
       const parsedUser = JSON.parse(userData);
       if (!parsedUser.token || !parsedUser.email) {
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
         return null;
       }
-      
+
       return parsedUser;
     } catch (e) {
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
       return null;
     }
   });
@@ -35,11 +35,11 @@ const Notification = () => {
         setUnreadNotificationCount(0);
         return;
       }
-      
+
       const response = await fetch('http://localhost:8082/api/notifications/count', {
         headers: getAuthHeaders()
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setUnreadNotificationCount(data.unreadCount || 0);
@@ -59,7 +59,7 @@ const Notification = () => {
       const response = await fetch('http://localhost:8082/api/notifications', {
         headers: getAuthHeaders()
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.content || []);
@@ -79,7 +79,7 @@ const Notification = () => {
         method: 'PUT',
         headers: getAuthHeaders()
       });
-      
+
       if (response.ok) {
         // Refresh notification count and list
         loadNotifications();
@@ -99,7 +99,7 @@ const Notification = () => {
         method: 'PUT',
         headers: getAuthHeaders()
       });
-      
+
       if (response.ok) {
         loadNotifications();
         loadAllNotifications();
@@ -121,6 +121,12 @@ const Notification = () => {
   // Load notifications periodically
   useEffect(() => {
     if (user && user.token) {
+      // Redirect organization users to organization notifications page
+      if (user.userType?.toLowerCase() === 'organization') {
+        window.location.href = '/organization-notifications';
+        return;
+      }
+
       const interval = setInterval(() => {
         loadNotifications();
       }, 30000); // Check every 30 seconds
@@ -165,7 +171,7 @@ const Notification = () => {
             </button>
           )}
         </div>
-        
+
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40 }}>
             <div>Loading notifications...</div>
@@ -175,7 +181,7 @@ const Notification = () => {
             <div style={{ fontSize: 48, marginBottom: 16 }}>🔔</div>
             <div style={{ color: '#666', fontSize: 16, marginBottom: 8 }}>No notifications yet</div>
             <div style={{ color: '#888', fontSize: 14 }}>
-              You'll see notifications here when someone orders your books or when there are important updates.
+              You'll see notifications here when someone orders your products or when there are important updates.
             </div>
           </div>
         ) : (

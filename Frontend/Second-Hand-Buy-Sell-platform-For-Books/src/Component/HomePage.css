@@ -1,8 +1,8 @@
 /* Reset and Base */
-body, html {
+body,
+html {
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 .homepage-container {
@@ -171,11 +171,11 @@ body, html {
   align-items: center;
 }
 
-.hero-image{
-      width: 431px;
-    height: 399px;
-    border-radius: 12px;
-    object-fit: cover;
+.hero-image {
+  width: 431px;
+  height: 399px;
+  border-radius: 12px;
+  object-fit: cover;
 }
 
 .hero-left {
@@ -246,7 +246,7 @@ body, html {
 .hero-right {
   flex: 1;
   position: relative;
-  
+
 }
 
 .hero-image-placeholder {
@@ -255,7 +255,7 @@ body, html {
   background-color: #e5e7eb;
   border-radius: 12px;
   position: relative;
-  
+
 }
 
 .review-badge {
@@ -525,6 +525,7 @@ body, html {
     opacity: 1;
   }
 }
+
 /* Modal background overlay */
 .modal-overlay {
   position: fixed;
@@ -539,14 +540,16 @@ body, html {
 /* Modal content box */
 .modal-content {
   background-color: #fff;
-  border: 3px solid #10b981; /* Stroke color - changed to green */
+  border: 3px solid #10b981;
+  /* Stroke color - changed to green */
   border-radius: 10px;
   padding: 20px 30px;
   width: 400px;
   max-width: 90%;
   box-shadow: 0 0 15px rgba(16, 185, 129, 0.7);
   position: absolute;
-  user-select: none; /* Prevent text selection while dragging */
+  user-select: none;
+  /* Prevent text selection while dragging */
 }
 
 /* Modal header */
@@ -557,7 +560,8 @@ body, html {
 }
 
 /* Modal input fields */
-.modal-input, .modal-textarea {
+.modal-input,
+.modal-textarea {
   width: 100%;
   padding: 10px;
   margin-bottom: 15px;
@@ -574,7 +578,8 @@ body, html {
 }
 
 /* Buttons */
-.submit-button, .close-button {
+.submit-button,
+.close-button {
   background-color: #10b981;
   color: white;
   border: none;
@@ -586,7 +591,8 @@ body, html {
   transition: background-color 0.3s ease;
 }
 
-.submit-button:hover, .close-button:hover {
+.submit-button:hover,
+.close-button:hover {
   background-color: #059669;
 }
 
@@ -767,12 +773,12 @@ body, html {
     grid-template-columns: repeat(2, 1fr);
     gap: 30px;
   }
-  
+
   .footer-newsletter-form {
     flex-direction: column;
     max-width: 100%;
   }
-  
+
   .footer-newsletter-button {
     width: 100%;
   }
@@ -783,21 +789,22 @@ body, html {
     grid-template-columns: 1fr;
     gap: 30px;
   }
-  
+
   .footer-black-section {
     padding: 40px 20px 20px;
   }
-  
+
   .footer-newsletter-section {
     padding: 40px 20px;
   }
-  
+
   .footer-bottom {
     flex-direction: column;
     gap: 12px;
     text-align: center;
   }
 }
+
 .shop-header-center {
   display: flex;
   flex-direction: column;
@@ -851,29 +858,36 @@ body, html {
   position: absolute;
   left: 0;
   top: 45px;
-  min-width: 367px; /* reduced from 750px to 500px */
-  max-width: 500px; /* added max-width for better control */
+  min-width: 367px;
+  /* reduced from 750px to 500px */
+  max-width: 500px;
+  /* added max-width for better control */
   background: white;
   border: 1px solid #d1fae5;
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
-  z-index: 1003; /* Higher z-index to ensure visibility */
+  z-index: 1003;
+  /* Higher z-index to ensure visibility */
   display: flex;
-  overflow: visible; /* Changed from hidden to visible */
+  overflow: visible;
+  /* Changed from hidden to visible */
   visibility: visible !important;
   opacity: 1 !important;
 }
 
 .dropdown-left-panel {
   background: #f0fdf4;
-  padding: 16px 32px !important; /* increased padding for better visibility */
-  width: 50%; /* slightly more space for left panel */
+  padding: 16px 32px !important;
+  /* increased padding for better visibility */
+  width: 50%;
+  /* slightly more space for left panel */
   display: flex;
   justify-content: space-between;
   cursor: pointer;
   transition: background-color 0.2s;
   min-height: auto !important;
-  max-height: none !important; /* Remove height restriction */
+  max-height: none !important;
+  /* Remove height restriction */
   visibility: visible !important;
 }
 
@@ -888,35 +902,43 @@ body, html {
 }
 
 .panel-title {
-  font-size: 1.1rem !important; /* smaller title */
+  font-size: 1.1rem !important;
+  /* smaller title */
   font-weight: 600;
   color: #1c2e3f;
-  margin-bottom: 6px !important; /* less spacing */
+  margin-bottom: 6px !important;
+  /* less spacing */
   visibility: visible !important;
 }
 
 .panel-description {
-  font-size: 0.9rem !important; /* smaller description */
+  font-size: 0.9rem !important;
+  /* smaller description */
   line-height: 1.4;
   color: #4a5d70;
   visibility: visible !important;
 }
 
 .dropdown-right-panel {
-  padding: 16px 24px !important; /* increased padding for better visibility */
+  padding: 16px 24px !important;
+  /* increased padding for better visibility */
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 12px; /* reduced gap between items */
+  gap: 12px;
+  /* reduced gap between items */
   width: 50%;
   min-height: auto !important;
-  max-height: none !important; /* Remove height restriction */
+  max-height: none !important;
+  /* Remove height restriction */
   visibility: visible !important;
 }
 
 .right-panel-item {
-  padding: 16px 20px; /* increased padding for items */
-  border-radius: 10px; /* slightly more rounded */
+  padding: 16px 20px;
+  /* increased padding for items */
+  border-radius: 10px;
+  /* slightly more rounded */
   cursor: pointer;
   transition: background-color 0.2s;
   visibility: visible !important;
@@ -928,14 +950,17 @@ body, html {
 
 .right-panel-title {
   font-weight: 600;
-  font-size: 1rem !important; /* smaller title */
+  font-size: 1rem !important;
+  /* smaller title */
   color: #10b981;
-  margin-bottom: 2px !important; /* less spacing */
+  margin-bottom: 2px !important;
+  /* less spacing */
   visibility: visible !important;
 }
 
 .right-panel-subtitle {
-  font-size: 0.85rem !important; /* smaller subtitle */
+  font-size: 0.85rem !important;
+  /* smaller subtitle */
   color: #6c757d;
   line-height: 1.3;
   visibility: visible !important;
@@ -950,8 +975,9 @@ body, html {
   background: white;
   border: 1px solid #ddd;
   border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-  z-index: 1003; /* Higher z-index to ensure visibility */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 1003;
+  /* Higher z-index to ensure visibility */
   padding: 15px;
   display: flex;
   flex-direction: column;
@@ -1038,24 +1064,30 @@ body, html {
   .navbar-right {
     gap: 12px;
   }
+
   .navbar-right .dropdown .list-book-dropdown {
     min-width: 120px;
     left: 0;
     right: auto;
   }
+
   .org-dropdown {
     min-width: 120px;
     left: 0;
     right: auto;
   }
+
   /* Fix main list book dropdown for mobile */
   .nav-links .dropdown .list-book-dropdown {
-    min-width: 280px; /* reduced from 300px */
-    max-width: 320px; /* added max-width for mobile */
+    min-width: 280px;
+    /* reduced from 300px */
+    max-width: 320px;
+    /* added max-width for mobile */
     left: 0;
     right: auto;
     flex-direction: column;
   }
+
   .dropdown-left-panel,
   .dropdown-right-panel {
     width: 100% !important;
@@ -1080,7 +1112,8 @@ body, html {
   background-color: #333;
 }
 
-.login-btn, .signup-btn {
+.login-btn,
+.signup-btn {
   padding: 8px 20px;
   border-radius: 6px;
   font-weight: 600;
@@ -1136,7 +1169,7 @@ body, html {
 }
 
 /* Add gap between navbar and main content */
-.navbar + * {
+.navbar+* {
   margin-top: 20px;
 }
 
@@ -1154,37 +1187,39 @@ body, html {
   .hero-content {
     flex-direction: column;
   }
-  
+
   .hero-left {
     padding: 40px 30px;
   }
-  
+
   .hero-left h1 {
     font-size: 36px;
   }
-  
+
   .hero-image-placeholder {
     height: 300px;
   }
-  
+
   .features-section {
     flex-direction: column;
     align-items: center;
     gap: 30px;
   }
-  
+
   .newsletter-form {
     flex-direction: column;
     max-width: 100%;
   }
-  
+
   .newsletter-button {
     width: 100%;
   }
 }
 
 /* Ensure proper spacing for search page and other main content */
-.search-container, .book-grid, .shop-header-center {
+.search-container,
+.book-grid,
+.shop-header-center {
   margin-top: 20px;
 }
 
@@ -1193,8 +1228,10 @@ body, html {
   position: absolute;
   left: 0;
   top: 45px;
-  min-width: 500px; /* reduced from 750px */
-  max-width: 550px; /* added max-width */
+  min-width: 500px;
+  /* reduced from 750px */
+  max-width: 550px;
+  /* added max-width */
   background: white;
   border: 1px solid #cce1f7;
   border-radius: 12px;
@@ -1234,6 +1271,7 @@ body, html {
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1254,10 +1292,13 @@ body, html {
   position: absolute !important;
   left: 0 !important;
   top: 100% !important;
-  min-width: 500px !important; /* reduced from 750px */
-  max-width: 550px !important; /* added max-width */
+  min-width: 500px !important;
+  /* reduced from 750px */
+  max-width: 550px !important;
+  /* added max-width */
   background: white !important;
-  border: 1px solid #d1fae5 !important; /* Changed to green border */
+  border: 1px solid #d1fae5 !important;
+  /* Changed to green border */
   border-radius: 12px !important;
   box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15) !important;
   z-index: 1005 !important;
@@ -1608,12 +1649,12 @@ body, html {
   .shop-content-wrapper {
     flex-direction: column;
   }
-  
+
   .shop-sidebar {
     flex: 1;
     width: 100%;
   }
-  
+
   .shop-main-content {
     width: 100%;
   }

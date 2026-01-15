@@ -101,7 +101,7 @@ const ViewDetails = () => {
   // Get current user
   const getCurrentUser = () => {
     try {
-      const userData = localStorage.getItem('user');
+      const userData = sessionStorage.getItem('user');
       return userData ? JSON.parse(userData) : null;
     } catch (error) {
       return null;
@@ -118,7 +118,7 @@ const ViewDetails = () => {
   };
 
   const handleAddToCart = () => {
-    const user = localStorage.getItem('user');
+    const user = sessionStorage.getItem('user');
     if (!user) {
       toast.info('Please login or signup to add items to your cart.');
       navigate('/login');
@@ -136,7 +136,7 @@ const ViewDetails = () => {
   };
 
   const handleBuyNow = async () => {
-    const user = localStorage.getItem('user');
+    const user = sessionStorage.getItem('user');
     if (!user) {
       toast.info('Please login or signup to purchase products.');
       navigate('/login');
@@ -186,69 +186,122 @@ const ViewDetails = () => {
 
   return (
     <div className="view-details-page">
+      <div className="vd-promo-banner">
+        Add 3+ items, get and 25% OFF - Free shipping
+      </div>
       <Navbar />
-      <div className="vd-main">
-        <div className="vd-left">
-          <div className="vd-title-author">
-            <h1>{currentProduct.title}<br /><span>-{currentProduct.author}</span></h1>
-          </div>
-          <img src={getImageUrl(currentProduct.bookImage || currentProduct.image)} alt={currentProduct.title} className="vd-book-img" />
-        </div>
-        <div className="vd-right">
-          <div className="vd-category">
-            <span role="img" aria-label="category" style={{ fontSize: '1.5rem', marginRight: 8 }}>🧶</span>
-            <b>Category: {currentProduct.category}</b>
-          </div>
-          <div className="vd-desc">{currentProduct.description}</div>
-          <div className="vd-price-row">
-            <span className="vd-price-icon" role="img" aria-label="price">💰</span>
-            <span className="vd-price">Rs. {currentProduct.price}/=</span>
-          </div>
-          <div className="vd-offer">*{currentProduct.offer}</div>
-
-          {/* Show warning if user owns the product */}
-          {isOwnProductFlag && (
-            <div style={{
-              background: '#fff3cd',
-              color: '#856404',
-              padding: '10px',
-              borderRadius: '5px',
-              marginBottom: '15px',
-              border: '1px solid #ffeaa7',
-              fontSize: '14px'
-            }}>
-              {/* ⚠️ This is your own product. You cannot purchase it. */}
+      <div className="vd-container">
+        <div className="vd-product-grid">
+          {/* Left Section: Images */}
+          <div className="vd-images-section">
+            <div className="vd-main-image-container">
+              <img
+                src={getImageUrl(currentProduct.bookImage || currentProduct.image)}
+                alt={currentProduct.title}
+                className="vd-main-image"
+              />
             </div>
-          )}
+            <div className="vd-thumbnails">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className={`vd-thumb-item ${i === 1 ? 'active' : ''}`}>
+                  <img src={getImageUrl(currentProduct.bookImage || currentProduct.image)} alt={`thumb ${i}`} />
+                </div>
+              ))}
+            </div>
+          </div>
 
-          <div className="vd-btn-row">
+          {/* Right Section: Details */}
+          <div className="vd-info-section">
+            <div className="vd-metadata">
+              <span className="vd-stars">★★★★★</span>
+              <span className="vd-review-count">(213 Reviews)</span>
+            </div>
+            <h1 className="vd-title">{currentProduct.title}</h1>
+            <p className="vd-author">by {currentProduct.author}</p>
+
+            <div className="vd-price-section">
+              <span className="vd-current-price">NPR {currentProduct.price}</span>
+              {currentProduct.offer && <span className="vd-offer-tag">Special Offer</span>}
+            </div>
+
+            <div className="vd-shipping-note">
+              Free Shipping Across the USA
+            </div>
+
             <button
-              className="vd-btn vd-cart-btn"
+              className="vd-add-to-cart-btn"
               onClick={handleAddToCart}
               disabled={isOwnProductFlag}
-              style={{
-                opacity: isOwnProductFlag ? 0.5 : 1,
-                cursor: isOwnProductFlag ? 'not-allowed' : 'pointer'
-              }}
             >
-              <span role="img" aria-label="cart">🛒</span> Add to Cart
+              ★ Add To Cart
             </button>
-            <button
-              className="vd-btn vd-buy-btn"
-              onClick={handleBuyNow}
-              disabled={isOwnProductFlag}
-              style={{
-                opacity: isOwnProductFlag ? 0.5 : 1,
-                cursor: isOwnProductFlag ? 'not-allowed' : 'pointer'
-              }}
-            >
-              Buy Product
-            </button>
+
+            <div className="vd-extra-info">
+              <div className="vd-info-card">
+                <div className="vd-card-icon-wrapper">🚀</div>
+                <span>Light weight</span>
+              </div>
+              <div className="vd-info-card">
+                <div className="vd-card-icon-wrapper">📅</div>
+                <span>Try, Then Decide</span>
+              </div>
+              <div className="vd-info-card">
+                <div className="vd-card-icon-wrapper">🔄</div>
+                <span>Easy Returns</span>
+              </div>
+            </div>
+
+            <div className="vd-collapsible-sections">
+              <details>
+                <summary>Features <span className="vd-arrow">›</span></summary>
+                <div className="vd-details-content">
+                  • {currentProduct.offer || "Premium Quality"}<br />
+                  • Handcrafted with detail<br />
+                  • Durable and long lasting
+                </div>
+              </details>
+              <details>
+                <summary>Specifications <span className="vd-arrow">›</span></summary>
+                <div className="vd-details-content">
+                  Category: {currentProduct.category}<br />
+                  Material: Premium Craft<br />
+                  Artist: {currentProduct.author}
+                </div>
+              </details>
+            </div>
           </div>
         </div>
       </div>
-      <div className="vd-recommend">
-        <h2>You might also like this</h2>
+
+      {/* Secondary Lifestyle Section */}
+      <div className="vd-lifestyle-section" style={{ background: '#f8f6fc', padding: '100px 0', textAlign: 'center' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '50px' }}>
+          <div style={{ flex: 1, textAlign: 'left' }}>
+            <h2 style={{ fontSize: '2.5rem', marginBottom: '20px' }}>{currentProduct.title} Elevate Your Presence</h2>
+            <p style={{ color: '#666', marginBottom: '30px' }}>{currentProduct.description.substring(0, 150)}...</p>
+            <button className="vd-add-to-cart-btn" style={{ width: 'auto', padding: '15px 40px' }} onClick={handleAddToCart}>
+              ★ Add To Cart
+            </button>
+            <div style={{ marginTop: '20px' }}>
+              <span style={{ color: '#ffb800' }}>★★★★★</span> <small>Rated 4.9/5 by 1,000+ Happy Customers</small>
+            </div>
+          </div>
+          <div style={{ flex: 1 }}>
+            <img
+              src={getImageUrl(currentProduct.bookImage || currentProduct.image)}
+              alt="Lifestyle"
+              style={{ width: '100%', borderRadius: '20px', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="vd-recommend-section">
+        <div className="vd-section-header">
+          <h2 style={{ fontSize: '2rem', fontWeight: 700 }}>Benefits Redefined</h2>
+          <p style={{ color: '#888', marginBottom: '40px' }}>Experience the redefined allure with our premium collection</p>
+          <div className="vd-divider"></div>
+        </div>
         <div className="vd-recommend-list">
           {recommendations.length > 0 ? (
             recommendations.map((rec) => (

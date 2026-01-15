@@ -143,7 +143,7 @@ const NotificationBell = () => {
                         )}
                     </div>
                     <div className="dropdown-footer">
-                        <span className="view-all-link" onClick={() => { setShowDropdown(false); window.location.href = '/notifications'; }}>
+                        <span className="view-all-link" onClick={() => { setShowDropdown(false); window.location.href = '/organization-notifications'; }}>
                             View All Notifications
                         </span>
                     </div>

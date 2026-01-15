@@ -3,7 +3,7 @@ const BASE_URL = 'http://localhost:8082/api';
 
 // Helper function to get auth headers
 export const getAuthHeaders = () => {
-  const userData = localStorage.getItem('user');
+  const userData = sessionStorage.getItem('user');
   const token = userData ? JSON.parse(userData).token : null;
   return token ? {
     'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ export const fetchBooks = async () => {
 // Add a new book (with optional image upload)
 export const addBook = async (bookData) => {
   try {
-    const userData = localStorage.getItem('user');
+    const userData = sessionStorage.getItem('user');
     const token = userData ? JSON.parse(userData).token : null;
     const response = await fetch(`${BASE_URL}/books`, {
       method: 'POST',
@@ -477,8 +477,8 @@ export const isAdminAuthenticated = async () => {
 };
 
 export const adminLogout = () => {
-  localStorage.removeItem('adminToken');
-  localStorage.removeItem('adminUser');
+  sessionStorage.removeItem('adminToken');
+  sessionStorage.removeItem('adminUser');
 };
 
 export const getDashboardStats = async () => {
@@ -789,7 +789,59 @@ export const fetchTutorials = async () => {
   return handleResponse(response);
 };
 
-// ===================== ORGANIZATION =====================
+// ===================== SETTLEMENT =====================
+export const getOrgPaymentSummary = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/organization/analytics/payment-summary`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Get payment summary error:', error);
+    throw error;
+  }
+};
+
+export const requestOrgPayment = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/organization/request-payment`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Request payment error:', error);
+    throw error;
+  }
+};
+
+export const getPendingSettlements = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/pending-settlements`, {
+      method: 'GET',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Get pending settlements error:', error);
+    throw error;
+  }
+};
+
+export const settlePayment = async (orgId) => {
+  try {
+    const response = await fetch(`${BASE_URL}/admin/settle-payment/${orgId}`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    return handleResponse(response);
+  } catch (error) {
+    console.error('Settle payment error:', error);
+    throw error;
+  }
+};
+
 // Upload tutorial (organization)
 export const uploadTutorial = async (formData, token) => {
   try {

@@ -5,10 +5,12 @@ import {
   BookOpen,
   Search,
   Trash2,
+  Edit2,
   DollarSign,
   Calendar,
   Tag,
-  XCircle
+  XCircle,
+  Upload
 } from 'lucide-react';
 import { getAuthHeaders } from '../../services/api';
 import { toast } from 'react-toastify';
@@ -24,11 +26,23 @@ const Product = () => {
   const [filterCategory, setFilterCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [booksPerPage] = useState(6);
+  const [editingBook, setEditingBook] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    title: '',
+    category: '',
+    location: '',
+    price: '',
+    description: '',
+    isbn: '',
+    edition: '',
+    status: ''
+  });
+  const [selectedImage, setSelectedImage] = useState(null);
   const queryClient = useQueryClient();
 
   // Check organization authentication
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
     const userType = storedUser.userType?.toLowerCase();
 
     if (!storedUser.token || userType !== 'organization') {
@@ -108,6 +122,38 @@ const Product = () => {
     }
   });
 
+  const updateBookMutation = useMutation({
+    mutationFn: async ({ bookId, formData }) => {
+      const headers = getAuthHeaders();
+      const token = headers['Authorization'];
+
+      const response = await fetch(`http://localhost:8082/api/admin/books/${bookId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': token
+        },
+        body: formData,
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Failed to update book');
+      }
+
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['organization-books']);
+      toast.success('Book updated successfully');
+      setEditingBook(null);
+      setSelectedImage(null);
+    },
+    onError: (error) => {
+      toast.error('Failed to update book: ' + error.message);
+    }
+  });
+
   const filteredBooks = books?.filter(book => {
     const matchesSearch = book.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       book.isbn?.toLowerCase().includes(searchTerm.toLowerCase());
@@ -136,9 +182,50 @@ const Product = () => {
     });
   };
 
+  const handleEditClick = (book) => {
+    setEditingBook(book);
+    setEditFormData({
+      title: book.title || '',
+      category: book.category || '',
+      location: book.location || '',
+      price: book.price || '',
+      description: book.description || '',
+      isbn: book.isbn || '',
+      edition: book.edition || '',
+      status: book.status || ''
+    });
+    setSelectedImage(null);
+  };
+
+  const handleEditChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleImageChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedImage(e.target.files[0]);
+    }
+  };
+
+  const handleUpdateSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    Object.keys(editFormData).forEach(key => {
+      formData.append(key, editFormData[key]);
+    });
+    if (selectedImage) {
+      formData.append('bookImage', selectedImage);
+    }
+    updateBookMutation.mutate({ bookId: editingBook.id, formData });
+  };
+
   const handleLogout = () => {
     const performLogout = () => {
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
       navigate('/login');
     };
     showLogoutConfirmation(performLogout);
@@ -366,6 +453,13 @@ const Product = () => {
 
                     <div className="book-actions">
                       <button
+                        onClick={() => handleEditClick(book)}
+                        className="edit-button"
+                        title="Edit Product"
+                      >
+                        <Edit2 className="edit-icon" />
+                      </button>
+                      <button
                         onClick={() => handleDeleteBook(book.id, book.title)}
                         className="delete-button"
                         title="Delete Product"
@@ -460,6 +554,136 @@ const Product = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      {editingBook && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2 className="modal-title">Edit Product</h2>
+              <button className="close-button" onClick={() => setEditingBook(null)}>
+                <XCircle size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleUpdateSubmit} className="edit-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Title</label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={editFormData.title}
+                    onChange={handleEditChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Category</label>
+                  <select
+                    name="category"
+                    value={editFormData.category}
+                    onChange={handleEditChange}
+                    required
+                  >
+                    <option value="">Select Category</option>
+                    <option value="BLANKET">Blanket</option>
+                    <option value="BOUQUET">Bouquet</option>
+                    <option value="FLOWERS">Flowers</option>
+                    <option value="AMIGURUMI">Amigurumi</option>
+                    <option value="KEYRINGS">Keyrings</option>
+                    <option value="DRESS">Dress</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Status</label>
+                  <select
+                    name="status"
+                    value={editFormData.status}
+                    onChange={handleEditChange}
+                    required
+                  >
+                    <option value="AVAILABLE">Available</option>
+                    <option value="DELETED">Deleted</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Price (Rs.)</label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={editFormData.price}
+                    onChange={handleEditChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Location</label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={editFormData.location}
+                    onChange={handleEditChange}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>ISBN/SKU</label>
+                  <input
+                    type="text"
+                    name="isbn"
+                    value={editFormData.isbn}
+                    onChange={handleEditChange}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group full-width">
+                <label>Description</label>
+                <textarea
+                  name="description"
+                  value={editFormData.description}
+                  onChange={handleEditChange}
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <div className="form-group full-width">
+                <label>Product Image</label>
+                <div className="file-upload-container">
+                  <input
+                    type="file"
+                    id="bookImage"
+                    onChange={handleImageChange}
+                    accept="image/*"
+                    hidden
+                  />
+                  <label htmlFor="bookImage" className="file-upload-label">
+                    <Upload size={20} />
+                    <span>{selectedImage ? selectedImage.name : 'Change Product Image'}</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={() => setEditingBook(null)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="save-button"
+                  disabled={updateBookMutation.isPending}
+                >
+                  {updateBookMutation.isPending ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

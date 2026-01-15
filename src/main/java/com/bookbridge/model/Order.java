@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "orders")
+@Table(name = "book_orders")
+
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +37,7 @@ public class Order {
 
     @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(name = "order_status", length = 20)
     private OrderStatus status = OrderStatus.PENDING;
 
     @Column(name = "delivery_address", length = 500)
@@ -51,7 +53,7 @@ public class Order {
     private LocalDateTime estimatedDelivery;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "delivery_status")
+    @Column(name = "delivery_status", length = 20)
     private DeliveryStatus deliveryStatus = DeliveryStatus.PENDING;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -75,7 +77,7 @@ public class Order {
     private LocalDateTime completedAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "org_payment_status")
+    @Column(name = "org_payment_status", length = 20)
     private OrgPaymentStatus orgPaymentStatus = OrgPaymentStatus.UNPAID;
 
     @Column(name = "org_payment_cleared_at")
@@ -244,6 +246,6 @@ public class Order {
     }
 
     public enum OrgPaymentStatus {
-        UNPAID, PAID
+        UNPAID, REQUESTED, PAID
     }
 }

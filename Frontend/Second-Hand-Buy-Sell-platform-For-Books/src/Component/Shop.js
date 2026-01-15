@@ -86,7 +86,7 @@ const Shop = () => {
   };
 
   const handleAddToCart = (book) => {
-    const user = localStorage.getItem('user');
+    const user = sessionStorage.getItem('user');
     if (!user) {
       toast.info('Please login or signup to add items to your cart.');
       navigate('/login');
@@ -223,8 +223,9 @@ const Shop = () => {
               ) : (
                 currentBooks.map((book, idx) => {
                   // Check if current user owns this book
-                  const user = localStorage.getItem('user');
-                  const currentUser = user ? JSON.parse(user) : null;
+                  const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
+                  const token = storedUser.token || null;
+                  const currentUser = Object.keys(storedUser).length > 0 ? storedUser : null;
                   const isOwnBook = currentUser && book.user && (book.user.id === currentUser.userId || book.userId === currentUser.userId);
 
                   // Generate random badges for demo (you can replace with actual data)

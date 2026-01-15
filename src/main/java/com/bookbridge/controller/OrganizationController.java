@@ -157,4 +157,37 @@ public class OrganizationController {
         }
     }
 
+    @GetMapping("/analytics/payment-summary")
+    public ResponseEntity<?> getPaymentSummary(HttpServletRequest request) {
+        if (!isOrganizationAuthenticated(request)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            String email = jwtUtil.extractUsername(request.getHeader("Authorization").substring(7));
+            User organization = userService.getUserByEmail(email).get();
+            return ResponseEntity.ok(orderService.getOrgPaymentSummary(organization));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/request-payment")
+    public ResponseEntity<?> requestPayment(HttpServletRequest request) {
+        if (!isOrganizationAuthenticated(request)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            String email = jwtUtil.extractUsername(request.getHeader("Authorization").substring(7));
+            User organization = userService.getUserByEmail(email).get();
+            orderService.requestOrgPayment(organization);
+            return ResponseEntity.ok(Map.of("message", "Payment request submitted successfully"));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", e.getMessage()));
+        }
+    }
+
 }

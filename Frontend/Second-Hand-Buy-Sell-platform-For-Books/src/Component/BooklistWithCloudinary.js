@@ -71,7 +71,7 @@ const BookListWithCloudinary = () => {
   };
 
   const handlePurchase = (book) => {
-    const user = localStorage.getItem('user');
+    const user = sessionStorage.getItem('user');
     if (!user) {
       toast.info('Please login or signup to add items to your cart.');
       navigate('/login');

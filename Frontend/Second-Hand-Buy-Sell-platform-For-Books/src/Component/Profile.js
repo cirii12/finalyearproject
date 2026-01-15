@@ -10,21 +10,21 @@ import { useNavigate } from 'react-router-dom';
 const Profile = () => {
   const [user, setUser] = useState(() => {
     try {
-      const userData = localStorage.getItem('user');
+      const userData = sessionStorage.getItem('user');
       if (!userData) return null;
 
       const parsedUser = JSON.parse(userData);
       // Check if user has required fields
       if (!parsedUser.token || !parsedUser.email) {
         console.log('Invalid user data found, clearing...');
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
         return null;
       }
 
       return parsedUser;
     } catch (e) {
       console.log('Error parsing user data, clearing...');
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
       return null;
     }
   });
@@ -45,7 +45,7 @@ const Profile = () => {
 
   // Function to clear user data and redirect to login
   const clearUserAndRedirect = useCallback(() => {
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('user');
     setUser(null);
     toast.info('Please log in to continue');
     navigate('/login');
@@ -152,6 +152,12 @@ const Profile = () => {
 
   useEffect(() => {
     if (user && user.token) {
+      // Redirect organization users to organization panel
+      if (user.userType?.toLowerCase() === 'organization') {
+        window.location.href = '/adminpanel';
+        return;
+      }
+
       console.log('User authenticated, loading data...');
       loadBooks();
       loadOrders();
@@ -287,8 +293,8 @@ const Profile = () => {
     console.log('Refreshing orders...');
 
     // Debug authentication
-    const userData = localStorage.getItem('user');
-    console.log('User data from localStorage:', userData);
+    const userData = sessionStorage.getItem('user');
+    console.log('User data from sessionStorage:', userData);
 
     if (userData) {
       const parsedUser = JSON.parse(userData);
@@ -878,12 +884,13 @@ const Profile = () => {
                     }}
                     required
                   >
-                    <option value="">Select book category</option>
-                    <option value="TECHNOLOGY">Technology</option>
-                    <option value="FICTION">Fiction</option>
-                    <option value="NONFICTION">Nonfiction</option>
-                    <option value="SCIENCE">Science</option>
-                    <option value="HISTORY">History</option>
+                    <option value="">Select product category</option>
+                    <option value="BLANKET">Blanket</option>
+                    <option value="BOUQUET">Bouquet</option>
+                    <option value="FLOWERS">Flowers</option>
+                    <option value="AMIGURUMI">Amigurumi</option>
+                    <option value="KEYRINGS">Keyrings</option>
+                    <option value="DRESS">Dress</option>
                     <option value="OTHER">Other</option>
                   </select>
                 </div>

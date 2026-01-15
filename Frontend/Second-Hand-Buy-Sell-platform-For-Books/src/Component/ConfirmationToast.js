@@ -1,57 +1,65 @@
 import { toast } from 'react-toastify';
 
+const ConfirmationMsg = ({ closeToast, message, onConfirm, onCancel }) => (
+  <div>
+    <div style={{ marginBottom: '10px', fontWeight: 'bold', fontSize: '14px' }}>
+      {message}
+    </div>
+    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+      <button
+        onClick={() => {
+          if (typeof closeToast === 'function') closeToast();
+          if (onConfirm) onConfirm();
+        }}
+        style={{
+          background: '#dc3545',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          padding: '8px 16px',
+          cursor: 'pointer',
+          fontSize: '12px',
+          fontWeight: '600',
+          transition: 'background 0.2s'
+        }}
+        onMouseEnter={(e) => e.target.style.background = '#c82333'}
+        onMouseLeave={(e) => e.target.style.background = '#dc3545'}
+      >
+        Confirm
+      </button>
+      <button
+        onClick={() => {
+          if (typeof closeToast === 'function') closeToast();
+          if (onCancel) onCancel();
+        }}
+        style={{
+          background: '#6c757d',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          padding: '8px 16px',
+          cursor: 'pointer',
+          fontSize: '12px',
+          fontWeight: '600',
+          transition: 'background 0.2s'
+        }}
+        onMouseEnter={(e) => e.target.style.background = '#5a6268'}
+        onMouseLeave={(e) => e.target.style.background = '#6c757d'}
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+);
+
 // Reusable confirmation toast function
 export const showConfirmationToast = (message, onConfirm, onCancel) => {
   toast.info(
-    <div>
-      <div style={{ marginBottom: '10px', fontWeight: 'bold', fontSize: '14px' }}>
-        {message}
-      </div>
-      <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-        <button
-          onClick={() => {
-            toast.dismiss();
-            if (onConfirm) onConfirm();
-          }}
-          style={{
-            background: '#dc3545',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            padding: '8px 16px',
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontWeight: '600',
-            transition: 'background 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.background = '#c82333'}
-          onMouseLeave={(e) => e.target.style.background = '#dc3545'}
-        >
-          Confirm
-        </button>
-        <button
-          onClick={() => {
-            toast.dismiss();
-            if (onCancel) onCancel();
-          }}
-          style={{
-            background: '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            padding: '8px 16px',
-            cursor: 'pointer',
-            fontSize: '12px',
-            fontWeight: '600',
-            transition: 'background 0.2s'
-          }}
-          onMouseEnter={(e) => e.target.style.background = '#5a6268'}
-          onMouseLeave={(e) => e.target.style.background = '#6c757d'}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>,
+    <ConfirmationMsg
+      message={message}
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+    />,
     {
       position: "top-center",
       autoClose: false,
@@ -70,6 +78,7 @@ export const showConfirmationToast = (message, onConfirm, onCancel) => {
     }
   );
 };
+
 
 // Specific confirmation for delete operations
 export const showDeleteConfirmation = (itemName, onConfirm) => {

@@ -502,8 +502,8 @@ public class OrderService {
             Long totalOrders = orderItemRepository.countOrdersByOrganization(user);
             stats.put("totalOrders", totalOrders != null ? totalOrders : 0L);
 
-            // 5. Total Revenue (from all sales by this organization)
-            BigDecimal totalRevenueRaw = orderItemRepository.sumRevenueByOrganization(user);
+            // 5. Total Revenue (from unpaid/pending sales by this organization)
+            BigDecimal totalRevenueRaw = orderItemRepository.sumPendingRevenueByOrganization(user);
             double bookRevenue = totalRevenueRaw != null ? totalRevenueRaw.doubleValue() : 0.0;
 
             // Apply 5% commission: Org gets 95% of book revenue
@@ -521,16 +521,25 @@ public class OrderService {
             long tutorialSales = tutorialPurchaseRepository.countByTutorialOrganization(user);
             stats.put("tutorialSales", tutorialSales);
 
-            Double tutorialRevenueRaw = tutorialPurchaseRepository.sumRevenueByOrganization(user);
+            Double tutorialRevenueRaw = tutorialPurchaseRepository.sumPendingRevenueByOrganization(user);
             double tutorialRevenue = tutorialRevenueRaw != null ? tutorialRevenueRaw : 0.0;
 
             // Apply 5% commission: Org gets 95%
             double orgTutorialRevenue = tutorialRevenue * 0.95;
             stats.put("tutorialRevenue", orgTutorialRevenue);
 
-            // Update totalRevenue to be combined
-            double totalCombinedRevenue = orgBookRevenue + orgTutorialRevenue;
-            stats.put("totalRevenue", totalCombinedRevenue);
+            // Update totalRevenue to be life-time combined total
+            BigDecimal totalLifeTimeBookRevenueRaw = orderItemRepository.sumRevenueByOrganization(user);
+            double totalLifeTimeBookRevenue = totalLifeTimeBookRevenueRaw != null
+                    ? totalLifeTimeBookRevenueRaw.doubleValue()
+                    : 0.0;
+            Double totalLifeTimeTutorialRevenueRaw = tutorialPurchaseRepository.sumRevenueByOrganization(user);
+            double totalLifeTimeTutorialRevenue = totalLifeTimeTutorialRevenueRaw != null
+                    ? totalLifeTimeTutorialRevenueRaw
+                    : 0.0;
+
+            double totalCombinedLifeTimeRevenue = (totalLifeTimeBookRevenue + totalLifeTimeTutorialRevenue) * 0.95;
+            stats.put("totalRevenue", totalCombinedLifeTimeRevenue);
 
             return stats;
         } catch (Exception e) {
@@ -717,5 +726,193 @@ public class OrderService {
 
     public Long countActiveOrdersByOrganization(User organization) {
         return orderItemRepository.countOrdersByOrganizationAndStatusNot(organization, Order.OrderStatus.DELIVERED);
+    }
+
+    @Transactional
+    public void requestOrgPayment(User organization) {
+        List<Order> unpaidOrders = orderItemRepository.findOrdersByOrganization(organization).stream()
+                .filter(o -> o.getOrgPaymentStatus() == Order.OrgPaymentStatus.UNPAID)
+                .filter(o -> o.getStatus() == Order.OrderStatus.DELIVERED) // Only request for delivered orders
+                .collect(Collectors.toList());
+
+        if (unpaidOrders.isEmpty()) {
+            throw new IllegalStateException("No eligible unpaid orders found to request payment.");
+        }
+
+        for (Order order : unpaidOrders) {
+            order.setOrgPaymentStatus(Order.OrgPaymentStatus.REQUESTED);
+            orderRepository.save(order);
+        }
+
+        // Request tutorial payments
+        List<TutorialPurchase> unpaidTutorials = tutorialPurchaseRepository
+                .findByTutorialOrganizationAndOrgPaymentStatus(organization, Order.OrgPaymentStatus.UNPAID);
+        for (TutorialPurchase purchase : unpaidTutorials) {
+            purchase.setOrgPaymentStatus(Order.OrgPaymentStatus.REQUESTED);
+            tutorialPurchaseRepository.save(purchase);
+        }
+
+        // Notify admins about the payment request
+        List<User> admins = userService.getUsersByType(User.UserType.ADMIN);
+        String title = "New Payment Request from " + organization.getFullName();
+        String message = String.format("Organization %s has requested payment for %d orders and %d tutorial sales.",
+                organization.getFullName(), unpaidOrders.size(), unpaidTutorials.size());
+
+        for (User admin : admins) {
+            notificationService.createNotification(admin, title, message, Notification.NotificationType.PAYMENT);
+        }
+    }
+
+    public Map<String, Object> getOrgPaymentSummary(User organization) {
+        List<Order> orgOrders = orderItemRepository.findOrdersByOrganization(organization);
+
+        BigDecimal settledAmount = BigDecimal.ZERO;
+        BigDecimal pendingSettlement = BigDecimal.ZERO;
+        BigDecimal requestedAmount = BigDecimal.ZERO;
+
+        for (Order order : orgOrders) {
+            // Calculate organization's share (95% of book total in this order)
+            BigDecimal orgShare = order.getOrderItems().stream()
+                    .filter(item -> item.getBook().getUser() != null
+                            && item.getBook().getUser().getId().equals(organization.getId()))
+                    .map(OrderItem::getTotalPrice)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+                    .multiply(new BigDecimal("0.95"));
+
+            if (order.getOrgPaymentStatus() == Order.OrgPaymentStatus.PAID) {
+                settledAmount = settledAmount.add(orgShare);
+            } else if (order.getOrgPaymentStatus() == Order.OrgPaymentStatus.REQUESTED) {
+                requestedAmount = requestedAmount.add(orgShare);
+            } else if (order.getOrgPaymentStatus() == Order.OrgPaymentStatus.UNPAID
+                    && order.getStatus() == Order.OrderStatus.DELIVERED) {
+                pendingSettlement = pendingSettlement.add(orgShare);
+            }
+        }
+
+        // Add tutorial revenue to summary
+        List<TutorialPurchase> tutorialPurchases = tutorialPurchaseRepository.findAll().stream()
+                .filter(p -> p.getTutorial().getOrganization().getId().equals(organization.getId()))
+                .collect(Collectors.toList());
+
+        for (TutorialPurchase purchase : tutorialPurchases) {
+            BigDecimal tutorialShare = BigDecimal.valueOf(purchase.getTutorial().getPrice())
+                    .multiply(new BigDecimal("0.95"));
+
+            if (purchase.getOrgPaymentStatus() == Order.OrgPaymentStatus.PAID) {
+                settledAmount = settledAmount.add(tutorialShare);
+            } else if (purchase.getOrgPaymentStatus() == Order.OrgPaymentStatus.REQUESTED) {
+                requestedAmount = requestedAmount.add(tutorialShare);
+            } else if (purchase.getOrgPaymentStatus() == Order.OrgPaymentStatus.UNPAID) {
+                pendingSettlement = pendingSettlement.add(tutorialShare);
+            }
+        }
+
+        Map<String, Object> summary = new HashMap<>();
+        summary.put("settledAmount", settledAmount);
+        summary.put("amountLeftToPay", pendingSettlement);
+        summary.put("requestedAmount", requestedAmount);
+        summary.put("totalToPay", pendingSettlement.add(requestedAmount));
+
+        return summary;
+    }
+
+    public List<Map<String, Object>> getPendingSettlements() {
+        // Find all unique organizations with REQUESTED status orders
+        List<Order> requestedOrders = orderRepository.findAll().stream()
+                .filter(o -> o.getOrgPaymentStatus() == Order.OrgPaymentStatus.REQUESTED)
+                .collect(Collectors.toList());
+
+        Map<User, BigDecimal> orgRequests = new HashMap<>();
+
+        for (Order order : requestedOrders) {
+            for (OrderItem item : order.getOrderItems()) {
+                User org = item.getBook().getUser();
+                if (org != null && org.getUserType() == User.UserType.ORGANIZATION) {
+                    BigDecimal orgShare = item.getTotalPrice()
+                            .multiply(new BigDecimal("0.95"));
+                    orgRequests.put(org, orgRequests.getOrDefault(org, BigDecimal.ZERO).add(orgShare));
+                }
+            }
+        }
+
+        // Add requested tutorials
+        List<TutorialPurchase> requestedTutorials = tutorialPurchaseRepository.findAll().stream()
+                .filter(p -> p.getOrgPaymentStatus() == Order.OrgPaymentStatus.REQUESTED)
+                .collect(Collectors.toList());
+
+        for (TutorialPurchase purchase : requestedTutorials) {
+            User org = purchase.getTutorial().getOrganization();
+            if (org != null) {
+                BigDecimal tutorialShare = BigDecimal.valueOf(purchase.getTutorial().getPrice())
+                        .multiply(new BigDecimal("0.95"));
+                orgRequests.put(org, orgRequests.getOrDefault(org, BigDecimal.ZERO).add(tutorialShare));
+            }
+        }
+
+        return orgRequests.entrySet().stream()
+                .map(entry -> {
+                    Map<String, Object> map = new HashMap<>();
+
+                    User org = entry.getKey();
+                    Map<String, Object> orgMap = new HashMap<>();
+                    orgMap.put("id", org.getId());
+                    orgMap.put("fullName", org.getFullName());
+                    orgMap.put("email", org.getEmail());
+
+                    map.put("organization", orgMap);
+                    map.put("requestedAmount", entry.getValue());
+                    return map;
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void settleOrgPayment(Long organizationId) {
+        User organization = userService.getUserById(organizationId);
+        if (organization == null) {
+            throw new IllegalArgumentException("Organization not found");
+        }
+
+        List<Order> requestedOrders = orderItemRepository.findOrdersByOrganization(organization).stream()
+                .filter(o -> o.getOrgPaymentStatus() == Order.OrgPaymentStatus.REQUESTED)
+                .collect(Collectors.toList());
+
+        if (requestedOrders.isEmpty()) {
+            throw new IllegalStateException("No requested orders found for this organization.");
+        }
+
+        for (Order order : requestedOrders) {
+            order.setOrgPaymentStatus(Order.OrgPaymentStatus.PAID);
+            order.setOrgPaymentClearedAt(LocalDateTime.now());
+            orderRepository.save(order);
+        }
+
+        // Settle tutorials
+        List<TutorialPurchase> requestedTutorials = tutorialPurchaseRepository
+                .findByTutorialOrganizationAndOrgPaymentStatus(organization, Order.OrgPaymentStatus.REQUESTED);
+        for (TutorialPurchase purchase : requestedTutorials) {
+            purchase.setOrgPaymentStatus(Order.OrgPaymentStatus.PAID);
+            purchase.setOrgPaymentClearedAt(LocalDateTime.now());
+            tutorialPurchaseRepository.save(purchase);
+        }
+
+        // Notify organization
+        notificationService.notifyOrgPaymentSettled(organization, requestedOrders.size() + requestedTutorials.size());
+    }
+
+    @Transactional
+    public void clearTutorialPayment(Long purchaseId) {
+        TutorialPurchase purchase = tutorialPurchaseRepository.findById(purchaseId)
+                .orElseThrow(() -> new IllegalArgumentException("Tutorial purchase not found"));
+
+        purchase.setOrgPaymentStatus(Order.OrgPaymentStatus.PAID);
+        purchase.setOrgPaymentClearedAt(LocalDateTime.now());
+        tutorialPurchaseRepository.save(purchase);
+
+        // Notify organization (optional, but keep it consistent)
+        User organization = purchase.getTutorial().getOrganization();
+        if (organization != null) {
+            notificationService.notifyOrgPaymentSettled(organization, 1);
+        }
     }
 }

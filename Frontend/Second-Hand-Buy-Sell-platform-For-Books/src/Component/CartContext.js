@@ -6,7 +6,7 @@ const CartContext = createContext();
 // Helper to check if user is logged in
 const isUserLoggedIn = () => {
   try {
-    const userData = localStorage.getItem('user');
+    const userData = sessionStorage.getItem('user');
     if (!userData) return false;
     const parsedUser = JSON.parse(userData);
     return !!(parsedUser && parsedUser.token);

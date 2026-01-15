@@ -109,7 +109,7 @@ const BillingPage = () => {
       setLoading(true);
 
       // Debug: Check if user is logged in
-      const userData = localStorage.getItem('user');
+      const userData = sessionStorage.getItem('user');
       if (!userData) {
         alert('User not logged in. Please login again.');
         navigate('/login');

@@ -14,7 +14,7 @@ const Login = () => {
     setLoading(true);
     try {
       const data = await login(values.email, values.password);
-      localStorage.setItem('user', JSON.stringify({
+      sessionStorage.setItem('user', JSON.stringify({
         token: data.token,
         userId: data.user.id,
         email: data.user.email,
@@ -40,7 +40,7 @@ const Login = () => {
   return (
     <div>
       <Navbar />
-      
+
       {/* Main Container */}
       <div style={{
         minHeight: 'calc(100vh - 140px)',
@@ -50,7 +50,7 @@ const Login = () => {
         justifyContent: 'center',
         padding: '40px 20px'
       }}>
-        
+
         {/* Card */}
         <div style={{
           display: 'flex',
@@ -62,7 +62,7 @@ const Login = () => {
           boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
           overflow: 'hidden'
         }}>
-          
+
           {/* Left Side - Pink */}
           <div style={{
             width: '400px',
@@ -81,8 +81,8 @@ const Login = () => {
             </h1>
             <p style={{ fontSize: '16px', color: '#333', lineHeight: '1.6', marginBottom: '30px' }}>
 
-             Welcome Back
-             Sign in to your account to continue shopping
+              Welcome Back
+              Sign in to your account to continue shopping
             </p>
             <div style={{ textAlign: 'left', width: '100%', paddingLeft: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>

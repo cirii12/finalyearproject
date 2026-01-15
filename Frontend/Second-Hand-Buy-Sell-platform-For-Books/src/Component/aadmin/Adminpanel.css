@@ -1,7 +1,6 @@
 .admin-panel-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #fdf7f9 0%, #fce7f3 100%);
-  font-family: 'Poppins', sans-serif;
 }
 
 /* Header Styles */
@@ -36,7 +35,7 @@
 }
 
 .admin-badge {
-  background: #E94E8B;
+  background: var(--primary-color);
   color: #fff;
   padding: 4px 12px;
   border-radius: 12px;
@@ -73,7 +72,7 @@
 }
 
 .admin-logout-btn {
-  background: #E94E8B;
+  background: var(--primary-color);
   color: #fff;
   border: none;
   padding: 8px 20px;
@@ -114,7 +113,7 @@
 
 .admin-form-header h1 {
   font-size: 2rem;
-  color: #E94E8B;
+  color: var(--primary-color);
   margin-bottom: 8px;
   font-weight: 700;
 }
@@ -299,6 +298,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -337,4 +337,3 @@
     font-size: 1.5rem;
   }
 }
-

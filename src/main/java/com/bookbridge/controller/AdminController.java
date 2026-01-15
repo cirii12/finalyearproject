@@ -3,6 +3,7 @@ package com.bookbridge.controller;
 import com.bookbridge.model.*;
 import com.bookbridge.service.*;
 import com.bookbridge.repository.UserRepository;
+import com.bookbridge.repository.TutorialPurchaseRepository;
 import com.bookbridge.config.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -22,6 +23,8 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
 import java.util.Optional;
 
 @RestController
@@ -47,6 +50,9 @@ public class AdminController {
     private UpworkTransactionService upworkTransactionService;
 
     @Autowired
+    private TutorialPurchaseRepository tutorialPurchaseRepository;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
@@ -54,6 +60,9 @@ public class AdminController {
 
     @Autowired
     private PDFService pdfService;
+
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @PostMapping("/login")
     public ResponseEntity<?> adminLogin(@RequestBody Map<String, String> loginRequest, HttpServletRequest request) {
@@ -307,6 +316,106 @@ public class AdminController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Error deleting book: " + e.getMessage()));
+        }
+    }
+
+    @PutMapping("/books/{id}")
+    public ResponseEntity<?> updateBook(
+            @PathVariable Long id,
+            @RequestParam("title") String title,
+            @RequestParam(value = "author", required = false) String author,
+            @RequestParam("category") String category,
+            @RequestParam(value = "condition", required = false) String condition,
+            @RequestParam(value = "listingType", required = false) String listingType,
+            @RequestParam("location") String location,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "edition", required = false) String edition,
+            @RequestParam(value = "isbn", required = false) String isbn,
+            @RequestParam(value = "price", required = false) String price,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "bookImage", required = false) MultipartFile bookImage,
+            HttpServletRequest request) {
+
+        if (!isAdminAuthenticated(request)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Admin authentication required"));
+        }
+
+        try {
+            User currentUser = getAuthenticatedUser(request);
+            Optional<Book> bookOpt = bookService.getBookByIdIncludingDeleted(id);
+
+            if (!bookOpt.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            Book book = bookOpt.get();
+
+            // Organizations can only edit their own books. Admins can edit any.
+            if (currentUser != null && currentUser.getUserType() == User.UserType.ORGANIZATION) {
+                if (!book.getUser().getId().equals(currentUser.getId())) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                            .body(Map.of("message", "You can only edit your own products"));
+                }
+            }
+
+            // Update book details
+            book.setTitle(title);
+            if (author != null)
+                book.setAuthor(author);
+
+            String catTrimmed = category.trim().toUpperCase();
+            book.setCategory(Book.BookCategory.valueOf(catTrimmed));
+
+            if (condition != null) {
+                String condTrimmed = condition.trim().toUpperCase();
+                book.setCondition(Book.BookCondition.valueOf(condTrimmed));
+            }
+
+            if (listingType != null) {
+                String typeTrimmed = listingType.trim().toUpperCase();
+                book.setListingType(Book.ListingType.valueOf(typeTrimmed));
+            }
+
+            if (status != null) {
+                String statusTrimmed = status.trim().toUpperCase();
+                book.setStatus(Book.BookStatus.valueOf(statusTrimmed));
+            }
+
+            book.setLocation(location);
+            book.setEdition(edition);
+            book.setIsbn(isbn);
+            book.setDescription(description);
+
+            if (price != null && !price.trim().isEmpty()) {
+                book.setPrice(new BigDecimal(price.trim()));
+            } else {
+                book.setPrice(null);
+            }
+
+            if (bookImage != null && !bookImage.isEmpty()) {
+                // Delete old image if exists
+                if (book.getBookImage() != null) {
+                    try {
+                        fileStorageService.deleteFile(book.getBookImage());
+                    } catch (Exception e) {
+                        System.err.println("Failed to delete old image: " + e.getMessage());
+                    }
+                }
+                String imagePath = fileStorageService.storeBookImage(bookImage);
+                book.setBookImage(imagePath);
+            }
+
+            Book updatedBook = bookService.updateBook(book);
+            return ResponseEntity.ok(Map.of(
+                    "message", "Product updated successfully",
+                    "book", updatedBook));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Failed to upload product image"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Error updating product: " + e.getMessage()));
         }
     }
 
@@ -818,5 +927,65 @@ public class AdminController {
         }
 
         return false;
+    }
+
+    @GetMapping("/pending-settlements")
+    public ResponseEntity<?> getPendingSettlements(HttpServletRequest request) {
+        if (!isAdminAuthenticated(request)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            return ResponseEntity.ok(orderService.getPendingSettlements());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/tutorials/purchases")
+    public ResponseEntity<?> getTutorialPurchases(HttpServletRequest request) {
+        if (!isAdminAuthenticated(request)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            User currentUser = getAuthenticatedUser(request);
+            if (currentUser != null && currentUser.getUserType() == User.UserType.ORGANIZATION) {
+                return ResponseEntity.ok(tutorialPurchaseRepository.findAll().stream()
+                        .filter(p -> p.getTutorial().getOrganization().getId().equals(currentUser.getId()))
+                        .collect(java.util.stream.Collectors.toList()));
+            }
+            return ResponseEntity.ok(tutorialPurchaseRepository.findAll());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/settle-payment/{orgId}")
+    public ResponseEntity<?> settlePayment(@PathVariable Long orgId, HttpServletRequest request) {
+        if (!isAdminAuthenticated(request)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            orderService.settleOrgPayment(orgId);
+            return ResponseEntity.ok(Map.of("message", "Payment settled successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/tutorials/purchases/{purchaseId}/clear-payment")
+    public ResponseEntity<?> clearTutorialPayment(@PathVariable Long purchaseId, HttpServletRequest request) {
+        if (!isAdminAuthenticated(request)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        try {
+            orderService.clearTutorialPayment(purchaseId);
+            return ResponseEntity.ok(Map.of("message", "Tutorial payment cleared successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
     }
 }

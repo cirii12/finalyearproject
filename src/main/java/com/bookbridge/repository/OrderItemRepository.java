@@ -26,6 +26,9 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     @Query("SELECT COUNT(DISTINCT oi.order) FROM OrderItem oi WHERE oi.book.user = :user")
     Long countOrdersByOrganization(@Param("user") User user);
 
+    @Query("SELECT SUM(oi.totalPrice) FROM OrderItem oi WHERE oi.book.user = :user AND oi.order.orgPaymentStatus != 'PAID'")
+    BigDecimal sumPendingRevenueByOrganization(@Param("user") User user);
+
     @Query("SELECT SUM(oi.totalPrice) FROM OrderItem oi WHERE oi.book.user = :user")
     BigDecimal sumRevenueByOrganization(@Param("user") User user);
 

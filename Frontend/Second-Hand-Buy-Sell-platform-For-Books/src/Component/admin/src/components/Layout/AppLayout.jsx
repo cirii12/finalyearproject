@@ -10,7 +10,8 @@ import {
   X,
   Shield,
   BarChart3,
-  Bell
+  Bell,
+  DollarSign
 } from 'lucide-react';
 import {
   adminLogout,
@@ -21,8 +22,7 @@ import {
   markAllNotificationsAsRead,
   getActiveOrdersCount
 } from '../../services/api';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { toast } from 'react-toastify';
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -40,7 +40,9 @@ export default function AppLayout() {
     { label: 'Users', path: '/admin/users', icon: Users },
     // { label: 'Products', path: '/admin/books', icon: BookOpen },
     { label: 'Orders', path: '/admin/orders', icon: ShoppingCart, badge: activeOrdersCount },
+    { label: 'Settlements', path: '/admin/payments', icon: DollarSign },
     { label: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
+
   ];
 
   useEffect(() => {
@@ -78,6 +80,7 @@ export default function AppLayout() {
         if (newNotifications.length > 0 && currentNotifications.length >= 0) {
           newNotifications.forEach(notif => {
             toast.info(`${notif.title}: ${notif.message}`, {
+              toastId: `notif-${notif.id}`,
               position: "top-right",
               autoClose: 5000,
               icon: "🔔"
@@ -528,19 +531,6 @@ export default function AppLayout() {
         <div style={{ padding: '24px' }}>
           <Outlet />
         </div>
-
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
       </div>
 
       {/* Mobile Overlay */}

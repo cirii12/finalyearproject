@@ -17,9 +17,10 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 210 12% 15%;
 
-    --primary: 142 76% 36%;
+    --primary: 331 81% 60%;
+    /* Pink #ec4899 */
     --primary-foreground: 0 0% 100%;
-    --primary-light: 142 70% 90%;
+    --primary-light: 331 81% 95%;
 
     --secondary: 210 20% 96%;
     --secondary-foreground: 210 12% 15%;
@@ -27,7 +28,7 @@ All colors MUST be HSL.
     --muted: 210 20% 96%;
     --muted-foreground: 210 12% 60%;
 
-    --accent: 142 50% 50%;
+    --accent: 331 81% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -35,14 +36,14 @@ All colors MUST be HSL.
 
     --border: 210 20% 85%;
     --input: 210 20% 90%;
-    --ring: 142 76% 36%;
+    --ring: 331 81% 60%;
 
     --success: 142 76% 36%;
     --warning: 38 92% 50%;
     --info: 217 91% 60%;
-    
-    --sidebar-bg: 142 70% 90%;
-    --sidebar-active: 142 76% 36%;
+
+    --sidebar-bg: 331 81% 95%;
+    --sidebar-active: 331 81% 60%;
     --sidebar-text: 210 12% 25%;
     --sidebar-text-active: 0 0% 100%;
 

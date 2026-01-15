@@ -20,7 +20,7 @@ export default function TutorialAdd() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
     const userType = storedUser.userType?.toLowerCase();
 
     if (!storedUser.token || userType !== "organization") {
@@ -91,7 +91,7 @@ export default function TutorialAdd() {
 
   const handleLogout = () => {
     const performLogout = () => {
-      localStorage.removeItem("user");
+      sessionStorage.removeItem('user');
       navigate("/login");
     };
     showLogoutConfirmation(performLogout);

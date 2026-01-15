@@ -10,7 +10,7 @@
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #fdf7f9 0%, #fce7f3 100%);
 }
 
 .search-hero {
@@ -21,7 +21,7 @@
 
 .search-hero h1 {
   font-size: 3rem;
-  color: #2E8B57;
+  color: var(--primary-color);
   margin-bottom: 16px;
   font-weight: 700;
 }
@@ -49,7 +49,7 @@
 }
 
 .search-input-container:focus-within {
-  box-shadow: 0 6px 25px rgba(46, 139, 87, 0.2);
+  box-shadow: 0 6px 25px rgba(236, 72, 153, 0.2);
   transform: translateY(-2px);
 }
 
@@ -74,7 +74,7 @@
 
 .search-button {
   padding: 16px 30px;
-  background: #2E8B57;
+  background: var(--primary-color);
   color: white;
   border: none;
   font-size: 16px;
@@ -85,7 +85,7 @@
 }
 
 .search-button:hover:not(:disabled) {
-  background: #1F5F3A;
+  background: #d43d7a;
   transform: translateX(2px);
 }
 
@@ -115,8 +115,8 @@
 .suggestion-tags span {
   padding: 8px 16px;
   background: white;
-  color: #2E8B57;
-  border: 2px solid #2E8B57;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
   border-radius: 25px;
   font-size: 14px;
   font-weight: 500;
@@ -125,7 +125,7 @@
 }
 
 .suggestion-tags span:hover {
-  background: #2E8B57;
+  background: var(--primary-color);
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
@@ -135,30 +135,30 @@
   .search-hero h1 {
     font-size: 2.5rem;
   }
-  
+
   .search-hero p {
     font-size: 1rem;
   }
-  
+
   .search-input-container {
     flex-direction: column;
     border-radius: 20px;
   }
-  
+
   .search-input {
     border-radius: 20px 20px 0 0;
     padding: 16px 20px;
   }
-  
+
   .search-button {
     border-radius: 0 0 20px 20px;
     width: 100%;
   }
-  
+
   .suggestion-tags {
     gap: 8px;
   }
-  
+
   .suggestion-tags span {
     font-size: 12px;
     padding: 6px 12px;
@@ -292,9 +292,9 @@
     gap: 4px;
     flex-wrap: wrap;
   }
-  
+
   .pagination-controls button {
     padding: 8px 12px;
     font-size: 12px;
   }
-} 
+}

@@ -24,7 +24,7 @@ const AdminPanel = () => {
 
   useEffect(() => {
     // Check if user is logged in and is an organization
-    const storedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const storedUser = JSON.parse(sessionStorage.getItem('user') || '{}');
     const userType = storedUser.userType?.toLowerCase();
 
     if (!storedUser.token || userType !== 'organization') {
@@ -118,7 +118,7 @@ const AdminPanel = () => {
 
   const handleLogout = () => {
     const performLogout = () => {
-      localStorage.removeItem('user');
+      sessionStorage.removeItem('user');
       navigate('/login');
     };
     showLogoutConfirmation(performLogout);

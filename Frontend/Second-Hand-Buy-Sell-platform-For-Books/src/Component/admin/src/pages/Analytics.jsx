@@ -25,7 +25,7 @@ import {
   AreaChart,
   Area
 } from 'recharts';
-import { getDashboardStats, getAllOrders, getAllBooks, getAllUsers, getOrderAnalytics, getPaymentAnalytics, getBusinessAnalytics, downloadAnalyticsPDF, clearOrgPayment } from '../services/api.js';
+import { getDashboardStats, getAllOrders, getAllBooks, getAllUsers, getOrderAnalytics, getPaymentAnalytics, getBusinessAnalytics, downloadAnalyticsPDF, clearOrgPayment, getAllTutorialPurchases, clearTutorialPayment } from '../services/api.js';
 import { useAuthRedirect } from '../hooks/useAuthRedirect';
 
 export default function Analytics() {
@@ -149,14 +149,28 @@ export default function Analytics() {
     queryKey: ['business-analytics'],
     queryFn: getBusinessAnalytics,
     retry: (failureCount, error) => {
-      // Don't retry on authentication errors
       if (error.message.includes('401') || error.message.includes('403')) {
         return false;
       }
       return failureCount < 3;
     },
     onError: (error) => {
-      // Handle authentication errors
+      if (error.message.includes('401') || error.message.includes('403')) {
+        window.location.href = '/admin/login';
+      }
+    }
+  });
+
+  const { data: tutorialPurchases, isLoading: tutorialPurchasesLoading } = useQuery({
+    queryKey: ['analytics-tutorial-purchases'],
+    queryFn: getAllTutorialPurchases,
+    retry: (failureCount, error) => {
+      if (error.message.includes('401') || error.message.includes('403')) {
+        return false;
+      }
+      return failureCount < 3;
+    },
+    onError: (error) => {
       if (error.message.includes('401') || error.message.includes('403')) {
         window.location.href = '/admin/login';
       }
@@ -246,7 +260,7 @@ export default function Analytics() {
   const userStats = calculateUserStats();
 
   const isLoading = statsLoading || ordersLoading || booksLoading || usersLoading ||
-    orderAnalyticsLoading || paymentAnalyticsLoading || businessAnalyticsLoading;
+    orderAnalyticsLoading || paymentAnalyticsLoading || businessAnalyticsLoading || tutorialPurchasesLoading;
 
   // PDF Download Function - Updated to use backend generation
   const downloadPDF = async () => {
@@ -275,6 +289,20 @@ export default function Analytics() {
     }
   };
 
+  const handleClearTutorialPayment = async (purchaseId) => {
+    if (window.confirm('Are you sure you want to mark this tutorial payment as cleared?')) {
+      try {
+        await clearTutorialPayment(purchaseId);
+        alert('Tutorial payment cleared successfully.');
+        // Refresh data
+        window.location.reload();
+      } catch (error) {
+        console.error('Error clearing tutorial payment:', error);
+        alert('Failed to clear tutorial payment: ' + error.message);
+      }
+    }
+  };
+
   // Chart Colors
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
@@ -289,7 +317,7 @@ export default function Analytics() {
   return (
     <div>
       {/* Header */}
-      <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      < div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ fontSize: '32px', fontWeight: 'bold', color: '#1f2937', margin: '0 0 8px 0' }}>
             Analytics Dashboard
@@ -328,10 +356,10 @@ export default function Analytics() {
             </>
           )}
         </button>
-      </div>
+      </div >
 
       {/* Period Selector */}
-      <div style={{ marginBottom: '24px' }}>
+      < div style={{ marginBottom: '24px' }}>
         <div style={{
           background: 'white',
           padding: '16px',
@@ -367,10 +395,10 @@ export default function Analytics() {
             </div>
           </div>
         </div>
-      </div>
+      </div >
 
       {/* Key Metrics */}
-      <div style={{
+      < div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
         gap: '20px',
@@ -427,7 +455,7 @@ export default function Analytics() {
               <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>
                 Rs. {stats?.bookRevenue || stats?.totalRevenue || 0}/-
               </div>
-              <div style={{ fontSize: '14px', color: '#6b7280' }}>Book Revenue</div>
+              <div style={{ fontSize: '14px', color: '#6b7280' }}>Product Revenue</div>
             </div>
           </div>
         </div>
@@ -539,21 +567,21 @@ export default function Analytics() {
               <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>
                 {stats?.totalBooks || 0}
               </div>
-              <div style={{ fontSize: '14px', color: '#6b7280' }}>Total Books</div>
+              <div style={{ fontSize: '14px', color: '#6b7280' }}>Total Products</div>
             </div>
           </div>
         </div>
-      </div>
+      </div >
 
       {/* Charts Section */}
-      <div style={{
+      < div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(600px, 1fr))',
         gap: '24px',
         marginBottom: '32px'
       }}>
         {/* Order Trends Chart */}
-        <div style={{
+        < div style={{
           background: 'white',
           padding: '24px',
           borderRadius: '12px',
@@ -574,10 +602,10 @@ export default function Analytics() {
               <Bar dataKey="revenue" fill="#10b981" name="Revenue (Rs.)" />
             </BarChart>
           </ResponsiveContainer>
-        </div>
+        </div >
 
         {/* Revenue Trend Chart */}
-        <div style={{
+        < div style={{
           background: 'white',
           padding: '24px',
           borderRadius: '12px',
@@ -597,11 +625,11 @@ export default function Analytics() {
               <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={2} name="Revenue (Rs.)" />
             </RechartsLineChart>
           </ResponsiveContainer>
-        </div>
-      </div>
+        </div >
+      </div >
 
       {/* Book Categories Chart */}
-      <div style={{
+      < div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
         gap: '24px',
@@ -615,7 +643,7 @@ export default function Analytics() {
           border: '1px solid #e5e7eb'
         }}>
           <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', margin: '0 0 20px 0' }}>
-            Book Categories Distribution
+            Product Categories Distribution
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={Object.entries(bookStats.categories || {}).map(([name, value]) => ({ name, value }))}>
@@ -636,7 +664,7 @@ export default function Analytics() {
           border: '1px solid #e5e7eb'
         }}>
           <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', margin: '0 0 20px 0' }}>
-            Book Status Distribution
+            Product Status Distribution
           </h3>
           <ResponsiveContainer width="100%" height={300}>
             <RechartsPieChart>
@@ -658,10 +686,10 @@ export default function Analytics() {
             </RechartsPieChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </div >
 
       {/* User Analytics Charts */}
-      <div style={{
+      < div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(500px, 1fr))',
         gap: '24px',
@@ -721,138 +749,144 @@ export default function Analytics() {
             </RechartsPieChart>
           </ResponsiveContainer>
         </div>
-      </div>
+      </div >
 
       {/* Backend Analytics Data */}
-      <div style={{
+      < div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
         gap: '24px',
         marginTop: '32px'
       }}>
         {/* Order Analytics from Backend */}
-        {orderAnalytics && (
-          <div style={{
-            background: 'white',
-            padding: '24px',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #e5e7eb'
-          }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', margin: '0 0 20px 0' }}>
-              Order Analytics (Backend)
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Total Orders</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{orderAnalytics.totalOrders || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Orders This Month</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{orderAnalytics.ordersThisMonth || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Pending Orders</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{orderAnalytics.pendingOrders || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Delivered Orders</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{orderAnalytics.deliveredOrders || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#dcfce7', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Total Revenue</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {orderAnalytics.totalRevenue || 0}/-</span>
+        {
+          orderAnalytics && (
+            <div style={{
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              border: '1px solid #e5e7eb'
+            }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', margin: '0 0 20px 0' }}>
+                Order Analytics (Backend)
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Total Orders</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{orderAnalytics.totalOrders || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Orders This Month</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{orderAnalytics.ordersThisMonth || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Pending Orders</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{orderAnalytics.pendingOrders || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Delivered Orders</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{orderAnalytics.deliveredOrders || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#dcfce7', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Total Revenue</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {orderAnalytics.totalRevenue || 0}/-</span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )
+        }
 
         {/* Payment Analytics from Backend */}
-        {paymentAnalytics && (
-          <div style={{
-            background: 'white',
-            padding: '24px',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #e5e7eb'
-          }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', margin: '0 0 20px 0' }}>
-              Payment Analytics (Backend)
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Total Payments</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{paymentAnalytics.totalPayments || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#dcfce7', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Completed Payments</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{paymentAnalytics.completedPayments || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Pending Payments</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{paymentAnalytics.pendingPayments || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fee2e2', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Failed Payments</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{paymentAnalytics.failedPayments || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Tutorial Revenue</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {paymentAnalytics.tutorialRevenue || 0}/-</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#dcfce7', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Total Revenue (Books + Tutorials)</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {paymentAnalytics.totalRevenue || 0}/-</span>
+        {
+          paymentAnalytics && (
+            <div style={{
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              border: '1px solid #e5e7eb'
+            }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', margin: '0 0 20px 0' }}>
+                Payment Analytics (Backend)
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Total Payments</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{paymentAnalytics.totalPayments || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#dcfce7', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Completed Payments</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{paymentAnalytics.completedPayments || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Pending Payments</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{paymentAnalytics.pendingPayments || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fee2e2', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Failed Payments</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{paymentAnalytics.failedPayments || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Tutorial Revenue</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {paymentAnalytics.tutorialRevenue || 0}/-</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#dcfce7', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Total Revenue (Books + Tutorials)</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {paymentAnalytics.totalRevenue || 0}/-</span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )
+        }
 
         {/* Business Analytics from Backend */}
-        {businessAnalytics && (
-          <div style={{
-            background: 'white',
-            padding: '24px',
-            borderRadius: '12px',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-            border: '1px solid #e5e7eb'
-          }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', margin: '0 0 20px 0' }}>
-              Business Analytics (Backend)
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Total Users</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.totalUsers || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#dcfce7', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Active Users</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.activeUsers || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>New Users This Month</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.newUsersThisMonth || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Total Books</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.totalBooks || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#dcfce7', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Available Books</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.availableBooks || 0}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Tutorial Revenue</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {businessAnalytics.tutorialRevenue || 0}/-</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#ede9fe', borderRadius: '6px' }}>
-                <span style={{ fontSize: '14px', color: '#374151' }}>Total Business Revenue</span>
-                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {businessAnalytics.totalRevenue || 0}/-</span>
+        {
+          businessAnalytics && (
+            <div style={{
+              background: 'white',
+              padding: '24px',
+              borderRadius: '12px',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              border: '1px solid #e5e7eb'
+            }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '600', color: '#1f2937', margin: '0 0 20px 0' }}>
+                Business Analytics (Backend)
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Total Users</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.totalUsers || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#dcfce7', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Active Users</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.activeUsers || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>New Users This Month</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.newUsersThisMonth || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#f0f9ff', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Total Products</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.totalProducts || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#dcfce7', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Available Products</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>{businessAnalytics.availableProducts || 0}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#fef3c7', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Tutorial Revenue</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {businessAnalytics.tutorialRevenue || 0}/-</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', background: '#ede9fe', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '14px', color: '#374151' }}>Total Business Revenue</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1f2937' }}>Rs. {businessAnalytics.totalRevenue || 0}/-</span>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )
+        }
+      </div >
 
       {/* Organization Settlements Table */}
       <div style={{ marginTop: '32px' }}>
@@ -869,22 +903,22 @@ export default function Analytics() {
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead style={{ background: '#f8fafc', borderBottom: '1px solid #e5e7eb' }}>
               <tr>
-                <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Order #</th>
+                <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Transaction ID / Order #</th>
                 <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Date</th>
-                <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Amount</th>
+                <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Settlement Amount</th>
                 <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Payment Status</th>
                 <th style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#4b5563' }}>Action</th>
               </tr>
             </thead>
             <tbody>
               {orders?.filter(o => o.status === 'DELIVERED').map(order => (
-                <tr key={order.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <tr key={`order-${order.id}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
                   <td style={{ padding: '12px 16px', fontSize: '14px', color: '#1f2937' }}>{order.orderNumber}</td>
                   <td style={{ padding: '12px 16px', fontSize: '14px', color: '#4b5563' }}>
                     {new Date(order.createdAt).toLocaleDateString()}
                   </td>
                   <td style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#10b981' }}>
-                    Rs. {order.totalAmount}/-
+                    Rs. {(Math.max(0, order.totalAmount - 150) * 0.95).toFixed(2)}/-
                   </td>
                   <td style={{ padding: '12px 16px' }}>
                     <span style={{
@@ -919,10 +953,54 @@ export default function Analytics() {
                   </td>
                 </tr>
               ))}
-              {(!orders || orders.filter(o => o.status === 'DELIVERED').length === 0) && (
+              {tutorialPurchases?.map(purchase => (
+                <tr key={`tutorial-${purchase.id}`} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '12px 16px', fontSize: '14px', color: '#1f2937' }}>
+                    Tutorial: {purchase.tutorial?.title?.substring(0, 20)}...
+                  </td>
+                  <td style={{ padding: '12px 16px', fontSize: '14px', color: '#4b5563' }}>
+                    {new Date(purchase.purchasedAt).toLocaleDateString()}
+                  </td>
+                  <td style={{ padding: '12px 16px', fontSize: '14px', fontWeight: '600', color: '#10b981' }}>
+                    Rs. {(purchase.tutorial?.price * 0.95).toFixed(2)}/-
+                  </td>
+                  <td style={{ padding: '12px 16px' }}>
+                    <span style={{
+                      padding: '4px 10px',
+                      borderRadius: '9999px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      background: purchase.orgPaymentStatus === 'PAID' ? '#dcfce7' : '#fee2e2',
+                      color: purchase.orgPaymentStatus === 'PAID' ? '#15803d' : '#991b1b'
+                    }}>
+                      {purchase.orgPaymentStatus || 'UNPAID'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '12px 16px' }}>
+                    {purchase.orgPaymentStatus !== 'PAID' && (
+                      <button
+                        onClick={() => handleClearTutorialPayment(purchase.id)}
+                        style={{
+                          padding: '6px 12px',
+                          background: '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Mark as Paid
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {(!orders || orders.filter(o => o.status === 'DELIVERED').length === 0) && (!tutorialPurchases || tutorialPurchases.length === 0) && (
                 <tr>
                   <td colSpan="5" style={{ padding: '24px', textAlign: 'center', color: '#6b7280' }}>
-                    No settled orders found to display.
+                    No settled orders or tutorial sales found to display.
                   </td>
                 </tr>
               )}

@@ -39,6 +39,9 @@ import Product from './Component/aadmin/Product'
 import Analytics from './Component/aadmin/Analytics'
 import TutorialAdd from './Component/aadmin/TutorialAdd';
 import Contactus from './Component/aadmin/Contactus';
+import OrganizationNotifications from './Component/aadmin/Notifications';
+import PaymentSettlement from './Component/aadmin/PaymentSettlement';
+
 
 // Admin Components
 import AdminLogin from './Component/admin/src/pages/Login'
@@ -49,7 +52,9 @@ import AdminBooks from './Component/admin/src/pages/Books'
 import AdminOrders from './Component/admin/src/pages/Orders'
 import AdminAnalytics from './Component/admin/src/pages/Analytics'
 import AdminNotifications from './Component/admin/src/pages/Notifications'
+import Settlements from './Component/admin/src/pages/Settlements'
 import AdminProtectedRoute from './Component/admin/src/components/AdminProtectedRoute'
+
 
 
 // Create a QueryClient instance
@@ -111,6 +116,9 @@ function App() {
             <Route path="/organization-analytics" element={<Analytics />} />
             <Route path="/organization-tutorials-add" element={<TutorialAdd />} />
             <Route path="/organization-contact" element={<Contactus />} />
+            <Route path="/organization-notifications" element={<OrganizationNotifications />} />
+            <Route path="/organization-settlement" element={<PaymentSettlement />} />
+
 
 
 
@@ -136,13 +144,25 @@ function App() {
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="notifications" element={<AdminNotifications />} />
 
-              <Route path="payments" element={<div style={{ padding: '20px' }}>Payments Management - Coming Soon</div>} />
+              <Route path="payments" element={<Settlements />} />
+
               <Route path="reports" element={<div style={{ padding: '20px' }}>Reports - Coming Soon</div>} />
               <Route path="settings" element={<div style={{ padding: '20px' }}>Settings - Coming Soon</div>} />
             </Route>
           </Routes>
         </Router>
-        <ToastContainer position="top-right" autoClose={3000} />
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
       </CartProvider>
     </QueryClientProvider>
   );
